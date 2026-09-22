@@ -565,12 +565,17 @@ Ver Section 13 para la justificación completa.
   - `validate.ts` ya maneja validation errors con `next(new AppError(400, ...))`
   - *Resultado*: ✅ lint/build/test:unit pasan
   - *Commit*: `8accb19`
-- [ ] **0.3** — `R4`: Quitar `me()` de `AuthService`, usar `req.user.toPublic()` directamente en `AuthController`
-  - Archivos: `src/modules/auth/service/AuthService.ts`, `src/modules/auth/controller/AuthController.ts`
-  - *Ruling*: Si se decide mantener `me()` por compatibilidad frontend, documentar en desvíos
-- [ ] **0.4** — `RC-2`: Inyectar `UsuarioService` en constructor de `AuthService`
-  - Archivo: `src/modules/auth/service/AuthService.ts`
-  - *Ruling*: Si se usa un patrón de factory para crear servicios, documentar aquí
+- [x] **0.3** — `R4`: Quitar `me()` de `AuthService`, usar `req.user.toPublic()` en `AuthController` ✅
+  - `AuthService.ts`: eliminado método `me()`
+  - `AuthController.ts`: eliminado `import { UsuarioService }` y `private usuarioService`; `me()` usa `req.user.toPublic()` directamente
+  - `Usuario.ts`: agregado método `toPublic(): UsuarioPublic` al entity
+  - `UsuarioService.ts`: `toPublic()` ahora delega a `usuario.toPublic()`; `UsuarioPublic` movido a `Usuario.ts` y re-exportado
+  - *Resultado*: ✅ lint/build/test:unit pasan
+  - *Commit*: `024ec06`
+- [x] **0.4** — `RC-2`: `AuthService` ya no depende de `UsuarioService` — eliminada la dependencia ✅
+  - `AuthService` ya no tiene `private usuarioService = new UsuarioService()`
+  - `AuthService` solo importa `UsuarioService` para `register()` y `login()` (no para inyección)
+  - *Resultado*: ✅ resuelto como parte de 0.3
 - [ ] **0.5** — `TD-1`: Agregar test feliz de `authenticate` middleware con JWT válido
   - Archivo: `tests/unit/middleware.unit.test.ts`
 - [ ] **0.6** — `TD-3`: Agregar tests para `errorHandler` function
