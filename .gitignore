@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Environment (nunca commitear secretos)
+.env
+.env.*
+!.env.example
+
+# Tests / coverage
+coverage/
+
+# IDE / SO
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# MikroORM temporales
+.mikro-orm/

@@ -1,0 +1,24 @@
+# 001 · Setup — Tareas
+
+- [x] Crear `package.json` con pnpm y todos los scripts definidos en la constitución
+- [x] Configurar `tsconfig.json` estricto con soporte de decorators + `reflect-metadata`
+- [x] Escribir `docker-compose.yml` (MySQL 8, volumen, healthcheck)
+- [x] Crear `.env.example` y `.env` local; verificar `.gitignore`
+- [x] Implementar `src/config/env.ts` tipado con validación de variables
+- [x] Implementar `src/config/db.ts` (MikroORM init + middleware RequestContext)
+- [x] Implementar `AppError`, `errorHandler` y `notFound`
+- [x] Armar `src/app.ts` y `src/server.ts`
+- [x] Crear módulo `health` (service con `select 1`, controller, routes `GET /api/health`)
+- [x] Configurar ESLint + Prettier y hacer pasar `pnpm lint`
+- [x] Configurar Vitest + supertest
+- [x] Escribir test de integración `health.test.ts` (200 con DB up; 503 con DB caída)
+- [x] Escribir test unit smoke del env loader
+- [x] Correr `pnpm migrate:dev` contra MySQL del compose
+- [x] Correr `pnpm build` y `pnpm start` (smoke manual)
+- [x] Escribir `README.md` raíz con instrucciones install/run/test
+- [x] Instalar y configurar `helmet` en app.ts
+- [x] Instalar y configurar `cors` con CORS_ORIGIN desde env
+- [x] Registrar `morgan('dev')` solo cuando NODE_ENV !== 'test'
+- [x] Agregar CORS_ORIGIN, BCRYPT_ROUNDS, ADMIN_EMAIL, ADMIN_PASSWORD a .env.example
+- [x] Validar contra los criterios de aceptación de `spec.md`
+- [x] Mover la feature a "Hecho" en `../../constitution/roadmap.md`
