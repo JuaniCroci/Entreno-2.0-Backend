@@ -581,8 +581,10 @@ Ver Section 13 para la justificación completa.
   - Agregados 2 tests: token válido → `next()` llamado sin args; usuario inexistente → 401
   - *Resultado*: ✅ 15/15 tests pasan (13 → 15)
   - *Commit*: `554005e`
-- [ ] **0.6** — `TD-3`: Agregar tests para `errorHandler` function
-  - Archivo: `tests/unit/errorHandler.unit.test.ts` (nuevo)
+- [x] **0.6** — `TD-3`: Agregar tests para `errorHandler` function ✅
+  - Archivo: `tests/unit/errorHandler.unit.test.ts` (nuevo) — 6 tests: AppError, AppError con details, 404, Error en prod, Error en dev, no-Error
+  - *Resultado*: ✅ 21/21 tests pasan (15 → 21)
+  - *Commit*: `61fd26f`
 - [ ] **0.7** — `TD-4`: Agregar tests para `validateDto` middleware
   - Archivo: `tests/unit/validate.unit.test.ts` (nuevo)
 - [ ] **0.8** — `S1`: Agregar `express-rate-limit` a `auth.routes.ts` en `POST /register` y `POST /login`
