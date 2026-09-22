@@ -560,9 +560,11 @@ Ver Section 13 para la justificación completa.
   - *Nota*: Pre-existía; el `.gitignore` no existía y el `eslint.config.js` no ignoraba estos directorios
   - *Resultado*: ✅ lint pasa limpio
   - *Commit*: `04c656e`
-- [ ] **0.2** — `R2`: Eliminar rama muerta `ValidationError` en `errorHandler.ts:24-30`
-  - Archivo: `src/common/errors/errorHandler.ts`
-  - *Nota*: `validate.ts` ya maneja validation errors con `next(new AppError(400, ...))`
+- [x] **0.2** — `R2`: Eliminar rama muerta `ValidationError` en `errorHandler.ts` ✅
+  - Archivo: `src/common/errors/errorHandler.ts` — eliminado `import { ValidationError }` y el bloque `if (err instanceof ValidationError)` (9 líneas removidas)
+  - `validate.ts` ya maneja validation errors con `next(new AppError(400, ...))`
+  - *Resultado*: ✅ lint/build/test:unit pasan
+  - *Commit*: `8accb19`
 - [ ] **0.3** — `R4`: Quitar `me()` de `AuthService`, usar `req.user.toPublic()` directamente en `AuthController`
   - Archivos: `src/modules/auth/service/AuthService.ts`, `src/modules/auth/controller/AuthController.ts`
   - *Ruling*: Si se decide mantener `me()` por compatibilidad frontend, documentar en desvíos
