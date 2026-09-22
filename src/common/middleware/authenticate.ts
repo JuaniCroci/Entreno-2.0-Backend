@@ -30,7 +30,7 @@ export async function authenticate(
     if (!usuario) {
       throw new AppError(401, 'Token de autenticación faltante o inválido');
     }
-    req.user = usuario;
+    (req as unknown as Record<string, unknown>).user = usuario.toPublic();
     next();
   } catch (err) {
     if (err instanceof AppError) {

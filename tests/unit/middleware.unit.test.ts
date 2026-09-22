@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import type { Request, Response } from 'express';
 import { authenticate } from '../../src/common/middleware/authenticate.js';
 import { authorize } from '../../src/common/middleware/authorize.js';
+import { notFound } from '../../src/common/errors/notFound.js';
 import { AppError } from '../../src/common/errors/AppError.js';
 import { Rol } from '../../src/modules/usuarios/entity/Usuario.js';
 import { env } from '../../src/config/env.js';
@@ -89,6 +90,14 @@ describe('middleware authorize', () => {
     const mw = authorize('ADMIN');
     mw(fakeReq({}, { id: 1, rol: Rol.ADMIN }), fakeRes, next);
     expect(next).toHaveBeenCalledWith();
+  });
+});
+
+describe('middleware notFound', () => {
+  it('llama a next con AppError 404', () => {
+    const next = vi.fn();
+    notFound({ method: 'GET', originalUrl: '/api/unknown' } as Request, {} as Response, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
   });
 });
 

@@ -96,17 +96,38 @@ describe('Auth flow (integración)', () => {
     expect(res.status).toBe(401);
   });
 
-  it('ruta authorize(ADMIN) con token de CLIENTE devuelve 403', async () => {
-    const email = `cli-${Date.now()}@test.local`;
-    await request(app)
-      .post('/api/auth/register')
-      .send({ nombre: 'Cliente', email, password: 'secret123' });
-    const login = await request(app)
-      .post('/api/auth/login')
-      .send({ email, password: 'secret123' });
-    const res = await request(adminApp)
-      .get('/solo-admin')
-      .set('Authorization', `Bearer ${login.body.token}`);
-    expect(res.status).toBe(403);
-  });
-});
+it('ruta authorize(ADMIN) con token de CLIENTE devuelve 403', async () => {
+     const email = `cli-${Date.now()}@test.local`;
+     await request(app)
+       .post('/api/auth/register')
+       .send({ nombre: 'Cliente', email, password: 'secret123' });
+     const login = await request(app)
+       .post('/api/auth/login')
+       .send({ email, password: 'secret123' });
+     const res = await request(adminApp)
+       .get('/solo-admin')
+       .set('Authorization', `Bearer ${login.body.token}`);
+     expect(res.status).toBe(403);
+   });
+
+   it('GET /me con token válido devuelve 200 sin passwordHash', async () => {
+     const email = `me-${Date.now()}@test.local`;
+     await request(app).post('/api/auth/register').send({
+       nombre: 'Me Test', email, password: 'secret123',
+     });
+     const login = await request(app)
+       .post('/api/auth/login').send({ email, password: 'secret123' });
+     const meRes = await request(app)
+       .get('/api/auth/me')
+       .set('Authorization', `Bearer ${login.body.token}`);
+     expect(meRes.status).toBe(200);
+     expect(meRes.body).not.toHaveProperty('passwordHash');
+     expect(meRes.body.email).toBe(email);
+   });
+
+   it('ruta inexistente devuelve 404 via notFound handler', async () => {
+     const res = await request(app).get('/api/nonexistent');
+     expect(res.status).toBe(404);
+     expect(res.body).toHaveProperty('statusCode', 404);
+   });
+ });
