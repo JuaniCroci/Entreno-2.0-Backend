@@ -542,17 +542,24 @@ Ver Section 13 para la justificación completa.
 >
 > Si algo sale mal, usar `Ruling:` para documentar la desviación.
 
-### [ ] Pre-requisitos
+### [x] Pre-requisitos
 
-- [ ] **0.0** — `git init` + primer commit con todos los archivos actuales
-  - *Ejecutar*: `git init`, `git add .`, `git commit -m "feat(001-002): setup inicial + análisis por skills"`
-  - *Nota*: Sin este paso, TODO lo que viene pierde evidencia de participación para la cátedra
+- [x] **0.0** — `git init` + primer commit con todos los archivos actuales ✅
+  - *Ejecutado*: `git init`, `git add -A`, `git commit -m "feat(001-002): setup inicial + analisis por skills"`
+  - *Commit*: `1ef3bcb` — 171 archivos, 21733 insertions
+  - *Resultado*: Evidencia de participación para cátedra asegurada
 
-### [ ] Nivel 0 — Infraestructura base
+### [x] Nivel 0 — Infraestructura base
 
-- [ ] **0.1** — `R1`: Cambiar `process.env.NODE_ENV` por `env.nodeEnv` en `errorHandler.ts:34`
-  - Archivo: `src/common/errors/errorHandler.ts`
-  - *Ruling*: Si `env.nodeEnv` no está disponible, usar el import de `env.ts`
+- [x] **0.1** — `R1`: Cambiar `process.env.NODE_ENV` por `env.nodeEnv` en `errorHandler.ts:35` ✅
+  - Archivo: `src/common/errors/errorHandler.ts` — agregado `import { env } from '../../config/env.js'` y cambiado `process.env.NODE_ENV` por `env.nodeEnv`
+  - *Resultado*: ✅ lint/build/test:unit pasan
+  - *Commit*: `04c656e`
+- [x] **0.1b** — `ESLint`: Agregar `.agents/**` y `.claude/**` a `eslint.config.js` ignores ✅
+  - Archivo: `eslint.config.js` — los skill scripts generaban 109 errores de lint que impedían `pnpm lint`
+  - *Nota*: Pre-existía; el `.gitignore` no existía y el `eslint.config.js` no ignoraba estos directorios
+  - *Resultado*: ✅ lint pasa limpio
+  - *Commit*: `04c656e`
 - [ ] **0.2** — `R2`: Eliminar rama muerta `ValidationError` en `errorHandler.ts:24-30`
   - Archivo: `src/common/errors/errorHandler.ts`
   - *Nota*: `validate.ts` ya maneja validation errors con `next(new AppError(400, ...))`
