@@ -592,8 +592,6 @@ Ver Section 13 para la justificación completa.
 
 ### [ ] Nivel 1 — Pre-003
 
-### [ ] Nivel 1 — Pre-003
-
 - [ ] **1.1** — `R3`: Reemplazar 401 manual en `AuthController.me()` con `AppError` o invariante
   - Archivo: `src/modules/auth/controller/AuthController.ts`
 - [ ] **1.2** — `R5+S3`: Cambiar `adminPassword` default a `required()` en production + actualizar `.env.example`
