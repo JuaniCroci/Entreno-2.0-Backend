@@ -590,23 +590,33 @@ Ver Section 13 para la justificación completa.
   - `rateLimit({ windowMs: 15min, limit: 5 })` aplicado a ambas rutas POST
   - *Commit*: `2443098`
 
-### [ ] Nivel 1 — Pre-003
+### [x] Nivel 1 — Pre-003
 
-- [ ] **1.1** — `R3`: Reemplazar 401 manual en `AuthController.me()` con `AppError` o invariante
-  - Archivo: `src/modules/auth/controller/AuthController.ts`
-- [ ] **1.2** — `R5+S3`: Cambiar `adminPassword` default a `required()` en production + actualizar `.env.example`
-  - Archivo: `src/config/env.ts`, `.env.example`
-- [ ] **1.3** — `S4`: Agregar validación de `JWT_SECRET` longitud mínima 32
-  - Archivo: `src/config/env.ts`
-- [ ] **1.4** — `RC-10`: Documentar en `spec/features/006-crud-cliente/spec.md` que `rol` en `CreateUsuarioDto` se ignora siempre
-  - Archivo: `spec/features/006-crud-cliente/spec.md`
-- [ ] **1.5** — `RC-1`: Quitar `import { UsuarioService }` de `AuthController` (ya no se usa)
-  - Archivo: `src/modules/auth/controller/AuthController.ts`
-- [ ] **1.6** — `TD-2`: Eliminar test de `AuthService.me()` o actualizarlo para el nuevo comportamiento
-  - Archivo: `tests/unit/auth-service.unit.test.ts`
-- [ ] **1.7** — `O4`: Verificar cuál `LoginDto` se usa (`auth/dto` vs `usuarios/dto`) y borrar el sin uso
-- [ ] **1.8** — `S2`: Subir `mysql2` a `>=3.23.1` con `pnpm update mysql2` + correr `pnpm test`
-  - Archivo: `package.json`
+- [x] **1.1** — `R3`: Reemplazar 401 manual en `AuthController.me()` con invariante ✅
+  - `AuthController.me()` elimina `if (!req.user)` — `authenticate` garantiza `req.user` existe
+  - *Commit*: `de38e90`
+- [x] **1.2** — `R5+S3`: Cambiar `adminPassword` default a `required()` en producción ✅
+  - `env.ts`: si `nodeEnv === 'production'`, `adminPassword` usa `required('ADMIN_PASSWORD')`; en dev/test usa fallback
+  - `.env.example`: `ADMIN_PASSWORD= # requerido en producción`
+  - *Commit*: `de38e90`
+- [x] **1.3** — `S4`: Validar `JWT_SECRET` longitud mínima 32 ✅
+  - `env.ts`: nueva función `jwtSecret()` valida `required('JWT_SECRET')` + `.length >= 32`
+  - `vitest.config.ts`: `JWT_SECRET` actualizado a `'test_secret_no_produccion_1234567890'` (32 chars)
+  - *Commit*: `de38e90`
+- [x] **1.4** — `RC-10`: Documentar en `spec/features/006-crud-cliente/spec.md` que `rol` se ignora siempre ✅
+  - Línea 27: nota agregada sobre `CreateUsuarioDto.rol` ignorado por `AuthService.register()`
+  - *Commit*: `de38e90`
+- [x] **1.5** — `RC-1`: Ya resuelto — `AuthController` no importa `UsuarioService` ✅
+  - Se resolvió como parte del item 0.3/0.4
+- [x] **1.6** — `TD-2`: Ya resuelto — no existe test de `AuthService.me()` ✅
+  - El test file `auth-service.unit.test.ts` solo tiene tests para `register` y `login`
+- [x] **1.7** — `O4`: Eliminar `auth/dto/LoginDto.ts` (re-export muerto) ✅
+  - Borrado `src/modules/auth/dto/LoginDto.ts` y `index.ts` actualizado
+  - `auth.routes.ts`, `AuthService.ts`, `AuthController.ts` importan directamente de `../../usuarios/dto/LoginDto.js`
+  - *Commit*: `de38e90`
+- [x] **1.8** — `S2`: Subir `mysql2` a `>=3.23.1` ✅
+  - `package.json`: `"mysql2": ">=3.23.1"`
+  - *Commit*: `de38e90`
 
 ### [ ] Nivel 2 — Pre-006
 

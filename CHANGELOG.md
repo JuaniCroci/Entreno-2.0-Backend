@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.1.1 — Mejoras Pre-003: Seguridad y Clean Code (2026-09-22)
+
+### Seguridad
+
+- `src/config/env.ts`: `adminPassword` ahora requiere `ADMIN_PASSWORD` en producción (sin default débil)
+- `src/config/env.ts`: `JWT_SECRET` valida longitud mínima 32 caracteres
+- `src/modules/auth/auth.routes.ts`: `express-rate-limit` (`windowMs: 15min, limit: 5`) aplicado a `POST /register` y `POST /login`
+- `.env.example`: `ADMIN_PASSWORD` actualizado a nota de requerimiento en producción
+
+### Clean Code
+
+- `src/modules/auth/controller/AuthController.ts`: eliminado `if (!req.user)` en `me()` — `authenticate` middleware garantiza el invariante
+- `src/modules/auth/dto/LoginDto.ts`: eliminado re-export muerto (la implementación real está en `usuarios/dto/LoginDto.ts`)
+- `src/modules/auth/dto/index.ts`: actualizado para eliminar export de `LoginDto` eliminado
+- `src/modules/auth/service/AuthService.ts`: import `LoginDto` actualizado a `usuarios/dto/LoginDto.js`
+- `src/modules/auth/controller/AuthController.ts`: import `LoginDto` actualizado a `usuarios/dto/LoginDto.js`
+
+### Testing
+
+- `vitest.config.ts`: `JWT_SECRET` actualizado a `'test_secret_no_produccion_1234567890'` (32 chars para pasar validación)
+
+### Documentación
+
+- `spec/features/006-crud-cliente/spec.md`: documentado que `rol` en `CreateUsuarioDto` se ignora siempre en `AuthService.register()`
+
+### Estadísticas
+
+- Tests unitarios: 25 (sin cambios)
+- Commits: 12
+- Lint: pasa limpio
+- Build: pasa
+
+---
+
 ## v0.1.0 — Mejoras de Base y Testing (2026-09-22)
 
 ### Agregado
@@ -37,7 +71,7 @@ Las 11 skills aplicadas (code-review, systematic-debugging, brainstorming, writi
 | Nivel | Categoría | Rationale | Estado |
 |-------|-----------|-----------|--------|
 | Nivel 0 | Base + Pre-003 + Testing | Fixear la base antes de que features nuevas la multipliquen | ✅ 10/10 items |
-| Nivel 1 | Pre-003 | Seguridad y clean code de la feature existente (Auth) | 🔜 Pendiente |
+| Nivel 1 | Pre-003 | Seguridad y clean code de la feature existente (Auth) | ✅ 8/8 items |
 | Nivel 2 | Pre-006 | Testing y estructura para features CRUD nuevas | 🔜 Pendiente |
 | Nivel 3 | Pre-007+ | Tests de integración y refinamiento | 🔜 Pendiente |
 | Nivel 4 | Post-implementación | CI, refresh token, logout (opcional) | 🔜 Pendiente |
