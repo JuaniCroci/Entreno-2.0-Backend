@@ -1,5 +1,43 @@
 # Changelog
 
+## v0.1.5 — Post-implementación: CI, Barrel, Security (2026-09-22)
+
+### CI/CD
+
+- `.github/workflows/ci.yml`: pipeline con lint + build + test:unit + test:integration
+
+### Estructura (EP-5)
+
+- `src/modules/usuarios/index.ts`: barrel exports para el módulo `usuarios`
+- `src/modules/usuarios/entity/index.ts`: barrel para entity
+- `src/modules/usuarios/service/index.ts`: barrel para service
+- `src/modules/auth/index.ts`: barrel para el módulo `auth`
+
+### Seguridad (S8, S9, S10)
+
+- `AuthService.ts`: `jwt.sign()` con `issuer` y `audience`
+- `env.ts`: `passwordMinLength` default a 8; `BCRYPT_ROUNDS` default a 12
+- `RegisterDto.ts`: `@MinLength(env.passwordMinLength)`
+
+### Logout (BR-4)
+
+- `AuthService.logout()`: void — JWT expira naturalmente
+- `AuthController.logout`: `POST /api/auth/logout` → `res.status(204)`
+- `auth.routes.ts`: route con `authenticate` y `authLimiter`
+
+### Refactor (O1)
+
+- `app.ts`: `export default createApp` sin side-effect en module scope
+- `server.ts`: `const app = createApp()` explícito
+
+### Items pendientes
+
+- 4.7 BR-8: Refresh token (requiere almacenamiento)
+- 4.8 BR-7: Patrón de imports ya resuelto con barrel exports
+- 4.10 TD-10: Adoptar TDD real para features nuevas
+
+---
+
 ## v0.1.4 — Mejoras Pre-007: Seguridad y Tests (2026-09-22)
 
 ### Seguridad

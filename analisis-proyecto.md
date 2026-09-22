@@ -682,7 +682,33 @@ Ver Section 13 para la justificación completa.
 - [ ] **4.6** — `BR-4`: Implementar `POST /api/auth/logout` (solo si la cátedra lo exige)
 - [ ] **4.7** — `BR-8`: Implementar refresh token (solo si la cátedra lo exige)
 - [ ] **4.8** — `BR-7`: Resolver patrón de imports en `app.ts`
-- [ ] **4.9** — `O1`: Extra side-effect de `createApp()` (cuando se refactorice server.ts)
+- [x] **4.9** — `O1`: Extra side-effect de `createApp()` ✅
+   - `app.ts`: `export default createApp` sin side-effect. `server.ts` llama `const app = createApp()`
+   - *Commit*: `9536fc9`
+- [x] **4.1** — `EP-3`: CI con GitHub Actions ✅
+   - `.github/workflows/ci.yml`: pipeline con lint + build + test:unit + test:integration
+   - *Commit*: `9536fc9`
+- [x] **4.2** — `EP-5`: Crear `index.ts` barrel exports ✅
+   - `src/modules/usuarios/index.ts`, `src/modules/usuarios/entity/index.ts`, `src/modules/usuarios/service/index.ts`, `src/modules/auth/index.ts`
+   - *Commit*: `9536fc9`
+- [x] **4.3** — `S8`: Agregar `issuer`/`audience` a `jwt.sign()` ✅
+   - `AuthService.login()`: `jwt.sign(..., { expiresIn: '7d', issuer: 'entreno-api', audience: 'entreno-client' })`
+   - *Commit*: `9536fc9`
+- [x] **4.4** — `S9`: Subir `passwordMinLength` a 8 ✅
+   - `env.ts`: `passwordMinLength: int('PASSWORD_MIN_LENGTH', 8)`
+   - `RegisterDto.ts`: `@MinLength(env.passwordMinLength)`
+   - `env.unit.test.ts`: 2 tests nuevos para `passwordMinLength`
+   - *Commit*: `9536fc9`
+- [x] **4.5** — `S10`: Subir `BCRYPT_ROUNDS` default a 12 ✅
+   - `env.ts`: `int('BCRYPT_ROUNDS', 12)`
+   - *Commit*: `9536fc9`
+- [x] **4.6** — `BR-4`: Implementar `POST /api/auth/logout` ✅
+   - `AuthService.logout()` → void (JWT expira naturalmente)
+   - `AuthController.logout` → `res.status(204).send()`
+   - `auth.routes.ts`: `POST /logout` con `authenticate`
+   - *Commit*: `9536fc9`
+- [ ] **4.7** — `BR-8`: Implementar refresh token (solo si la cátedra lo exige)
+- [ ] **4.8** — `BR-7`: Resolver patrón de imports en `app.ts` (barrel exports ya resueltos)
 - [ ] **4.10** — `TD-10`: Adoptar TDD real para features nuevas
 
 ---
