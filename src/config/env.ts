@@ -23,6 +23,14 @@ function required(name: string): string {
   return value;
 }
 
+function jwtSecret(): string {
+  const value = required('JWT_SECRET');
+  if (value.length < 32) {
+    throw new Error('JWT_SECRET debe tener al menos 32 caracteres');
+  }
+  return value;
+}
+
 function int(name: string, fallback: number): number {
   const raw = process.env[name];
   if (raw === undefined || raw === '') return fallback;
@@ -47,11 +55,14 @@ function loadEnv(): Env {
     dbUser: required('DB_USER'),
     dbPassword: required('DB_PASSWORD'),
     dbName: required('DB_NAME'),
-    jwtSecret: required('JWT_SECRET'),
+    jwtSecret: jwtSecret(),
     bcryptRounds: int('BCRYPT_ROUNDS', 10),
     corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
     adminEmail: process.env.ADMIN_EMAIL ?? 'admin@entreno.com',
-    adminPassword: process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion',
+    adminPassword:
+      rawNodeEnv === 'production'
+        ? required('ADMIN_PASSWORD')
+        : process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion',
   };
 }
 

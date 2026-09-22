@@ -4,7 +4,7 @@ import { AppError } from '../../../common/errors/AppError.js';
 import { Rol } from '../../usuarios/entity/Usuario.js';
 import { UsuarioService, type UsuarioPublic } from '../../usuarios/service/UsuarioService.js';
 import type { RegisterDto } from '../dto/RegisterDto.js';
-import type { LoginDto } from '../dto/LoginDto.js';
+import type { LoginDto } from '../../usuarios/dto/LoginDto.js';
 
 export interface AuthResponse {
   token: string;

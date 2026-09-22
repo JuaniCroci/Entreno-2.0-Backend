@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { AuthService } from '../service/AuthService.js';
 import type { RegisterDto } from '../dto/RegisterDto.js';
-import type { LoginDto } from '../dto/LoginDto.js';
+import type { LoginDto } from '../../usuarios/dto/LoginDto.js';
 
 export class AuthController {
   private service = new AuthService();
@@ -17,10 +17,6 @@ export class AuthController {
   };
 
   me = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) {
-      res.status(401).json({ statusCode: 401, message: 'No autenticado' });
-      return;
-    }
-    res.json(req.user.toPublic());
+    res.json(req.user!.toPublic());
   };
 }

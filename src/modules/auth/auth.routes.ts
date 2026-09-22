@@ -4,7 +4,7 @@ import { authenticate } from '../../common/middleware/authenticate.js';
 import { validateDto } from '../../common/middleware/validate.js';
 import { AuthController } from './controller/AuthController.js';
 import { RegisterDto } from './dto/RegisterDto.js';
-import { LoginDto } from './dto/LoginDto.js';
+import { LoginDto } from '../../modules/usuarios/dto/LoginDto.js';
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
