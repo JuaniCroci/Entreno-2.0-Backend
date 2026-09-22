@@ -11,7 +11,8 @@ Módulo `productos` con relaciones MikroORM N:1 a `TipoProducto`, `Marca` y `Pro
 3. DTOs:
    - `CreateProductoDto` — nombre, descripcion?, precioUnitario, stockInicial, idTipoProducto, idMarca, idProveedor?
    - `UpdateProductoDto` — nombre, descripcion?, precioUnitario, idTipoProducto, idMarca, idProveedor? (**sin stock**)
-   - `FilterProductoAdminDto`
+   - `FilterProductoAdminDto` — `nombre?`, `idTipoProducto?`, `idMarca?`, `idProveedor?`, `activo?`, `page?`, `size?`
+- `CreateProductoDto` — nombre, descripcion?, precioUnitario, stockInicial, idTipoProducto, idMarca, idProveedor?
 4. `ProductoService`:
    - `create` — valida FKs activas → `AppError`; setea `stock = stockInicial`
    - `update` — mismas validaciones; jamás toca `stock`
@@ -48,5 +49,5 @@ assertExists(id: number): Promise<Proveedor>
 ## Riesgos
 
 - **Choque de rutas 007 vs 010** — mitigación: lo anterior; revisar al cerrar 010.
-- **Edición masiva accidental de precios** — mitigación: PUT单品, sin endpoint bulk.
+- **Edición masiva accidental de precios** — mitigación: PUT solo un producto a la vez, sin endpoint bulk.
 - **Producto con stock negativo por edición** — imposible: `stock` fuera del DTO (test explícito: body con `stock` ignorado/rechazado).

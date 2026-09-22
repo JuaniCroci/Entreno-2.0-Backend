@@ -27,6 +27,8 @@
 
 Vocabulario **canónico**. Usar siempre estos nombres para que los agentes de features posteriores puedan importar sin necesidad de leer el código fuente de la feature previa.
 
+> **Nota**: `findAll` es el nombre canónico para listar, pero actualmente solo está implementado en `UsuarioService`. Otros services (ProductoService, MarcaService, etc.) aún no tienen `findAll` implementado.
+
 | Operación                    | Nombre del método        | Firma                                   | Lanza si no existe |
 | ---------------------------- | ------------------------ | --------------------------------------- | ------------------ |
 | Crear                        | `create(dto)`            | `Promise<TEntity>`                      | —                  |

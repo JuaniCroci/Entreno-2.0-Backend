@@ -29,6 +29,8 @@ Endpoints públicos dentro del módulo `productos` (ya creado en 007): se agrega
 ## Interfaces externas que se consumen
 
 > Firmas exactas de métodos de otros módulos. Usarlas tal cual; no leer el código fuente de esas features.
+>
+> **Nota**: `FilterProductoAdminDto` (con `activo?`, `idTipoProducto?`, `idMarca?`, `idProveedor?`) se define en `spec/features/007-crud-producto/plan.md`. Este plan usa `FilterProductoPublicDto` con filtros de precio y paginación.
 
 ```typescript
 // Los métodos del listado viven en ProductoService (módulo creado en 007):
