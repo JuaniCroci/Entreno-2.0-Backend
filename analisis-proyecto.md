@@ -576,8 +576,11 @@ Ver Section 13 para la justificación completa.
   - `AuthService` ya no tiene `private usuarioService = new UsuarioService()`
   - `AuthService` solo importa `UsuarioService` para `register()` y `login()` (no para inyección)
   - *Resultado*: ✅ resuelto como parte de 0.3
-- [ ] **0.5** — `TD-1`: Agregar test feliz de `authenticate` middleware con JWT válido
+- [x] **0.5** — `TD-1`: Agregar test feliz de `authenticate` middleware con JWT válido ✅
   - Archivo: `tests/unit/middleware.unit.test.ts`
+  - Agregados 2 tests: token válido → `next()` llamado sin args; usuario inexistente → 401
+  - *Resultado*: ✅ 15/15 tests pasan (13 → 15)
+  - *Commit*: `554005e`
 - [ ] **0.6** — `TD-3`: Agregar tests para `errorHandler` function
   - Archivo: `tests/unit/errorHandler.unit.test.ts` (nuevo)
 - [ ] **0.7** — `TD-4`: Agregar tests para `validateDto` middleware
