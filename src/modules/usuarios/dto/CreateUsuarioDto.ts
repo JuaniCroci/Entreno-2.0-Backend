@@ -21,6 +21,10 @@ export class CreateUsuarioDto {
   @IsString({ message: 'direccion debe ser una cadena de texto' })
   direccion?: string;
 
+  /**
+   * Este campo es ignorado: el rol siempre se fuerza a `Rol.CLIENTE`
+   * en `UsuarioService.create()`. No se puede crear un usuario con otro rol.
+   */
   @IsOptional()
   rol?: Rol;
 }

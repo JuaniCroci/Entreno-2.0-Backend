@@ -41,7 +41,7 @@ function int(name: string, fallback: number): number {
   return parsed;
 }
 
-function loadEnv(): Env {
+export function loadEnv(): Env {
   const rawNodeEnv = process.env.NODE_ENV ?? 'development';
   if (!['development', 'test', 'production'].includes(rawNodeEnv)) {
     throw new Error(`NODE_ENV inválido: ${rawNodeEnv}`);

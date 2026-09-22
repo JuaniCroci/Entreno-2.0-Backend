@@ -4,6 +4,13 @@
 
 Módulo `clientes` que **reutiliza la entidad `Usuario`** de 002 (no hay entidad `Cliente`). Es una fachada admin con queries forzadas a `rol = CLIENTE`. Evita exponer el módulo `usuarios` completo al frontend admin y deja explícito el dominio ("clientes" = usuarios con ese rol).
 
+## Firma de búsqueda
+
+`UsuarioService.findAll(filters: { q?: string; activo?: boolean }): Promise<{ data: UsuarioPublic[]; total: number }>`
+- `q` busca en `nombre` y `email` con LIKE `%q%`
+- `activo` filtra por booleano
+- Devuelve data (sin `passwordHash`) y total para paginación
+
 ## Implementación
 
 1. `src/modules/clientes/dto/` — `CreateClienteDto` (requiere password), `UpdateClienteDto` (password opcional), `FilterClienteDto` (`q?`, `activo?`).

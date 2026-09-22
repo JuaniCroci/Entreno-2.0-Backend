@@ -8,6 +8,11 @@ import type { CreateUsuarioDto } from '../dto/index.js';
 
 export { UsuarioPublic };
 
+export interface FindAllResult {
+  data: UsuarioPublic[];
+  total: number;
+}
+
 export class UsuarioService {
   private get em(): EntityManager {
     return getEm();
@@ -47,6 +52,22 @@ export class UsuarioService {
 
   async validatePassword(usuario: Usuario, password: string): Promise<boolean> {
     return compare(password, usuario.passwordHash);
+  }
+
+  async findAll(filters: { q?: string; activo?: boolean } = {}): Promise<FindAllResult> {
+    const where: Record<string, unknown> = {};
+    if (filters.activo !== undefined) where.activo = filters.activo;
+    if (filters.q) {
+      where.$or = [
+        { nombre: { $like: `%${filters.q}%` } },
+        { email: { $like: `%${filters.q}%` } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.em.find(Usuario, where, { orderBy: { nombre: 'ASC' } }),
+      this.em.count(Usuario, where),
+    ]);
+    return { data: data.map(u => this.toPublic(u)), total };
   }
 
   toPublic(usuario: Usuario): UsuarioPublic {
