@@ -36,8 +36,4 @@ export class AuthService {
     });
     return { token, usuario: this.usuarioService.toPublic(usuario) };
   }
-
-  me(usuarioPublic: UsuarioPublic): UsuarioPublic {
-    return usuarioPublic;
-  }
 }

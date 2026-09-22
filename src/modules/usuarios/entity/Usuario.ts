@@ -7,6 +7,18 @@ export const Rol = {
 
 export type Rol = (typeof Rol)[keyof typeof Rol];
 
+export interface UsuarioPublic {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  direccion: string | null;
+  rol: Rol;
+  activo: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 @Entity()
 export class Usuario {
   @PrimaryKey({ type: 'number' })
@@ -38,4 +50,18 @@ export class Usuario {
 
   @Property({ type: 'datetime', onUpdate: () => new Date() })
   updatedAt!: Date;
+
+  toPublic(): UsuarioPublic {
+    return {
+      id: this.id,
+      nombre: this.nombre,
+      email: this.email,
+      telefono: this.telefono,
+      direccion: this.direccion,
+      rol: this.rol,
+      activo: this.activo,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
 }
