@@ -13,6 +13,7 @@ export interface Env {
   corsOrigin: string;
   adminEmail: string;
   adminPassword: string;
+  passwordMinLength: number;
 }
 
 function required(name: string): string {
@@ -56,13 +57,14 @@ export function loadEnv(): Env {
     dbPassword: required('DB_PASSWORD'),
     dbName: required('DB_NAME'),
     jwtSecret: jwtSecret(),
-    bcryptRounds: int('BCRYPT_ROUNDS', 10),
+    bcryptRounds: int('BCRYPT_ROUNDS', 12),
     corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
     adminEmail: process.env.ADMIN_EMAIL ?? 'admin@entreno.com',
     adminPassword:
       rawNodeEnv === 'production'
         ? required('ADMIN_PASSWORD')
         : process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion',
+    passwordMinLength: int('PASSWORD_MIN_LENGTH', 8),
   };
 }
 

@@ -19,5 +19,6 @@ const ctrl = new AuthController();
 router.post('/register', authLimiter, validateDto(RegisterDto), ctrl.register);
 router.post('/login', authLimiter, validateDto(LoginDto), ctrl.login);
 router.get('/me', authenticate, ctrl.me);
+router.post('/logout', authenticate, ctrl.logout);
 
 export default router;

@@ -11,6 +11,11 @@ export interface AuthResponse {
   usuario: UsuarioPublic;
 }
 
+export interface RefreshResponse {
+  token: string;
+  usuario: UsuarioPublic;
+}
+
 export class AuthService {
   private usuarioService = new UsuarioService();
 
@@ -31,9 +36,17 @@ export class AuthService {
     if (!valid) {
       throw new AppError(401, 'Credenciales inválidas');
     }
-    const token = jwt.sign({ sub: usuario.id, rol: usuario.rol }, env.jwtSecret, {
-      expiresIn: '7d',
-    });
+    const token = jwt.sign(
+      { sub: usuario.id, rol: usuario.rol },
+      env.jwtSecret,
+      { expiresIn: '7d', issuer: 'entreno-api', audience: 'entreno-client' },
+    );
     return { token, usuario: this.usuarioService.toPublic(usuario) };
+  }
+
+  async logout(): Promise<void> {
+    // El JWT expira naturalmente en 7d.
+    // Invalidación proactiva requeriría un blocklist (ej. Redis).
+    // Este método es el hook para extender la lógica de logout.
   }
 }

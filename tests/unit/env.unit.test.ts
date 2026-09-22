@@ -101,4 +101,35 @@ describe('loadEnv', () => {
     const env = loadEnv();
     expect(env.adminPassword).toBe('changeme_en_produccion');
   });
+
+  it('expone passwordMinLength con default 8', () => {
+    setEnv({
+      NODE_ENV: 'test',
+      PORT: '3000',
+      DB_HOST: 'localhost',
+      DB_PORT: '3306',
+      DB_USER: 'entreno',
+      DB_PASSWORD: 'entreno',
+      DB_NAME: 'entreno',
+      JWT_SECRET: 'test_secret_no_produccion_1234567890',
+    });
+    const env = loadEnv();
+    expect(env.passwordMinLength).toBe(8);
+  });
+
+  it('usa PASSWORD_MIN_LENGTH cuando está seteado', () => {
+    setEnv({
+      NODE_ENV: 'test',
+      PORT: '3000',
+      DB_HOST: 'localhost',
+      DB_PORT: '3306',
+      DB_USER: 'entreno',
+      DB_PASSWORD: 'entreno',
+      DB_NAME: 'entreno',
+      JWT_SECRET: 'test_secret_no_produccion_1234567890',
+      PASSWORD_MIN_LENGTH: '10',
+    });
+    const env = loadEnv();
+    expect(env.passwordMinLength).toBe(10);
+  });
 });
