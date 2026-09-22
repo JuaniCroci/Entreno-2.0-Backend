@@ -657,10 +657,20 @@ Ver Section 13 para la justificación completa.
 - [x] **3.4** — `WP-5`: Agregar cross-reference a spec/010 ✅
   - Nota sobre `FilterProductoAdminDto` definido en spec/007
 - [x] **3.8** — `BR-5`: Ya resuelto — `HealthService` no tiene dead import de `getEm` ✅
-  - `getEm` es usado en el getter `em` de `HealthService`
-- [ ] **3.5** — `TD-7`: Agregar tests faltantes en `auth.int.test.ts`
-- [ ] **3.6** — `RC-8`: `authenticate` middleware usar `toPublic()` al asignar `req.user`
-- [ ] **3.7** — `TD-9`: Test para `notFound` handler
+   - `getEm` es usado en el getter `em` de `HealthService`
+- [x] **3.5** — `TD-7`: Agregar tests faltantes en `auth.int.test.ts` ✅
+   - Test: `GET /me` con token válido → 200, sin `passwordHash`
+   - Test: ruta inexistente → 404 via `notFound` handler
+   - *Commit*: `510e3e9`
+- [x] **3.6** — `RC-8`: `authenticate` usa `toPublic()` al asignar `req.user` ✅
+   - `authenticate.ts`: `(req as unknown as Record<string, unknown>).user = usuario.toPublic()`
+   - `AuthController.me()`: `res.json(req.user as UsuarioPublic)` — ya no llama `.toPublic()`
+   - `req.user` ahora es `UsuarioPublic` (sin `passwordHash`)
+   - *Commit*: `510e3e9`
+- [x] **3.7** — `TD-9`: Test para `notFound` handler ✅
+   - `tests/unit/middleware.unit.test.ts`: nuevo bloque `describe('middleware notFound')`
+   - Test: `notFound` llama a `next` con `AppError(404)`
+   - *Commit*: `510e3e9`
 
 ### [ ] Nivel 4 — Post-implementación
 

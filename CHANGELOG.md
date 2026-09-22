@@ -1,23 +1,25 @@
 # Changelog
 
-## v0.1.3 — Mejoras Pre-007: Documentación y Especificaciones (2026-09-22)
+## v0.1.4 — Mejoras Pre-007: Seguridad y Tests (2026-09-22)
 
-### Documentación
+### Seguridad
 
-- `spec/features/007-crud-producto/plan.md`: corregido typo `PUT单品` → `PUT solo un producto a la vez`
-- `spec/features/007-crud-producto/plan.md`: `FilterProductoAdminDto` definido con `nombre?`, `idTipoProducto?`, `idMarca?`, `idProveedor?`, `activo?`, `page?`, `size?`
-- `spec/constitution/coding-playbook.md`: nota agregada aclarando que `findAll` solo está implementado en `UsuarioService`
-- `spec/features/010-listado-productos/plan.md`: cross-reference a `FilterProductoAdminDto` de spec/007
+- `src/common/middleware/authenticate.ts`: `req.user` ahora asigna `usuario.toPublic()` (`UsuarioPublic`) — `passwordHash` ya no expone el token
+- `src/modules/auth/controller/AuthController.ts`: `me()` usa `req.user as UsuarioPublic` — elimina `.toPublic()` redundante
 
-### Items pendientes de Nivel 3
+### Tests
 
-- 3.5 TD-7: tests faltantes en `auth.int.test.ts` (requiere MySQL)
-- 3.6 RC-8: `authenticate` usar `toPublic()` al asignar `req.user`
-- 3.7 TD-9: test para `notFound` handler
+- `tests/unit/middleware.unit.test.ts`: nuevo bloque `describe('middleware notFound')` — test para handler 404
+- `tests/integration/auth.int.test.ts`: 2 tests nuevos — `GET /me` con token válido (sin `passwordHash`), ruta inexistente → 404
+- Tests unitarios: 30 (30→30 sin cambios, integration +2)
+
+### Items pendientes
+
+- Nivel 4: EP-3 CI, EP-5 index.ts, S8 issuer/audience, S9 passwordMinLength 8, S10 BCRYPT_ROUNDS 12, BR-4 logout, BR-8 refresh token, BR-7 imports app.ts, O1 createApp side-effect, TD-10 TDD
 
 ---
 
-## v0.1.2 — Mejoras Pre-006: CRUD y Estructura (2026-09-22)
+## v0.1.3 — Mejoras Pre-007: Documentación y Especificaciones (2026-09-22)
 
 ### Estructura y CRUD
 
