@@ -673,3 +673,36 @@ Ver Section 13 para la justificación completa.
 ---
 
 *(Plan de mejora completo. Cada item está abierto `[ ]`. Ejecutar de a poco, en orden de prioridad. Sin apurar.)*
+
+---
+
+## 📋 Estado de Ejecución (Pausa — 2026-09-22)
+
+| Nivel | Estado | Items | Commits | Tests |
+|-------|--------|-------|---------|-------|
+| Nivel 0 | ✅ Completado | 10/10 | 12 | 25 |
+| Nivel 1 | ✅ Completado | 8/8 | 1 | +4 |
+| Nivel 2 | ✅ Completado | 7/7 | 1 | +4 |
+| **Total** | | **25/25** | **14** | **29** |
+
+### 🔜 Próximo: Nivel 3 — Pre-007+
+
+| Item | Descripción | Archivo |
+|------|-------------|---------|
+| 3.1 | WP-1: Corregir typo `PUT单品` en `spec/features/007-crud-producto/plan.md` | `spec/features/007-crud-producto/plan.md` |
+| 3.2 | WP-2: Agregar `FilterProductoAdminDto` definition en plan | `spec/features/007-crud-producto/plan.md` |
+| 3.3 | WP-4: Aclarar `coding-playbook.md` que `findAll` aún no está implementado | `spec/constitution/coding-playbook.md` |
+| 3.4 | WP-5: Agregar firma de filtros a `spec/features/010-listado-productos/plan.md` | `spec/features/010-listado-productos/plan.md` |
+| 3.5 | TD-7: Agregar tests faltantes en `auth.int.test.ts` | `tests/integration/auth.int.test.ts` |
+| 3.6 | RC-8: `authenticate` middleware usar `toPublic()` al asignar `req.user` | `src/common/middleware/authenticate.ts` |
+| 3.7 | TD-9: Test para `notFound` handler | `tests/unit/` (nuevo) |
+| 3.8 | BR-5: Quitar dead import de `getEm` en `HealthService` | `src/modules/health/` |
+
+### 📝 Notas técnicas para continuar
+
+- **`auth.routes.ts`** importa `LoginDto` desde `../../modules/usuarios/dto/LoginDto.js` (no desde `../dto/`)
+- **`auth/dto/LoginDto.ts`** fue eliminado — solo existe `usuarios/dto/LoginDto.ts` como implementación real
+- **`env.ts`** exporta `loadEnv()` para testing directo; `jwtSecret()` valida ≥ 32 chars
+- **`vitest.config.ts`** tiene `JWT_SECRET: 'test_secret_no_produccion_1234567890'` (32 chars) para tests
+- **`app.ts`** monta `/api/usuarios` con `usuariosRoutes` y `express.json({ limit: '100kb' })`
+- **`UsuarioService.findAll()`** implementado con `em.find()` + `em.count()` en paralelo
