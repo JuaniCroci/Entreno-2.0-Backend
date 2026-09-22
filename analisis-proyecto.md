@@ -585,13 +585,12 @@ Ver Section 13 para la justificación completa.
   - Archivo: `tests/unit/errorHandler.unit.test.ts` (nuevo) — 6 tests: AppError, AppError con details, 404, Error en prod, Error en dev, no-Error
   - *Resultado*: ✅ 21/21 tests pasan (15 → 21)
   - *Commit*: `61fd26f`
-- [x] **0.7** — `TD-4`: Agregar tests para `validateDto` middleware ✅
-  - Archivo: `tests/unit/validate.unit.test.ts` (nuevo) — 4 tests: body válido, body inválido, campos extra, body setteado
-  - *Resultado*: ✅ 25/25 tests pasan (21 → 25)
-  - *Commit*: `ce3a764`
-- [ ] **0.8** — `S1`: Agregar `express-rate-limit` a `auth.routes.ts` en `POST /register` y `POST /login`
+- [x] **0.8** — `S1`: Agregar `express-rate-limit` a `auth.routes.ts` en `POST /register` y `POST /login` ✅
   - Archivo: `src/modules/auth/auth.routes.ts` + `package.json`
-  - *Nota*: Instalar `express-rate-limit` con `pnpm add express-rate-limit`
+  - `rateLimit({ windowMs: 15min, limit: 5 })` aplicado a ambas rutas POST
+  - *Commit*: `2443098`
+
+### [ ] Nivel 1 — Pre-003
 
 ### [ ] Nivel 1 — Pre-003
 
