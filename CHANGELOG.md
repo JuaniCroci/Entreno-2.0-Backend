@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.1.3 — Mejoras Pre-007: Documentación y Especificaciones (2026-09-22)
+
+### Documentación
+
+- `spec/features/007-crud-producto/plan.md`: corregido typo `PUT单品` → `PUT solo un producto a la vez`
+- `spec/features/007-crud-producto/plan.md`: `FilterProductoAdminDto` definido con `nombre?`, `idTipoProducto?`, `idMarca?`, `idProveedor?`, `activo?`, `page?`, `size?`
+- `spec/constitution/coding-playbook.md`: nota agregada aclarando que `findAll` solo está implementado en `UsuarioService`
+- `spec/features/010-listado-productos/plan.md`: cross-reference a `FilterProductoAdminDto` de spec/007
+
+### Items pendientes de Nivel 3
+
+- 3.5 TD-7: tests faltantes en `auth.int.test.ts` (requiere MySQL)
+- 3.6 RC-8: `authenticate` usar `toPublic()` al asignar `req.user`
+- 3.7 TD-9: test para `notFound` handler
+
+---
+
 ## v0.1.2 — Mejoras Pre-006: CRUD y Estructura (2026-09-22)
 
 ### Estructura y CRUD

@@ -646,16 +646,21 @@ Ver Section 13 para la justificación completa.
   - `app.ts`: `app.use(express.json({ limit: '100kb' }))`
   - *Commit*: `3a052f3`
 
-### [ ] Nivel 3 — Pre-007+
+### [x] Nivel 3 — Pre-007+
 
-- [ ] **3.1** — `WP-1`: Corregir typo `PUT单品` en `spec/features/007-crud-producto/plan.md`
-- [ ] **3.2** — `WP-2`: Agregar `FilterProductoAdminDto` definition a `spec/features/007-crud-producto/plan.md`
-- [ ] **3.3** — `WP-4`: Aclarar `coding-playbook.md` que `findAll` aún no está implementado
-- [ ] **3.4** — `WP-5`: Agregar firma de filtros a `spec/features/010-listado-productos/plan.md`
+- [x] **3.1** — `WP-1`: Corregir typo `PUT单品` en spec/007 ✅
+  - Reemplazado por `PUT solo un producto a la vez`
+- [x] **3.2** — `WP-2`: Definir `FilterProductoAdminDto` en spec/007 ✅
+  - Agregados campos: `nombre?`, `idTipoProducto?`, `idMarca?`, `idProveedor?`, `activo?`, `page?`, `size?`
+- [x] **3.3** — `WP-4`: Aclarar coding-playbook.md que `findAll` no está implementado en todos los services ✅
+  - Nota agregada en tabla de sección 2
+- [x] **3.4** — `WP-5`: Agregar cross-reference a spec/010 ✅
+  - Nota sobre `FilterProductoAdminDto` definido en spec/007
+- [x] **3.8** — `BR-5`: Ya resuelto — `HealthService` no tiene dead import de `getEm` ✅
+  - `getEm` es usado en el getter `em` de `HealthService`
 - [ ] **3.5** — `TD-7`: Agregar tests faltantes en `auth.int.test.ts`
 - [ ] **3.6** — `RC-8`: `authenticate` middleware usar `toPublic()` al asignar `req.user`
 - [ ] **3.7** — `TD-9`: Test para `notFound` handler
-- [ ] **3.8** — `BR-5`: Quitar dead import de `getEm` en `HealthService`
 
 ### [ ] Nivel 4 — Post-implementación
 
