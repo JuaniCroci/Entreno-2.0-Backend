@@ -1,5 +1,38 @@
 # Changelog
 
+## v0.1.2 — Mejoras Pre-006: CRUD y Estructura (2026-09-22)
+
+### Estructura y CRUD
+
+- `src/modules/usuarios/controller/UsuarioController.ts`: nuevo controller con `list`, `getById`, `create`
+- `src/modules/usuarios/routes/usuarios.routes.ts`: nuevas rutas `GET /api/usuarios`, `GET /api/usuarios/:id`, `POST /api/usuarios` con `authenticate` + `authorize('ADMIN')`
+- `src/app.ts`: `app.use('/api/usuarios', usuariosRoutes)` integrado
+- `src/modules/usuarios/service/UsuarioService.ts`: nuevo `findAll(filters: { q?: string; activo?: boolean }): Promise<{ data: UsuarioPublic[]; total: number }>` con LIKE en nombre/email y filtro por activo
+
+### Seguridad y Config
+
+- `src/app.ts`: `express.json({ limit: '100kb' })` para limitar body size
+- `src/config/env.ts`: `loadEnv()` exportada para testing directo
+
+### Testing
+
+- `tests/unit/env.unit.test.ts`: reescrito con 6 tests reales de `loadEnv()`: carga correcta, falta obligatoria, NODE_ENV inválido, JWT_SECRET < 32, ADMIN_PASSWORD en prod, default en dev
+- Tests unitarios: 25 → 29
+
+### Documentación
+
+- `spec/features/006-crud-cliente/plan.md`: agregada firma de búsqueda `findAll`
+- `src/modules/usuarios/dto/CreateUsuarioDto.ts`: JSDoc aclarando que `rol` siempre se fuerza a `CLIENTE`
+
+### Estadísticas
+
+- Tests unitarios: 25 → 29
+- Commits: 13
+- Lint: pasa limpio
+- Build: pasa
+
+---
+
 ## v0.1.1 — Mejoras Pre-003: Seguridad y Clean Code (2026-09-22)
 
 ### Seguridad

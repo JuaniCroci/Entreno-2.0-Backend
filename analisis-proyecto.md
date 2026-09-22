@@ -618,19 +618,33 @@ Ver Section 13 para la justificación completa.
   - `package.json`: `"mysql2": ">=3.23.1"`
   - *Commit*: `de38e90`
 
-### [ ] Nivel 2 — Pre-006
+### [x] Nivel 2 — Pre-006
 
-- [ ] **2.1** — `BR-1`: Crear `src/modules/usuarios/controller/` y `src/modules/usuarios/routes/`
-  - Archivos nuevos: `UsuarioController.ts`, `usuarios.routes.ts`
-  - *Nota*: Seguir patrón de `auth` module. Endpoints: `GET /api/clientes`, `POST /api/clientes`, etc.
-- [ ] **2.2** — `BR-2/RC-5`: Implementar `UsuarioService.findAll(filters?)` con `?q=` y `?activo=`
-  - Archivo: `src/modules/usuarios/service/UsuarioService.ts`
-  - *Firma*: `findAll(filters: { q?: string; activo?: boolean }): Promise<{ data: UsuarioPublic[]; total: number }>`
-- [ ] **2.3** — `WP-3`: Actualizar `spec/features/006-crud-cliente/plan.md` con firma de búsqueda
-- [ ] **2.4** — `BR-3`: Documentar comportamiento de `rol` en `CreateUsuarioDto`
-- [ ] **2.5** — `TD-5`: Mejorar `env.unit.test.ts` a unit test real de `loadEnv()`
-- [ ] **2.6** — `S5+R1`: Verificar que `errorHandler` no expone `err.message` en producción
-- [ ] **2.7** — `S6`: Agregar `express.json({ limit: '100kb' })` a `app.ts`
+- [x] **2.1** — `BR-1`: Crear `src/modules/usuarios/controller/` y `src/modules/usuarios/routes/` ✅
+  - `UsuarioController.ts`: métodos `list`, `getById`, `create` con tipos
+  - `usuarios.routes.ts`: `GET /api/usuarios`, `GET /api/usuarios/:id`, `POST /api/usuarios` con `authenticate` + `authorize('ADMIN')`
+  - `app.ts`: `app.use('/api/usuarios', usuariosRoutes)`
+  - *Commit*: `3a052f3`
+- [x] **2.2** — `BR-2/RC-5`: Implementar `UsuarioService.findAll(filters?)` ✅
+  - `UsuarioService.ts`: nuevo método `findAll({ q?, activo? })` con LIKE en nombre/email y filtro por activo
+  - Firma: `findAll(filters: { q?: string; activo?: boolean }): Promise<{ data: UsuarioPublic[]; total: number }>`
+  - Usa `em.find()` + `em.count()` en paralelo
+  - *Commit*: `3a052f3`
+- [x] **2.3** — `WP-3`: Actualizar `spec/features/006-crud-cliente/plan.md` con firma de búsqueda ✅
+  - Agregada sección "Firma de búsqueda" con firma de `findAll`
+  - *Commit*: `3a052f3`
+- [x] **2.4** — `BR-3`: Documentar comportamiento de `rol` en `CreateUsuarioDto` ✅
+  - `CreateUsuarioDto.ts`: JSDoc en campo `rol` aclarando que siempre se fuerza a `Rol.CLIENTE`
+  - *Commit*: `3a052f3`
+- [x] **2.5** — `TD-5`: Mejorar `env.unit.test.ts` a unit test real de `loadEnv()` ✅
+  - Ahora 6 tests: carga correcta, falta obligatoria, NODE_ENV inválido, JWT_SECRET < 32, ADMIN_PASSWORD en prod, default ADMIN_PASSWORD en dev
+  - Usa `loadEnv()` exportada directamente
+  - *Commit*: `3a052f3`
+- [x] **2.6** — `S5+R1`: Ya cubierta — `errorHandler` no expone `err.message` en producción ✅
+  - Test existente en `errorHandler.unit.test.ts` valida behavior en prod
+- [x] **2.7** — `S6`: Agregar `express.json({ limit: '100kb' })` a `app.ts` ✅
+  - `app.ts`: `app.use(express.json({ limit: '100kb' }))`
+  - *Commit*: `3a052f3`
 
 ### [ ] Nivel 3 — Pre-007+
 
