@@ -41,6 +41,14 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot \
             -e "CREATE DATABASE IF NOT EXISTS entreno_test;"
       - run: pnpm test:unit
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: '3306'
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAME: entreno_test
+          JWT_SECRET: test_secret_no_produccion_1234567890
+          NODE_ENV: test
       - run: pnpm test:integration
         env:
           DB_HOST: 127.0.0.1
