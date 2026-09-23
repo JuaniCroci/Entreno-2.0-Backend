@@ -25,15 +25,24 @@ jobs:
           --health-start-period=10s
     steps:
       - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: pnpm install
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm build
       - run: |
-          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS entreno_test;"
+          mysql -h 127.0.0.1 -u root -proot \
+            -e "CREATE DATABASE IF NOT EXISTS entreno_test;"
       - run: pnpm test:unit
       - run: pnpm test:integration
         env:
