@@ -58,16 +58,13 @@ export class UsuarioService {
     const where: Record<string, unknown> = {};
     if (filters.activo !== undefined) where.activo = filters.activo;
     if (filters.q) {
-      where.$or = [
-        { nombre: { $like: `%${filters.q}%` } },
-        { email: { $like: `%${filters.q}%` } },
-      ];
+      where.$or = [{ nombre: { $like: `%${filters.q}%` } }, { email: { $like: `%${filters.q}%` } }];
     }
     const [data, total] = await Promise.all([
       this.em.find(Usuario, where, { orderBy: { nombre: 'ASC' } }),
       this.em.count(Usuario, where),
     ]);
-    return { data: data.map(u => this.toPublic(u)), total };
+    return { data: data.map((u) => this.toPublic(u)), total };
   }
 
   toPublic(usuario: Usuario): UsuarioPublic {

@@ -7,7 +7,7 @@ export class UsuarioController {
 
   list = async (req: Request, res: Response): Promise<void> => {
     const q = req.query.q as string | undefined;
-    const activo = req.query.activo ? (req.query.activo === 'true') : undefined;
+    const activo = req.query.activo ? req.query.activo === 'true' : undefined;
     const result: FindAllResult = await this.service.findAll({ q, activo });
     res.json(result);
   };

@@ -58,7 +58,10 @@ describe('errorHandler', () => {
     const err = new Error('internal failure');
     errorHandler(err, {} as Request, res, vi.fn());
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ statusCode: 500, message: 'Error interno del servidor' });
+    expect(res.json).toHaveBeenCalledWith({
+      statusCode: 500,
+      message: 'Error interno del servidor',
+    });
     (env as Record<string, unknown>).nodeEnv = originalEnv;
   });
 
@@ -74,6 +77,9 @@ describe('errorHandler', () => {
     const res = makeMockRes();
     errorHandler('not an error' as unknown as Error, {} as Request, res, vi.fn());
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ statusCode: 500, message: 'Error interno del servidor' });
+    expect(res.json).toHaveBeenCalledWith({
+      statusCode: 500,
+      message: 'Error interno del servidor',
+    });
   });
 });

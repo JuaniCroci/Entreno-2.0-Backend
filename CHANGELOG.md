@@ -158,13 +158,13 @@
 
 Las 11 skills aplicadas (code-review, systematic-debugging, brainstorming, writing-plans, executing-plans, verification-before-completion, test-driven-development, code-review-and-quality, api-and-interface-design, security-and-hardening, find-skills) identificaron ~74 hallazgos. Se priorizaron así:
 
-| Nivel | Categoría | Rationale | Estado |
-|-------|-----------|-----------|--------|
+| Nivel   | Categoría                | Rationale                                                   | Estado         |
+| ------- | ------------------------ | ----------------------------------------------------------- | -------------- |
 | Nivel 0 | Base + Pre-003 + Testing | Fixear la base antes de que features nuevas la multipliquen | ✅ 10/10 items |
-| Nivel 1 | Pre-003 | Seguridad y clean code de la feature existente (Auth) | ✅ 8/8 items |
-| Nivel 2 | Pre-006 | Testing y estructura para features CRUD nuevas | 🔜 Pendiente |
-| Nivel 3 | Pre-007+ | Tests de integración y refinamiento | 🔜 Pendiente |
-| Nivel 4 | Post-implementación | CI, refresh token, logout (opcional) | 🔜 Pendiente |
+| Nivel 1 | Pre-003                  | Seguridad y clean code de la feature existente (Auth)       | ✅ 8/8 items   |
+| Nivel 2 | Pre-006                  | Testing y estructura para features CRUD nuevas              | 🔜 Pendiente   |
+| Nivel 3 | Pre-007+                 | Tests de integración y refinamiento                         | 🔜 Pendiente   |
+| Nivel 4 | Post-implementación      | CI, refresh token, logout (opcional)                        | 🔜 Pendiente   |
 
 ### Decisiones clave tomadas
 

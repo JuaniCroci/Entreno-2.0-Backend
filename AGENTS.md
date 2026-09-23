@@ -13,18 +13,18 @@ API REST para e-commerce de artículos de gimnasio. **TypeScript + Express 5 + M
 
 ## Comandos
 
-| Comando | Qué hace |
-| --- | --- |
-| `pnpm dev` | Desarrollo (tsx watch) en http://localhost:3000 |
-| `pnpm build` | Compila TS a `dist/` |
-| `pnpm lint` / `pnpm lint:fix` | ESLint |
-| `pnpm format` / `pnpm format:check` | Prettier |
-| `pnpm test` | Suite completa (Vitest) |
-| `pnpm test:unit` | Solo unitarios (sin DB) |
-| `pnpm test:integration` | Integración (requiere MySQL en Docker) |
-| `pnpm migrate:dev` | Crea + aplica migraciones MikroORM |
-| `pnpm migrate` | Aplica migraciones pendientes |
-| `pnpm seed:admin` | Seed de admin idempotente |
+| Comando                             | Qué hace                                        |
+| ----------------------------------- | ----------------------------------------------- |
+| `pnpm dev`                          | Desarrollo (tsx watch) en http://localhost:3000 |
+| `pnpm build`                        | Compila TS a `dist/`                            |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint                                          |
+| `pnpm format` / `pnpm format:check` | Prettier                                        |
+| `pnpm test`                         | Suite completa (Vitest)                         |
+| `pnpm test:unit`                    | Solo unitarios (sin DB)                         |
+| `pnpm test:integration`             | Integración (requiere MySQL en Docker)          |
+| `pnpm migrate:dev`                  | Crea + aplica migraciones MikroORM              |
+| `pnpm migrate`                      | Aplica migraciones pendientes                   |
+| `pnpm seed:admin`                   | Seed de admin idempotente                       |
 
 Verificación mínima tras cambios: `pnpm lint` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
 
@@ -77,7 +77,7 @@ spec/              # constitución y features (fuente de verdad)
     - Auth, input de usuario, secretos, pagos, integraciones externas → `security-and-hardening`.
     - Búsqueda de skills nuevas → `find-skills`.
   - **Casos específicos** (se cargan solo cuando se piden o aplica el caso; no entran en el flujo automático):
-    - `requesting-code-review` → solo cuando se pida pedir una review explícita del cambio (o antes de considerarlo mergeable): despacha un subagente revisor con el diff entre SHAs. **Requiere repo git** (hoy no lo hay: se habilita tras `git init`). El rol de *revisar* lo cubre `code-review-and-quality`.
+    - `requesting-code-review` → solo cuando se pida pedir una review explícita del cambio (o antes de considerarlo mergeable): despacha un subagente revisor con el diff entre SHAs. **Requiere repo git** (hoy no lo hay: se habilita tras `git init`). El rol de _revisar_ lo cubre `code-review-and-quality`.
     - `ucp` (si se instala) → trabajo en checkout / pagos / órdenes / carrito; su workflow es `init → consult → plan → scaffold → profile → test → validate`; templates Next.js → **adaptar a Express** (`src/modules/`, route handlers), conservando los conceptos UCP.
     - `supabase-postgres-best-practices` (si se instala) → consultas y rendimiento de esquemas Postgres.
 - Para instalar una skill nueva en el proyecto: ver [.agents/skills/README.md](./.agents/skills/README.md). Tras instalar, reiniciar la sesión de OpenCode para que la descubra.

@@ -12,7 +12,9 @@ Módulo `productos` con relaciones MikroORM N:1 a `TipoProducto`, `Marca` y `Pro
    - `CreateProductoDto` — nombre, descripcion?, precioUnitario, stockInicial, idTipoProducto, idMarca, idProveedor?
    - `UpdateProductoDto` — nombre, descripcion?, precioUnitario, idTipoProducto, idMarca, idProveedor? (**sin stock**)
    - `FilterProductoAdminDto` — `nombre?`, `idTipoProducto?`, `idMarca?`, `idProveedor?`, `activo?`, `page?`, `size?`
+
 - `CreateProductoDto` — nombre, descripcion?, precioUnitario, stockInicial, idTipoProducto, idMarca, idProveedor?
+
 4. `ProductoService`:
    - `create` — valida FKs activas → `AppError`; setea `stock = stockInicial`
    - `update` — mismas validaciones; jamás toca `stock`

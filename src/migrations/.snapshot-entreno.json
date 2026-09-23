@@ -19,6 +19,137 @@
           "enumItems": [],
           "mappedType": "integer"
         },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "refresh_tokens",
+      "indexes": [
+        {
+          "columnNames": ["id"],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        },
+        {
+          "columnNames": ["usuario_id"],
+          "keyName": "refresh_tokens_usuario_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "refresh_tokens_usuario_id_foreign": {
+          "columnNames": ["usuario_id"],
+          "constraintName": "refresh_tokens_usuario_id_foreign",
+          "localTableName": "refresh_tokens",
+          "referencedTableName": "usuario",
+          "referencedColumnNames": ["id"],
+          "updateRule": "no action",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
         "nombre": {
           "name": "nombre",
           "type": "varchar(255)",
@@ -112,10 +243,7 @@
           "scale": null,
           "default": "'CLIENTE'",
           "comment": null,
-          "enumItems": [
-            "ADMIN",
-            "CLIENTE"
-          ],
+          "enumItems": ["ADMIN", "CLIENTE"],
           "mappedType": "enum"
         },
         "activo": {
@@ -170,18 +298,14 @@
       "name": "usuario",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
           "constraint": true
         },
         {
-          "columnNames": [
-            "email"
-          ],
+          "columnNames": ["email"],
           "keyName": "usuario_email_unique",
           "unique": true,
           "primary": false,

@@ -33,9 +33,7 @@ describe('validateDto middleware', () => {
       password: 'short',
     });
     await middleware(req, {} as Response, next);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 400 }),
-    );
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
     const err = next.mock.calls[0][0] as AppError;
     expect(err.details).toBeDefined();
     expect(err.details.length).toBeGreaterThan(0);
@@ -51,9 +49,7 @@ describe('validateDto middleware', () => {
       rol: 'ADMIN',
     });
     await middleware(req, {} as Response, next);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 400 }),
-    );
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
   it('settea req.body como instancia validada cuando pasa', async () => {

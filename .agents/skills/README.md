@@ -36,9 +36,11 @@ description: <qué hace y cuándo usarla, 1–1024 caracteres>
 ---
 
 ## Qué hago
+
 ...
 
 ## Cuándo usarme
+
 ...
 ```
 
