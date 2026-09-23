@@ -46,6 +46,22 @@ tests/integration/ # flujos con supertest (con DB)
 spec/              # constitución y features (fuente de verdad)
 ```
 
+## CI/CD Patterns
+
+- **pnpm setup**: Use `corepack` instead of `pnpm/action-setup@v4` to avoid "Multiple versions of pnpm specified" errors when `package.json` declares `"packageManager": "pnpm@<version>"`. In `.github/workflows/ci.yml`:
+  ```yaml
+  - run: |
+      corepack enable
+      corepack prepare pnpm@10 --activate
+  - uses: actions/setup-node@v4
+    with:
+      node-version: '20'
+      cache: 'pnpm'
+      cache-dependency-path: pnpm-lock.yaml
+  ```
+- **Unit test env vars**: `src/config/env.ts` calls `loadEnv()` at module load time, so `pnpm test:unit` requires all env vars (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `NODE_ENV`) even without a database connection.
+- **Install**: Always use `pnpm install --frozen-lockfile` in CI for reproducible installs.
+
 ## Convenciones
 
 - Seguir el contrato HTTP de `spec/constitution/api-contract.md`:
