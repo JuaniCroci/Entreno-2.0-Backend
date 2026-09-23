@@ -63,7 +63,7 @@ export function loadEnv(): Env {
     adminPassword:
       rawNodeEnv === 'production'
         ? required('ADMIN_PASSWORD')
-        : process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion',
+        : (process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion'),
     passwordMinLength: int('PASSWORD_MIN_LENGTH', 8),
   };
 }

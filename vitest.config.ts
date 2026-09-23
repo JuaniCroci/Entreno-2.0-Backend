@@ -16,8 +16,8 @@ export default defineConfig({
       CORS_ORIGIN: 'http://localhost:5173',
       ADMIN_EMAIL: 'admin@test.local',
       ADMIN_PASSWORD: 'test_admin_password',
-      DB_NAME: 'entreno_test',
-      DB_PORT: '3307',
+      DB_NAME: process.env.DB_NAME || 'entreno_test',
+      DB_PORT: process.env.DB_PORT || '3307',
     },
   },
 });

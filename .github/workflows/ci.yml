@@ -21,7 +21,8 @@ jobs:
           --health-cmd="mysqladmin ping -h localhost"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=5
+          --health-start-period=10s
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,13 +32,15 @@ jobs:
       - run: pnpm install
       - run: pnpm lint
       - run: pnpm build
+      - run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS entreno_test;"
       - run: pnpm test:unit
       - run: pnpm test:integration
         env:
-          DB_HOST: localhost
+          DB_HOST: 127.0.0.1
           DB_PORT: '3306'
           DB_USER: root
           DB_PASSWORD: root
-          DB_NAME: entreno
+          DB_NAME: entreno_test
           JWT_SECRET: test_secret_no_produccion_1234567890
           NODE_ENV: test
