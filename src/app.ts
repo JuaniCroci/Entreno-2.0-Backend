@@ -10,6 +10,11 @@ import { errorHandler } from './common/errors/errorHandler.js';
 import healthRoutes from './modules/health/health.routes.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import usuariosRoutes from './modules/usuarios/routes/usuarios.routes.js';
+import marcasRoutes from './modules/marcas/routes/marcas.routes.js';
+import tiposProductoRoutes from './modules/tipos-producto/routes/tipos-producto.routes.js';
+import proveedoresRoutes from './modules/proveedores/routes/proveedores.routes.js';
+import productosRoutes from './modules/productos/routes/productos.routes.js';
+import clientesRoutes from './modules/clientes/routes/clientes.routes.js';
 
 export function createApp(): express.Express {
   const app = express();
@@ -27,6 +32,11 @@ export function createApp(): express.Express {
   app.use('/api/health', healthRoutes);
   app.use('/api/auth', authRoutes);
   app.use('/api/usuarios', usuariosRoutes);
+  app.use('/api/marcas', marcasRoutes);
+  app.use('/api/tipos-producto', tiposProductoRoutes);
+  app.use('/api/proveedores', proveedoresRoutes);
+  app.use('/api/clientes', clientesRoutes);
+  app.use('/api/productos', productosRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

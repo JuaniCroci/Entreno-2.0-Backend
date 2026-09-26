@@ -6,20 +6,21 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 
 1. **[001 · Setup](../features/001-setup/)** — esqueleto del proyecto: Docker + MySQL, Express 5, MikroORM, env, lint, harness de tests, health-check.
 2. **[002 · Auth y usuarios](../features/002-auth-usuarios/)** — Usuario, register/login JWT, roles, middleware, seed de admin.
-
-## Siguiente 🔜
-
-1. **[003 · CRUD Marca](../features/003-crud-marca/)** — alta/baja/edición/listado de marcas (admin).
-
-## En orden (regularidad)
-
-1. ~~[001 · Setup](../features/001-setup/)~~ — ✅
-2. ~~[002 · Auth y usuarios](../features/002-auth-usuarios/)~~ — ✅
 3. **[003 · CRUD Marca](../features/003-crud-marca/)** — alta/baja/edición/listado de marcas (admin).
 4. **[004 · CRUD Tipo de producto](../features/004-crud-tipo-producto/)** — CRUD de tipos de producto (admin).
 5. **[005 · CRUD Proveedor](../features/005-crud-proveedor/)** — CRUD de proveedores (admin).
 6. **[006 · CRUD Cliente](../features/006-crud-cliente/)** — gestión de usuarios con rol CLIENTE (admin).
 7. **[007 · CRUD Producto](../features/007-crud-producto/)** — producto dependiente de tipo + marca + proveedor; stock inicial.
+
+## En orden (regularidad)
+
+1. ~~[001 · Setup](../features/001-setup/)~~ — ✅
+2. ~~[002 · Auth y usuarios](../features/002-auth-usuarios/)~~ — ✅
+3. ~~[003 · CRUD Marca](../features/003-crud-marca/)~~ — ✅
+4. ~~[004 · CRUD Tipo de producto](../features/004-crud-tipo-producto/)~~ — ✅
+5. ~~[005 · CRUD Proveedor](../features/005-crud-proveedor/)~~ — ✅
+6. ~~[006 · CRUD Cliente](../features/006-crud-cliente/)~~ — ✅
+7. ~~[007 · CRUD Producto](../features/007-crud-producto/)~~ — ✅
 8. **[008 · CRUD Descuento](../features/008-crud-descuento/)** — descuentos y su aplicación a productos con vigencia.
 9. **[009 · CRUD Ingreso](../features/009-crud-ingreso/)** — ingresos de mercadería con líneas, importes y actualización de stock.
 10. **[010 · Listado de productos](../features/010-listado-productos/)** — listado público con filtros (tipo, marca, rango de precio) + detalle.

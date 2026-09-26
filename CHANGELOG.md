@@ -1,5 +1,124 @@
 # Changelog
 
+## v0.2.4 — Feature 007: CRUD Producto (2026-09-26)
+
+### Feature
+
+- `src/modules/productos/`: módulo completo (entity, dto, service, controller, routes, index)
+- **Primer CRUD con relaciones MikroORM N:1**: `@ManyToOne(() => TipoProducto)`, `@ManyToOne(() => Marca)`, `@ManyToOne(() => Proveedor)` (nullable)
+- `src/migrations/`: migración `AddProductos` con 3 FKs
+- `src/app.ts`: integrado `productosRoutes` en `/api/productos`
+- Endpoints: `GET /api/productos/admin`, `GET /api/productos/admin/:id`, `POST`, `PUT /api/productos/admin/:id`, `DELETE /api/productos/admin/:id`, `GET /api/productos/:id` (público)
+- `precioUnitario` como `string` (no `decimal.js` en entity), serializado como JSON string `"1500.00"`
+- `stockInicial` solo en Create DTO; `stock` no editable por PUT
+- Validación de FKs en service (activo + existencia) con `AppError(404)`
+
+### Decisiones clave
+
+- **`assertExists`**: NO implementar — se sigue patrón inline `findOne({ id, activo: true })` + `AppError(404)`
+- **`precioUnitario`**: `@Property({ type: 'string' })` en entity — evita complejidad con `decimal.js`
+- **Rutas**: un solo router con prefijo `/admin` para escrituras; `GET /:id` para público (evita colisión con 010)
+
+### Tests
+
+- `tests/unit/producto-service.unit.test.ts`: tests unitarios de validaciones FK, precio, stock, update sin stock
+- `tests/integration/producto.int.test.ts`: tests integración con cadena completa (marca→tipo→proveedor→producto)
+
+### Tests totales: +142 (20+ tests nuevos)
+
+### Lint + Build: pasa limpio
+
+---
+
+## v0.2.3 — Feature 006: CRUD Cliente (2026-09-24)
+
+### Feature
+
+- `src/modules/clientes/`: módulo completo (dto, service, controller, routes, index)
+- Reutiliza entidad `Usuario` existente (sin nueva tabla)
+- `src/app.ts`: integrado `clientesRoutes` en `/api/clientes`
+- Endpoints: todos `ADMIN` (`GET /api/clientes`, `GET /api/clientes/:id`, `POST`, `PUT`, `PATCH /:id/activar`, `PATCH /:id/desactivar`)
+- Listado siempre filtra `rol=CLIENTE`, nunca expone `passwordHash`
+- `ClienteService.create` fuerza `rol=CLIENTE`, `update` nunca cambia rol ni hashea password si no viene
+- `setActivo` toggle `activo` con PATCH
+
+### Tests
+
+- `tests/unit/cliente-service.unit.test.ts`: 5 tests unitarios
+- `tests/integration/cliente.int.test.ts`: 11 tests de integración
+
+### Tests totales: 142 pasando (17 files)
+
+### Lint + Build: pasa limpio
+
+---
+
+## v0.2.2 — Feature 005: CRUD Proveedor (2026-09-24)
+
+### Feature
+
+- `src/modules/proveedores/`: módulo completo (entity, dto, service, controller, routes, index)
+- `src/migrations/Migration20260924000002.ts`: tabla `proveedor` con `razon_social`, `cuit` unique, `telefono`, `email`, `domicilio`, `activo`, timestamps
+- `src/app.ts`: integrado `proveedoresRoutes` en `/api/proveedores`
+- Endpoints: todos `ADMIN` (`GET /api/proveedores`, `GET /api/proveedores/:id`, `POST`, `PUT`, `DELETE`)
+- CUIT validación: regex `^\d{11}$`, unique global, duplicado → 409
+- Soft-delete con `activo=false`
+
+### Tests
+
+- `tests/unit/proveedor-service.unit.test.ts`: 13 tests unitarios
+- `tests/integration/proveedor.int.test.ts`: 12 tests de integración
+
+### Tests totales: 125 pasando (15 files)
+
+### Lint + Build: pasa limpio
+
+---
+
+## v0.2.1 — Feature 004: CRUD Tipo de producto (2026-09-24)
+
+### Feature
+
+- `src/modules/tipos-producto/`: módulo completo (entity, dto, service, controller, routes, index)
+- `src/migrations/Migration20260924000001.ts`: tabla `tipo_producto` con `id`, `nombre` unique, `descripcion`, `activo`, timestamps
+- `src/app.ts`: integrado `tiposProductoRoutes` en `/api/tipos-producto`
+- Endpoints: `GET /api/tipos-producto` (público), `GET /api/tipos-producto/:id` (público), `POST`/`PUT`/`DELETE` (admin)
+- Soft-delete con `activo=false`
+- Validación de duplicado (409) y validación DTO (400)
+
+### Tests
+
+- `tests/unit/tipo-producto-service.unit.test.ts`: 13 tests unitarios
+- `tests/integration/tipo-producto.int.test.ts`: 11 tests de integración
+
+### Tests totales: 99 pasando (13 files)
+
+### Lint + Build: pasa limpio
+
+---
+
+## v0.2.0 — Feature 003: CRUD Marca (2026-09-24)
+
+### Feature
+
+- `src/modules/marcas/`: módulo completo (entity, dto, service, controller, routes, index)
+- `src/migrations/Migration20260924000000.ts`: tabla `marca` con `id`, `nombre` unique, `activo`, timestamps
+- `src/app.ts`: integrado `marcasRoutes` en `/api/marcas`
+- Endpoints: `GET /api/marcas` (público), `GET /api/marcas/:id` (público), `POST`/`PUT`/`DELETE` (admin)
+- Soft-delete con `activo=false`
+- Validación de duplicado (409) y validación DTO (400)
+
+### Tests
+
+- `tests/unit/marca-service.unit.test.ts`: 13 tests unitarios (list, getById, create, update, softDelete, duplicado, 404, 400)
+- `tests/integration/marca.int.test.ts`: 11 tests de integración (permisos 401/403, crea 201, duplicado 409, listado, soft-delete, inactiva 404)
+
+### Tests totales: 75 pasando (11 files)
+
+### Lint + Build: pasa limpio
+
+---
+
 ## v0.1.5 — Post-implementación: CI, Barrel, Security (2026-09-22)
 
 ### CI/CD
