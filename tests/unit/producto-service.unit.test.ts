@@ -2,34 +2,35 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProductoService } from '../../src/modules/productos/service/ProductoService.js';
 import { Producto } from '../../src/modules/productos/entity/Producto.js';
 import * as db from '../../src/config/db.js';
-import { AppError } from '../../src/common/errors/AppError.js';
 
-function makeTipoProducto(overrides: Partial<any> = {}): any {
-  const t: any = {
+interface MakeEntity {
+  id?: number;
+  nombre?: string;
+  activo?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  toPublic?: () => Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+function makeTipoProducto(overrides: Partial<MakeEntity> = {}): Record<string, unknown> {
+  const t: Record<string, unknown> = {
     id: 1, nombre: 'Proteína', activo: true, createdAt: new Date(), updatedAt: new Date(),
     toPublic: () => t,
   };
   Object.assign(t, overrides);
   return t;
 }
-function makeMarca(overrides: Partial<any> = {}): any {
-  const m: any = {
+function makeMarca(overrides: Partial<MakeEntity> = {}): Record<string, unknown> {
+  const m: Record<string, unknown> = {
     id: 1, nombre: 'Star Nutrition', activo: true, createdAt: new Date(), updatedAt: new Date(),
     toPublic: () => m,
   };
   Object.assign(m, overrides);
   return m;
 }
-function makeProveedor(overrides: Partial<any> = {}): any {
-  const p: any = {
-    id: 1, razonSocial: 'Test SA', activo: true, createdAt: new Date(), updatedAt: new Date(),
-    toPublic: () => p,
-  };
-  Object.assign(p, overrides);
-  return p;
-}
-function makeProducto(overrides: Partial<any> = {}): any {
-  const p: any = {
+function makeProducto(overrides: Partial<MakeEntity> = {}): Record<string, unknown> {
+  const p: Record<string, unknown> = {
     id: 1, nombre: 'Proteína Whey', descripcion: null, precioUnitario: '1500.00',
     stock: 10, activo: true, tipoProducto: makeTipoProducto(), marca: makeMarca(),
     createdAt: new Date(), updatedAt: new Date(),
@@ -66,7 +67,7 @@ describe('ProductoService', () => {
     vi.spyOn(em, 'create').mockReturnValue(producto);
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
-    const result = await service.create({
+    await service.create({
       nombre: 'Proteína Whey', stockInicial: 50, precioUnitario: '1500.00',
       idTipoProducto: 1, idMarca: 1,
     });

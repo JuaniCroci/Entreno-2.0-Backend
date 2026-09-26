@@ -1,6 +1,6 @@
 # 008 · CRUD Descuento
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 

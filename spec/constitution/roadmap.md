@@ -11,6 +11,7 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 5. **[005 · CRUD Proveedor](../features/005-crud-proveedor/)** — CRUD de proveedores (admin).
 6. **[006 · CRUD Cliente](../features/006-crud-cliente/)** — gestión de usuarios con rol CLIENTE (admin).
 7. **[007 · CRUD Producto](../features/007-crud-producto/)** — producto dependiente de tipo + marca + proveedor; stock inicial.
+8. **[008 · CRUD Descuento](../features/008-crud-descuento/)** — descuentos y su aplicación a productos con vigencia.
 
 ## En orden (regularidad)
 
@@ -21,7 +22,6 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 5. ~~[005 · CRUD Proveedor](../features/005-crud-proveedor/)~~ — ✅
 6. ~~[006 · CRUD Cliente](../features/006-crud-cliente/)~~ — ✅
 7. ~~[007 · CRUD Producto](../features/007-crud-producto/)~~ — ✅
-8. **[008 · CRUD Descuento](../features/008-crud-descuento/)** — descuentos y su aplicación a productos con vigencia.
 9. **[009 · CRUD Ingreso](../features/009-crud-ingreso/)** — ingresos de mercadería con líneas, importes y actualización de stock.
 10. **[010 · Listado de productos](../features/010-listado-productos/)** — listado público con filtros (tipo, marca, rango de precio) + detalle.
 11. **[011 · Carrito y pedido](../features/011-carrito-pedido/)** — CU: carrito persistente y confirmación de pedido con stock y descuentos.

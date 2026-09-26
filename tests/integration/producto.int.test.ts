@@ -14,7 +14,6 @@ let adminUserId = 1;
 let cuitCounter = 100000000;
 let marcaId = 1;
 let tipoProductoId = 1;
-let proveedorId = 1;
 let productoId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
@@ -56,9 +55,8 @@ describe('CRUD Producto (integración)', () => {
       proveedor.razonSocial = `Proveedor Test ${Date.now()}`;
       proveedor.cuit = makeCuit();
       proveedor.activo = true;
-      const createdProv = getOrm().em.create(Proveedor, proveedor);
+      getOrm().em.create(Proveedor, proveedor);
       await getOrm().em.flush();
-      proveedorId = createdProv.id;
     });
 
     app = createApp();
