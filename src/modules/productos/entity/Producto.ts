@@ -46,7 +46,7 @@ export class Producto {
   @ManyToOne(() => Proveedor, { nullable: true })
   proveedor: Proveedor | null = null;
 
-  @Property({ type: 'datetime', onCreate: () => new Date() })
+  @Property({ type: 'datetime' })
   createdAt!: Date;
 
   @Property({ type: 'datetime', onUpdate: () => new Date() })

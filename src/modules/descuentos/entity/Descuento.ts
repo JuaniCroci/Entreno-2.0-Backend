@@ -31,7 +31,7 @@ export class Descuento {
   @OneToMany(() => DescuentoProducto, (dpto) => dpto.descuento)
   aplicaciones = new Collection<DescuentoProducto>(this);
 
-  @Property({ type: 'datetime', onCreate: () => new Date() })
+  @Property({ type: 'datetime' })
   createdAt!: Date;
 
   @Property({ type: 'datetime', onUpdate: () => new Date() })
