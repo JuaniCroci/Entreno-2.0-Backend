@@ -6,8 +6,10 @@ import { RequestContext } from '@mikro-orm/core';
 import { closeDb, getOrm } from '../../src/config/db.js';
 import { Usuario } from '../../src/modules/usuarios/entity/Usuario.js';
 import jwt from 'jsonwebtoken';
+import { hash } from 'bcryptjs';
 
 let adminUserId = 1;
+let clienteUserId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
   return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
@@ -28,6 +30,21 @@ describe('CRUD Descuento (integración)', () => {
     await RequestContext.create(getOrm().em, async () => {
       const admin = await getOrm().em.findOne(Usuario, { email: 'admin@entreno.com' });
       if (admin) adminUserId = admin.id;
+      const cliente = await getOrm().em.findOne(Usuario, { email: 'cliente@test.local' });
+      if (cliente) {
+        clienteUserId = cliente.id;
+      } else {
+        const passwordHash = await hash('secret123', 10);
+        const createdCliente = getOrm().em.create(Usuario, {
+          nombre: 'Cliente Test',
+          email: 'cliente@test.local',
+          passwordHash,
+          rol: 'CLIENTE',
+          activo: true,
+        });
+        await getOrm().em.flush();
+        clienteUserId = createdCliente.id;
+      }
     });
 
     app = createApp();
@@ -52,7 +69,7 @@ describe('CRUD Descuento (integración)', () => {
   });
 
   it('POST /api/descuentos con CLIENTE responde 403', async () => {
-    const token = makeToken('CLIENTE');
+    const token = makeToken('CLIENTE', clienteUserId);
     const res = await request(app)
       .post('/api/descuentos')
       .set('Authorization', `Bearer ${token}`)

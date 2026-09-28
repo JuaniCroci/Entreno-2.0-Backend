@@ -9,8 +9,10 @@ import { Marca } from '../../src/modules/marcas/entity/Marca.js';
 import { TipoProducto } from '../../src/modules/tipos-producto/entity/TipoProducto.js';
 import { Proveedor } from '../../src/modules/proveedores/entity/Proveedor.js';
 import jwt from 'jsonwebtoken';
+import { hash } from 'bcryptjs';
 
 let adminUserId = 1;
+let clienteUserId = 1;
 let cuitCounter = 100000000;
 let marcaId = 1;
 let tipoProductoId = 1;
@@ -38,6 +40,22 @@ describe('CRUD Producto (integración)', () => {
     await RequestContext.create(getOrm().em, async () => {
       const admin = await getOrm().em.findOne(Usuario, { email: 'admin@entreno.com' });
       if (admin) adminUserId = admin.id;
+
+      const existingCliente = await getOrm().em.findOne(Usuario, { email: 'cliente@test.local' });
+      if (existingCliente) {
+        clienteUserId = existingCliente.id;
+      } else {
+        const passwordHash = await hash('secret123', 10);
+        const cliente = getOrm().em.create(Usuario, {
+          nombre: 'Cliente Test',
+          email: 'cliente@test.local',
+          passwordHash,
+          rol: 'CLIENTE',
+          activo: true,
+        });
+        await getOrm().em.flush();
+        clienteUserId = cliente.id;
+      }
 
       const marca = new Marca();
       marca.nombre = `Marca Test ${Date.now()}`;
@@ -74,7 +92,7 @@ describe('CRUD Producto (integración)', () => {
   });
 
   it('GET /api/productos/admin con CLIENTE responde 403', async () => {
-    const token = makeToken('CLIENTE');
+    const token = makeToken('CLIENTE', clienteUserId);
     const res = await request(app)
       .get('/api/productos/admin')
       .set('Authorization', `Bearer ${token}`);
@@ -93,7 +111,7 @@ describe('CRUD Producto (integración)', () => {
   });
 
   it('POST /api/productos con CLIENTE responde 403', async () => {
-    const token = makeToken('CLIENTE');
+    const token = makeToken('CLIENTE', clienteUserId);
     const res = await request(app)
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
