@@ -17,9 +17,9 @@ async function setup() {
   }
 
   try {
-    await orm.getSchemaGenerator().createSchema();
+    await orm.getSchemaGenerator().updateSchema({ safe: true });
   } catch (err) {
-    console.error('Error creating schema:', err);
+    console.error('Error updating schema:', err);
   }
 
   try {

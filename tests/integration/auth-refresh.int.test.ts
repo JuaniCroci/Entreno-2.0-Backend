@@ -10,7 +10,7 @@ describe('Refresh Token flow (integración)', () => {
   beforeAll(async () => {
     await initDb();
     try {
-      await getOrm().getSchemaGenerator().createSchema();
+      await getOrm().getSchemaGenerator().updateSchema({ safe: true });
     } catch {
       // el schema ya existe
     }

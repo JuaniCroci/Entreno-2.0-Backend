@@ -21,7 +21,7 @@ describe('CRUD Marca (integración)', () => {
 
   beforeAll(async () => {
     try {
-      await getOrm().getSchemaGenerator().createSchema();
+      await getOrm().getSchemaGenerator().updateSchema({ safe: true });
     } catch {
       // schema ya existe
     }

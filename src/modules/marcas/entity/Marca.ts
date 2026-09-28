@@ -22,7 +22,7 @@ export class Marca {
   @Property({ type: 'datetime', onCreate: () => new Date() })
   createdAt!: Date;
 
-  @Property({ type: 'datetime', onUpdate: () => new Date() })
+  @Property({ type: 'datetime', onCreate: () => new Date(), onUpdate: () => new Date() })
   updatedAt!: Date;
 
   toPublic(): MarcaPublic {
