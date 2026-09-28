@@ -12,7 +12,9 @@ export class UpdateClienteDto {
 
   @IsOptional()
   @IsString({ message: 'password debe ser una cadena de texto' })
-  @MinLength(env.passwordMinLength, { message: `password debe tener al menos ${env.passwordMinLength} caracteres` })
+  @MinLength(env.passwordMinLength, {
+    message: `password debe tener al menos ${env.passwordMinLength} caracteres`,
+  })
   password?: string;
 
   @IsOptional()

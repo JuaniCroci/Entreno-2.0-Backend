@@ -12,7 +12,13 @@ const ctrl = new TipoProductoController();
 router.get('/', ctrl.list);
 router.get('/:id', ctrl.getById);
 router.post('/', authenticate, authorize('ADMIN'), validateDto(CreateTipoProductoDto), ctrl.create);
-router.put('/:id', authenticate, authorize('ADMIN'), validateDto(UpdateTipoProductoDto), ctrl.update);
+router.put(
+  '/:id',
+  authenticate,
+  authorize('ADMIN'),
+  validateDto(UpdateTipoProductoDto),
+  ctrl.update,
+);
 router.delete('/:id', authenticate, authorize('ADMIN'), ctrl.softDelete);
 
 export default router;

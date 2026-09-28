@@ -12,9 +12,11 @@
 **Razón:** Los services actuales (MarcaService, TipoProductoService, ProveedorService) no tienen este método. Seguir el patrón inline (`findOne` + `AppError(404)`) que ya usan.
 
 **Implementación en ProductoService:**
+
 ```ts
 const tipoProducto = await this.em.findOne(TipoProducto, { id: dto.idTipoProducto, activo: true });
-if (!tipoProducto) throw new AppError(404, 'El tipo de producto seleccionado no existe o está inactivo');
+if (!tipoProducto)
+  throw new AppError(404, 'El tipo de producto seleccionado no existe o está inactivo');
 ```
 
 Repetir para `idMarca` e `idProveedor` (opcional).
@@ -26,12 +28,14 @@ Repetir para `idMarca` e `idProveedor` (opcional).
 **Decisión:** `@Property({ type: 'string' })` para `precioUnitario` en el entity. No usar `decimal.js` dentro del entity.
 
 **Razón:**
+
 - Simplifica el entity y evita problemas de serialización con MikroORM
 - El `api-contract.md` ya exige que dinero se serialice como string en JSON
 - `decimal.js` se usa solo en el service para cálculos si es necesario
 - El DTO de entrada acepta `string` con `@IsDecimal()` y se almacena tal cual
 
 **Entity:**
+
 ```ts
 @Property({ type: 'string' })
 precioUnitario!: string; // "1500.00"
@@ -79,6 +83,7 @@ Los campos `_id` de cada relation se guardan como FK en la tabla `producto`.
 **Razón:** El listado público (010) usará `GET /api/productos` con filtros sin prefijo `/admin`. Esto evita colisión.
 
 **Estructura en `app.ts`:**
+
 ```ts
 // Rutas admin (todas requieren ADMIN)
 app.use('/api/productos/admin', productosRouterAdmin);
@@ -88,11 +93,12 @@ app.use('/api/productos', productosRouterPublic);
 ```
 
 O alternativa más limpia: un solo router con sub-rutas:
+
 ```ts
 // En productos.routes.ts
 const router = Router();
-router.use('/admin', adminRoutes);  // POST, PUT, DELETE, GET listado
-router.get('/:id', ctrl.getByIdPublic);  // detalle público
+router.use('/admin', adminRoutes); // POST, PUT, DELETE, GET listado
+router.get('/:id', ctrl.getByIdPublic); // detalle público
 ```
 
 **Preferido:** Un solo router, con prefijo `/admin` solo para rutas admin. `app.ts` registra `app.use('/api/productos', productosRouter)`.
@@ -106,6 +112,7 @@ router.get('/:id', ctrl.getByIdPublic);  // detalle público
 **Razón:** El DTO solo valida formato (`@IsInt()`, `@IsOptional()`). La existencia y actividad de FK se valida en service porque requiere DB.
 
 **Patrón:**
+
 ```ts
 async create(dto: CreateProductoDto): Promise<ProductoPublic> {
   const tipoProducto = await this.em.findOne(TipoProducto, { id: dto.idTipoProducto, activo: true });
@@ -131,6 +138,7 @@ async create(dto: CreateProductoDto): Promise<ProductoPublic> {
 **Decisión:** `stockInicial` en `CreateProductoDto`, NO en `UpdateProductoDto`. `stock` no es writable por PUT.
 
 **Implementación:**
+
 - `CreateProductoDto`: `stockInicial: number` con `@IsInt()`, `@Min(0)`
 - `UpdateProductoDto`: NO tiene `stockInicial` ni `stock`
 - `ProductoService.create`: `stock = stockInicial`
@@ -155,6 +163,7 @@ stock!: number;
 **Decisión:** El `beforeAll` crea marca + tipoProducto + proveedor, y luego crea producto con sus IDs.
 
 **Patrón:**
+
 ```ts
 let marcaId: number;
 let tipoProductoId: number;
@@ -167,6 +176,7 @@ beforeAll(async () => {
 ```
 
 **Tests requeridos:**
+
 - `POST` con FK inválida → 404
 - `POST` con precio ≤ 0 → 400
 - `POST` con stockInicial < 0 → 400
@@ -183,6 +193,7 @@ beforeAll(async () => {
 **Decisión:** Crear migración MikroORM con `migration:create`.
 
 **Tabla `producto`:**
+
 - `id` PK int unsigned auto_increment
 - `nombre` varchar(255) not null
 - `descripcion` varchar(500) null
@@ -200,13 +211,13 @@ beforeAll(async () => {
 
 ## 10. Respuesta público vs admin
 
-| Aspecto | Público (`GET /api/productos/:id`) | Admin (`GET /api/productos/admin/:id`) |
-|---------|-----------------------------------|---------------------------------------|
-| Producto inactivo | 404 | 200 (visible) |
-| Campo `proveedor` | Solo `id`, `razonSocial`, `activo` | Todos los campos |
-| Stock | Sí | Sí |
-| `precioUnitario` | Sí (string) | Sí (string) |
-| `descripcion` | Sí | Sí |
+| Aspecto           | Público (`GET /api/productos/:id`) | Admin (`GET /api/productos/admin/:id`) |
+| ----------------- | ---------------------------------- | -------------------------------------- |
+| Producto inactivo | 404                                | 200 (visible)                          |
+| Campo `proveedor` | Solo `id`, `razonSocial`, `activo` | Todos los campos                       |
+| Stock             | Sí                                 | Sí                                     |
+| `precioUnitario`  | Sí (string)                        | Sí (string)                            |
+| `descripcion`     | Sí                                 | Sí                                     |
 
 **`toPublic()`** del entity devuelve `ProveedorPublic` con `id`, `razonSocial`, `activo` solo.
 
@@ -215,6 +226,7 @@ beforeAll(async () => {
 ## 11. DTO de filtro admin
 
 **`FilterProductoAdminDto`:**
+
 - `nombre?: string` (`@IsOptional()`)
 - `idTipoProducto?: number` (`@IsOptional()`, `@IsInt()`)
 - `idMarca?: number` (`@IsOptional()`, `@IsInt()`)

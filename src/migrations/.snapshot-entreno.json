@@ -120,9 +120,7 @@
       "indexes": [
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -219,9 +217,7 @@
       "name": "marca",
       "indexes": [
         {
-          "columnNames": [
-            "nombre"
-          ],
+          "columnNames": ["nombre"],
           "composite": false,
           "keyName": "marca_nombre_unique",
           "constraint": true,
@@ -230,9 +226,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -393,9 +387,7 @@
       "name": "proveedor",
       "indexes": [
         {
-          "columnNames": [
-            "cuit"
-          ],
+          "columnNames": ["cuit"],
           "composite": false,
           "keyName": "proveedor_cuit_unique",
           "constraint": true,
@@ -404,9 +396,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -519,9 +509,7 @@
       "name": "tipo_producto",
       "indexes": [
         {
-          "columnNames": [
-            "nombre"
-          ],
+          "columnNames": ["nombre"],
           "composite": false,
           "keyName": "tipo_producto_nombre_unique",
           "constraint": true,
@@ -530,9 +518,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -725,9 +711,7 @@
       "name": "producto",
       "indexes": [
         {
-          "columnNames": [
-            "tipo_producto_id"
-          ],
+          "columnNames": ["tipo_producto_id"],
           "composite": false,
           "keyName": "producto_tipo_producto_id_index",
           "constraint": false,
@@ -735,9 +719,7 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "marca_id"
-          ],
+          "columnNames": ["marca_id"],
           "composite": false,
           "keyName": "producto_marca_id_index",
           "constraint": false,
@@ -745,9 +727,7 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "proveedor_id"
-          ],
+          "columnNames": ["proveedor_id"],
           "composite": false,
           "keyName": "producto_proveedor_id_index",
           "constraint": false,
@@ -756,9 +736,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -769,37 +747,25 @@
       "foreignKeys": {
         "producto_tipo_producto_id_foreign": {
           "constraintName": "producto_tipo_producto_id_foreign",
-          "columnNames": [
-            "tipo_producto_id"
-          ],
+          "columnNames": ["tipo_producto_id"],
           "localTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "tipo_producto",
           "updateRule": "cascade"
         },
         "producto_marca_id_foreign": {
           "constraintName": "producto_marca_id_foreign",
-          "columnNames": [
-            "marca_id"
-          ],
+          "columnNames": ["marca_id"],
           "localTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "marca",
           "updateRule": "cascade"
         },
         "producto_proveedor_id_foreign": {
           "constraintName": "producto_proveedor_id_foreign",
-          "columnNames": [
-            "proveedor_id"
-          ],
+          "columnNames": ["proveedor_id"],
           "localTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "proveedor",
           "deleteRule": "set null",
           "updateRule": "cascade"
@@ -893,9 +859,7 @@
       "name": "descuento_producto",
       "indexes": [
         {
-          "columnNames": [
-            "descuento_id"
-          ],
+          "columnNames": ["descuento_id"],
           "composite": false,
           "keyName": "descuento_producto_descuento_id_index",
           "constraint": false,
@@ -903,9 +867,7 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "composite": false,
           "keyName": "descuento_producto_producto_id_index",
           "constraint": false,
@@ -914,9 +876,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -927,25 +887,17 @@
       "foreignKeys": {
         "descuento_producto_descuento_id_foreign": {
           "constraintName": "descuento_producto_descuento_id_foreign",
-          "columnNames": [
-            "descuento_id"
-          ],
+          "columnNames": ["descuento_id"],
           "localTableName": "descuento_producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "descuento",
           "updateRule": "cascade"
         },
         "descuento_producto_producto_id_foreign": {
           "constraintName": "descuento_producto_producto_id_foreign",
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "localTableName": "descuento_producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "producto",
           "updateRule": "cascade"
         }
@@ -1063,10 +1015,7 @@
           "scale": null,
           "default": "'CLIENTE'",
           "comment": null,
-          "enumItems": [
-            "ADMIN",
-            "CLIENTE"
-          ],
+          "enumItems": ["ADMIN", "CLIENTE"],
           "mappedType": "enum"
         },
         "activo": {
@@ -1121,9 +1070,7 @@
       "name": "usuario",
       "indexes": [
         {
-          "columnNames": [
-            "email"
-          ],
+          "columnNames": ["email"],
           "composite": false,
           "keyName": "usuario_email_unique",
           "constraint": true,
@@ -1132,9 +1079,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -1247,9 +1192,7 @@
       "name": "refresh_token",
       "indexes": [
         {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "composite": false,
           "keyName": "refresh_token_usuario_id_index",
           "constraint": false,
@@ -1258,9 +1201,7 @@
         },
         {
           "keyName": "PRIMARY",
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "primary": true,
@@ -1271,13 +1212,9 @@
       "foreignKeys": {
         "refresh_token_usuario_id_foreign": {
           "constraintName": "refresh_token_usuario_id_foreign",
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "localTableName": "refresh_token",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "usuario",
           "updateRule": "cascade"
         }

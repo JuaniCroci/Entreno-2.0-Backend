@@ -15,7 +15,11 @@ interface MakeEntity {
 
 function makeTipoProducto(overrides: Partial<MakeEntity> = {}): Record<string, unknown> {
   const t: Record<string, unknown> = {
-    id: 1, nombre: 'Proteína', activo: true, createdAt: new Date(), updatedAt: new Date(),
+    id: 1,
+    nombre: 'Proteína',
+    activo: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     toPublic: () => t,
   };
   Object.assign(t, overrides);
@@ -23,7 +27,11 @@ function makeTipoProducto(overrides: Partial<MakeEntity> = {}): Record<string, u
 }
 function makeMarca(overrides: Partial<MakeEntity> = {}): Record<string, unknown> {
   const m: Record<string, unknown> = {
-    id: 1, nombre: 'Star Nutrition', activo: true, createdAt: new Date(), updatedAt: new Date(),
+    id: 1,
+    nombre: 'Star Nutrition',
+    activo: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     toPublic: () => m,
   };
   Object.assign(m, overrides);
@@ -31,9 +39,16 @@ function makeMarca(overrides: Partial<MakeEntity> = {}): Record<string, unknown>
 }
 function makeProducto(overrides: Partial<MakeEntity> = {}): Record<string, unknown> {
   const p: Record<string, unknown> = {
-    id: 1, nombre: 'Proteína Whey', descripcion: null, precioUnitario: '1500.00',
-    stock: 10, activo: true, tipoProducto: makeTipoProducto(), marca: makeMarca(),
-    createdAt: new Date(), updatedAt: new Date(),
+    id: 1,
+    nombre: 'Proteína Whey',
+    descripcion: null,
+    precioUnitario: '1500.00',
+    stock: 10,
+    activo: true,
+    tipoProducto: makeTipoProducto(),
+    marca: makeMarca(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     toPublic: () => p,
   };
   Object.assign(p, overrides);
@@ -68,26 +83,39 @@ describe('ProductoService', () => {
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
     await service.create({
-      nombre: 'Proteína Whey', stockInicial: 50, precioUnitario: '1500.00',
-      idTipoProducto: 1, idMarca: 1,
+      nombre: 'Proteína Whey',
+      stockInicial: 50,
+      precioUnitario: '1500.00',
+      idTipoProducto: 1,
+      idMarca: 1,
     });
     expect(em.create).toHaveBeenCalledWith(Producto, expect.objectContaining({ stock: 50 }));
   });
 
   it('create lanza 404 si tipoProducto no existe o inactivo', async () => {
     vi.spyOn(em, 'findOne').mockResolvedValue(null);
-    await expect(service.create({
-      nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 1, idMarca: 1,
-    })).rejects.toMatchObject({ statusCode: 404 });
+    await expect(
+      service.create({
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '10.00',
+        idTipoProducto: 1,
+        idMarca: 1,
+      }),
+    ).rejects.toMatchObject({ statusCode: 404 });
   });
 
   it('create lanza 404 si marca no existe o inactiva', async () => {
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(makeTipoProducto())
-      .mockResolvedValueOnce(null);
-    await expect(service.create({
-      nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 1, idMarca: 1,
-    })).rejects.toMatchObject({ statusCode: 404 });
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(makeTipoProducto()).mockResolvedValueOnce(null);
+    await expect(
+      service.create({
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '10.00',
+        idTipoProducto: 1,
+        idMarca: 1,
+      }),
+    ).rejects.toMatchObject({ statusCode: 404 });
   });
 
   it('create lanza 404 si proveedor inactivo', async () => {
@@ -95,9 +123,16 @@ describe('ProductoService', () => {
       .mockResolvedValueOnce(makeTipoProducto())
       .mockResolvedValueOnce(makeMarca())
       .mockResolvedValueOnce(null);
-    await expect(service.create({
-      nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 1, idMarca: 1, idProveedor: 1,
-    })).rejects.toMatchObject({ statusCode: 404 });
+    await expect(
+      service.create({
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '10.00',
+        idTipoProducto: 1,
+        idMarca: 1,
+        idProveedor: 1,
+      }),
+    ).rejects.toMatchObject({ statusCode: 404 });
   });
 
   it('create con proveedor nulo (opcional) funciona', async () => {
@@ -112,7 +147,11 @@ describe('ProductoService', () => {
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
     await service.create({
-      nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 1, idMarca: 1,
+      nombre: 'X',
+      stockInicial: 0,
+      precioUnitario: '10.00',
+      idTipoProducto: 1,
+      idMarca: 1,
     });
   });
 

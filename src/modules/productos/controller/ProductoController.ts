@@ -13,7 +13,8 @@ export class ProductoController {
       idTipoProducto: req.query.idTipoProducto ? Number(req.query.idTipoProducto) : undefined,
       idMarca: req.query.idMarca ? Number(req.query.idMarca) : undefined,
       idProveedor: req.query.idProveedor ? Number(req.query.idProveedor) : undefined,
-      activo: req.query.activo === 'true' ? true : req.query.inactivos === 'true' ? false : undefined,
+      activo:
+        req.query.activo === 'true' ? true : req.query.inactivos === 'true' ? false : undefined,
       page: req.query.page ? Number(req.query.page) : 1,
       size: req.query.size ? Number(req.query.size) : 20,
     };

@@ -12,7 +12,9 @@ let clienteUserId = 1;
 let cuitCounter = 100000000;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
-  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', { expiresIn: '7d' });
+  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
+    expiresIn: '7d',
+  });
 }
 
 function makeCuit(): string {
@@ -50,17 +52,13 @@ describe('CRUD Proveedor (integración)', () => {
 
   it('GET /api/proveedores con CLIENTE responde 403', async () => {
     const token = makeToken('CLIENTE', clienteUserId);
-    const res = await request(app)
-      .get('/api/proveedores')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/proveedores').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(403);
   });
 
   it('GET /api/proveedores con ADMIN responde 200', async () => {
     const token = makeToken('ADMIN');
-    const res = await request(app)
-      .get('/api/proveedores')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/proveedores').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('data');
     expect(res.body).toHaveProperty('total');
@@ -160,9 +158,7 @@ describe('CRUD Proveedor (integración)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ razonSocial: `Inactivo ${Date.now()}`, cuit: makeCuit() });
     const id = createRes.body.id;
-    await request(app)
-      .delete(`/api/proveedores/${id}`)
-      .set('Authorization', `Bearer ${token}`);
+    await request(app).delete(`/api/proveedores/${id}`).set('Authorization', `Bearer ${token}`);
     const res = await request(app)
       .get(`/api/proveedores/${id}`)
       .set('Authorization', `Bearer ${token}`);

@@ -11,7 +11,9 @@ let adminUserId = 1;
 let clienteUserId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
-  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', { expiresIn: '7d' });
+  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
+    expiresIn: '7d',
+  });
 }
 
 describe('CRUD Cliente (integración)', () => {
@@ -45,17 +47,13 @@ describe('CRUD Cliente (integración)', () => {
 
   it('GET /api/clientes con CLIENTE responde 403', async () => {
     const token = makeToken('CLIENTE', clienteUserId);
-    const res = await request(app)
-      .get('/api/clientes')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/clientes').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(403);
   });
 
   it('GET /api/clientes con ADMIN responde 200', async () => {
     const token = makeToken('ADMIN');
-    const res = await request(app)
-      .get('/api/clientes')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/clientes').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('data');
     expect(res.body).toHaveProperty('total');
@@ -82,7 +80,11 @@ describe('CRUD Cliente (integración)', () => {
     const res = await request(app)
       .post('/api/clientes')
       .set('Authorization', `Bearer ${token}`)
-      .send({ nombre: `Cliente Test ${Date.now()}`, email: `cli${Date.now()}@test.com`, password: 'secret123' });
+      .send({
+        nombre: `Cliente Test ${Date.now()}`,
+        email: `cli${Date.now()}@test.com`,
+        password: 'secret123',
+      });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
     expect(res.body).not.toHaveProperty('passwordHash');
@@ -125,7 +127,11 @@ describe('CRUD Cliente (integración)', () => {
     const createRes = await request(app)
       .post('/api/clientes')
       .set('Authorization', `Bearer ${token}`)
-      .send({ nombre: `ParaEditar ${Date.now()}`, email: `edit${Date.now()}@test.com`, password: 'secret123' });
+      .send({
+        nombre: `ParaEditar ${Date.now()}`,
+        email: `edit${Date.now()}@test.com`,
+        password: 'secret123',
+      });
     const id = createRes.body.id;
     const putRes = await request(app)
       .put(`/api/clientes/${id}`)
@@ -140,7 +146,11 @@ describe('CRUD Cliente (integración)', () => {
     const createRes = await request(app)
       .post('/api/clientes')
       .set('Authorization', `Bearer ${token}`)
-      .send({ nombre: `Inactivar ${Date.now()}`, email: `inact${Date.now()}@test.com`, password: 'secret123' });
+      .send({
+        nombre: `Inactivar ${Date.now()}`,
+        email: `inact${Date.now()}@test.com`,
+        password: 'secret123',
+      });
     const id = createRes.body.id;
     const delRes = await request(app)
       .patch(`/api/clientes/${id}/desactivar`)

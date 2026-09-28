@@ -28,7 +28,7 @@ export class Descuento {
   @Property({ type: 'boolean', default: true })
   activo = true;
 
-  @OneToMany(() => DescuentoProducto, dpto => dpto.descuento)
+  @OneToMany(() => DescuentoProducto, (dpto) => dpto.descuento)
   aplicaciones = new Collection<DescuentoProducto>(this);
 
   @Property({ type: 'datetime', onCreate: () => new Date() })

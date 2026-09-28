@@ -13,7 +13,13 @@ router.get('/admin', authenticate, authorize('ADMIN'), ctrl.listAdmin);
 router.get('/admin/:id', authenticate, authorize('ADMIN'), ctrl.getByIdAdmin);
 router.get('/:id', ctrl.getByIdPublic);
 router.post('/', authenticate, authorize('ADMIN'), validateDto(CreateProductoDto), ctrl.create);
-router.put('/admin/:id', authenticate, authorize('ADMIN'), validateDto(UpdateProductoDto), ctrl.update);
+router.put(
+  '/admin/:id',
+  authenticate,
+  authorize('ADMIN'),
+  validateDto(UpdateProductoDto),
+  ctrl.update,
+);
 router.delete('/admin/:id', authenticate, authorize('ADMIN'), ctrl.softDelete);
 
 export default router;

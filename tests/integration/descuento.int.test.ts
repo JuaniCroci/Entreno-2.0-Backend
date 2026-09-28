@@ -10,7 +10,9 @@ import jwt from 'jsonwebtoken';
 let adminUserId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
-  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', { expiresIn: '7d' });
+  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
+    expiresIn: '7d',
+  });
 }
 
 describe('CRUD Descuento (integración)', () => {
@@ -43,19 +45,27 @@ describe('CRUD Descuento (integración)', () => {
   });
 
   it('POST /api/descuentos sin token responde 401', async () => {
-    const res = await request(app).post('/api/descuentos').send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
+    const res = await request(app)
+      .post('/api/descuentos')
+      .send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
     expect(res.status).toBe(401);
   });
 
   it('POST /api/descuentos con CLIENTE responde 403', async () => {
     const token = makeToken('CLIENTE');
-    const res = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
+    const res = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
     expect(res.status).toBe(403);
   });
 
   it('POST /api/descuentos con ADMIN crea descuento 201', async () => {
     const token = makeToken('ADMIN');
-    const res = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
+    const res = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
     expect(res.body.descripcion).toBe('Test');
@@ -63,33 +73,50 @@ describe('CRUD Descuento (integración)', () => {
 
   it('POST /api/descuentos con porcentaje inválido responde 400', async () => {
     const token = makeToken('ADMIN');
-    const res = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 150 });
+    const res = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 150 });
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('statusCode', 400);
   });
 
   it('POST /api/descuentos con cantidadMinima 0 responde 400', async () => {
     const token = makeToken('ADMIN');
-    const res = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: 'Test', cantidadMinima: 0, porcentaje: 10 });
+    const res = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Test', cantidadMinima: 0, porcentaje: 10 });
     expect(res.status).toBe(400);
   });
 
   it('POST /api/descuentos con descripcion vacía responde 400', async () => {
     const token = makeToken('ADMIN');
-    const res = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: '', cantidadMinima: 1, porcentaje: 10 });
+    const res = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: '', cantidadMinima: 1, porcentaje: 10 });
     expect(res.status).toBe(400);
   });
 
   it('POST /api/descuentos/:id/aplicaciones sin token responde 401', async () => {
-    const res = await request(app).post('/api/descuentos/1/aplicaciones').send({ idProducto: 1, fechaDesde: '2026-01-01', fechaHasta: '2026-12-31' });
+    const res = await request(app)
+      .post('/api/descuentos/1/aplicaciones')
+      .send({ idProducto: 1, fechaDesde: '2026-01-01', fechaHasta: '2026-12-31' });
     expect(res.status).toBe(401);
   });
 
   it('POST /api/descuentos/:id/aplicaciones con ADMIN crea aplicación 201', async () => {
     const token = makeToken('ADMIN');
-    const createRes = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: 'Con Solapamiento', cantidadMinima: 1, porcentaje: 10 });
+    const createRes = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Con Solapamiento', cantidadMinima: 1, porcentaje: 10 });
     const id = createRes.body.id;
-    const res = await request(app).post(`/api/descuentos/${id}/aplicaciones`).set('Authorization', `Bearer ${token}`).send({ idProducto: 1, fechaDesde: '2026-01-01', fechaHasta: '2026-12-31' });
+    const res = await request(app)
+      .post(`/api/descuentos/${id}/aplicaciones`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ idProducto: 1, fechaDesde: '2026-01-01', fechaHasta: '2026-12-31' });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
   });
@@ -99,7 +126,9 @@ describe('CRUD Descuento (integración)', () => {
     const res = await request(app).get('/api/descuentos').set('Authorization', `Bearer ${token}`);
     const id = res.body.data[0]?.id;
     if (id) {
-      const detail = await request(app).get(`/api/descuentos/${id}`).set('Authorization', `Bearer ${token}`);
+      const detail = await request(app)
+        .get(`/api/descuentos/${id}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(detail.status).toBe(200);
       expect(detail.body).toHaveProperty('aplicaciones');
     }
@@ -112,9 +141,14 @@ describe('CRUD Descuento (integración)', () => {
 
   it('DELETE /api/descuentos/:id con ADMIN responde 204', async () => {
     const token = makeToken('ADMIN');
-    const createRes = await request(app).post('/api/descuentos').set('Authorization', `Bearer ${token}`).send({ descripcion: `ParaBorrar ${Date.now()}`, cantidadMinima: 1, porcentaje: 10 });
+    const createRes = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: `ParaBorrar ${Date.now()}`, cantidadMinima: 1, porcentaje: 10 });
     const id = createRes.body.id;
-    const delRes = await request(app).delete(`/api/descuentos/${id}`).set('Authorization', `Bearer ${token}`);
+    const delRes = await request(app)
+      .delete(`/api/descuentos/${id}`)
+      .set('Authorization', `Bearer ${token}`);
     expect(delRes.status).toBe(204);
   });
 });

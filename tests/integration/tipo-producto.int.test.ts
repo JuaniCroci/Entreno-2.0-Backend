@@ -11,7 +11,9 @@ let adminUserId = 1;
 let clienteUserId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
-  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', { expiresIn: '7d' });
+  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
+    expiresIn: '7d',
+  });
 }
 
 describe('CRUD Tipo de producto (integración)', () => {
@@ -46,9 +48,7 @@ describe('CRUD Tipo de producto (integración)', () => {
   });
 
   it('POST /api/tipos-producto sin token responde 401', async () => {
-    const res = await request(app)
-      .post('/api/tipos-producto')
-      .send({ nombre: 'Test Tipo' });
+    const res = await request(app).post('/api/tipos-producto').send({ nombre: 'Test Tipo' });
     expect(res.status).toBe(401);
   });
 
@@ -126,9 +126,7 @@ describe('CRUD Tipo de producto (integración)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ nombre: `Inactivo ${Date.now()}` });
     const id = createRes.body.id;
-    await request(app)
-      .delete(`/api/tipos-producto/${id}`)
-      .set('Authorization', `Bearer ${token}`);
+    await request(app).delete(`/api/tipos-producto/${id}`).set('Authorization', `Bearer ${token}`);
     const res = await request(app).get(`/api/tipos-producto/${id}`);
     expect(res.status).toBe(404);
   });

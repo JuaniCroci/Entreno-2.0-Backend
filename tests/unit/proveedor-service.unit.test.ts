@@ -89,14 +89,14 @@ describe('ProveedorService', () => {
   it('create lanza 409 si CUIT duplicado', async () => {
     const existing = makeProveedor({ cuit: '20123456789' });
     vi.spyOn(em, 'findOne').mockResolvedValue(existing);
-    await expect(service.create({ razonSocial: 'X', cuit: '20123456789' })).rejects.toMatchObject({ statusCode: 409 });
+    await expect(service.create({ razonSocial: 'X', cuit: '20123456789' })).rejects.toMatchObject({
+      statusCode: 409,
+    });
   });
 
   it('update actualiza proveedor', async () => {
     const proveedor = makeProveedor({ id: 1, razonSocial: 'Test SA' });
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(proveedor)
-      .mockResolvedValueOnce(null);
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(proveedor).mockResolvedValueOnce(null);
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
     const result = await service.update(1, { razonSocial: 'Nueva SA' });
@@ -106,15 +106,17 @@ describe('ProveedorService', () => {
   it('update lanza 409 si CUIT duplicado por otro', async () => {
     const proveedor = makeProveedor({ id: 1, cuit: '20123456789' });
     const dup = makeProveedor({ id: 2, cuit: '30987654321' });
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(proveedor)
-      .mockResolvedValueOnce(dup);
-    await expect(service.update(1, { cuit: '30987654321' })).rejects.toMatchObject({ statusCode: 409 });
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(proveedor).mockResolvedValueOnce(dup);
+    await expect(service.update(1, { cuit: '30987654321' })).rejects.toMatchObject({
+      statusCode: 409,
+    });
   });
 
   it('update lanza 404 si no existe', async () => {
     vi.spyOn(em, 'findOne').mockResolvedValue(null);
-    await expect(service.update(999, { razonSocial: 'X' })).rejects.toMatchObject({ statusCode: 404 });
+    await expect(service.update(999, { razonSocial: 'X' })).rejects.toMatchObject({
+      statusCode: 404,
+    });
   });
 
   it('softDelete pone activo=false', async () => {

@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength, IsOptional, IsDecimal, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsDecimal,
+  IsInt,
+  Min,
+} from 'class-validator';
 
 export class CreateProductoDto {
   @IsString({ message: 'nombre debe ser una cadena de texto' })
@@ -12,7 +21,10 @@ export class CreateProductoDto {
   @MaxLength(500, { message: 'descripcion debe tener máximo 500 caracteres' })
   descripcion?: string | null;
 
-  @IsDecimal({ decimal_digits: '0.00' }, { message: 'precioUnitario debe ser un valor decimal válido' })
+  @IsDecimal(
+    { decimal_digits: '0.00' },
+    { message: 'precioUnitario debe ser un valor decimal válido' },
+  )
   precioUnitario!: string;
 
   @IsInt({ message: 'stockInicial debe ser un entero' })

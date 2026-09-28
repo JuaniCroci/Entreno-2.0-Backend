@@ -17,7 +17,9 @@ let tipoProductoId = 1;
 let productoId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
-  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', { expiresIn: '7d' });
+  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
+    expiresIn: '7d',
+  });
 }
 function makeCuit(): string {
   return String(cuitCounter++).padStart(11, '0');
@@ -80,9 +82,13 @@ describe('CRUD Producto (integración)', () => {
   });
 
   it('POST /api/productos sin token responde 401', async () => {
-    const res = await request(app)
-      .post('/api/productos')
-      .send({ nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 1, idMarca: 1 });
+    const res = await request(app).post('/api/productos').send({
+      nombre: 'X',
+      stockInicial: 0,
+      precioUnitario: '10.00',
+      idTipoProducto: 1,
+      idMarca: 1,
+    });
     expect(res.status).toBe(401);
   });
 
@@ -91,7 +97,13 @@ describe('CRUD Producto (integración)', () => {
     const res = await request(app)
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
-      .send({ nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 1, idMarca: 1 });
+      .send({
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '10.00',
+        idTipoProducto: 1,
+        idMarca: 1,
+      });
     expect(res.status).toBe(403);
   });
 
@@ -101,8 +113,11 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: `Producto Test ${Date.now()}`, stockInicial: 10, precioUnitario: '1500.00',
-        idTipoProducto: tipoProductoId, idMarca: marcaId,
+        nombre: `Producto Test ${Date.now()}`,
+        stockInicial: 10,
+        precioUnitario: '1500.00',
+        idTipoProducto: tipoProductoId,
+        idMarca: marcaId,
       });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
@@ -117,7 +132,11 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: 99999, idMarca: marcaId,
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '10.00',
+        idTipoProducto: 99999,
+        idMarca: marcaId,
       });
     expect(res.status).toBe(404);
   });
@@ -128,7 +147,11 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X', stockInicial: 0, precioUnitario: '10.00', idTipoProducto: tipoProductoId, idMarca: 99999,
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '10.00',
+        idTipoProducto: tipoProductoId,
+        idMarca: 99999,
       });
     expect(res.status).toBe(404);
   });
@@ -139,7 +162,11 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X', stockInicial: 0, precioUnitario: '0.00', idTipoProducto: tipoProductoId, idMarca: marcaId,
+        nombre: 'X',
+        stockInicial: 0,
+        precioUnitario: '0.00',
+        idTipoProducto: tipoProductoId,
+        idMarca: marcaId,
       });
     expect(res.status).toBe(400);
   });
@@ -150,7 +177,11 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X', stockInicial: -1, precioUnitario: '10.00', idTipoProducto: tipoProductoId, idMarca: marcaId,
+        nombre: 'X',
+        stockInicial: -1,
+        precioUnitario: '10.00',
+        idTipoProducto: tipoProductoId,
+        idMarca: marcaId,
       });
     expect(res.status).toBe(400);
   });

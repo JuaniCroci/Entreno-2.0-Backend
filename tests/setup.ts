@@ -18,8 +18,8 @@ async function setup() {
 
   try {
     await orm.getSchemaGenerator().createSchema();
-  } catch {
-    // schema may already exist partially
+  } catch (err) {
+    console.error('Error creating schema:', err);
   }
 
   try {
@@ -94,4 +94,4 @@ async function setup() {
   }
 }
 
-setup();
+await setup();

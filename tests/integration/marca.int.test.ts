@@ -11,7 +11,9 @@ let adminUserId = 1;
 let clienteUserId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
-  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', { expiresIn: '7d' });
+  return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
+    expiresIn: '7d',
+  });
 }
 
 describe('CRUD Marca (integración)', () => {
@@ -31,7 +33,8 @@ describe('CRUD Marca (integración)', () => {
       }
       const cliente = await getOrm().em.findOne(Usuario, { email: 'cliente@test.local' });
       if (!cliente) {
-        const { UsuarioService } = await import('../../src/modules/usuarios/service/UsuarioService.js');
+        const { UsuarioService } =
+          await import('../../src/modules/usuarios/service/UsuarioService.js');
         const service = new UsuarioService();
         const c = await service.create({
           nombre: 'Cliente Test',
@@ -61,9 +64,7 @@ describe('CRUD Marca (integración)', () => {
   });
 
   it('POST /api/marcas sin token responde 401', async () => {
-    const res = await request(app)
-      .post('/api/marcas')
-      .send({ nombre: 'Test Marca' });
+    const res = await request(app).post('/api/marcas').send({ nombre: 'Test Marca' });
     expect(res.status).toBe(401);
   });
 
@@ -141,9 +142,7 @@ describe('CRUD Marca (integración)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ nombre: `Inactiva ${Date.now()}` });
     const id = createRes.body.id;
-    await request(app)
-      .delete(`/api/marcas/${id}`)
-      .set('Authorization', `Bearer ${token}`);
+    await request(app).delete(`/api/marcas/${id}`).set('Authorization', `Bearer ${token}`);
     const res = await request(app).get(`/api/marcas/${id}`);
     expect(res.status).toBe(404);
   });

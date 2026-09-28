@@ -55,15 +55,14 @@ describe('ClienteService', () => {
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
     await service.create({ nombre: 'Test', email: 'test@test.com', password: 'secret123' });
-    expect(em.create).toHaveBeenCalledWith(
-      Usuario,
-      expect.objectContaining({ rol: Rol.CLIENTE }),
-    );
+    expect(em.create).toHaveBeenCalledWith(Usuario, expect.objectContaining({ rol: Rol.CLIENTE }));
   });
 
   it('create lanza 409 si email ya existe', async () => {
     vi.spyOn(em, 'findOne').mockResolvedValue(makeUsuario());
-    await expect(service.create({ nombre: 'Test', email: 'test@test.com', password: 'secret123' })).rejects.toMatchObject({ statusCode: 409 });
+    await expect(
+      service.create({ nombre: 'Test', email: 'test@test.com', password: 'secret123' }),
+    ).rejects.toMatchObject({ statusCode: 409 });
   });
 
   it('setActivo pone activo=false', async () => {

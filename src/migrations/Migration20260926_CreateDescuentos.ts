@@ -10,10 +10,18 @@ export class Migration20260926_CreateDescuentos extends Migration {
     this.addSql(
       `create table \`descuento_producto\` (\`id\` int unsigned not null auto_increment primary key, \`id_descuento\` int unsigned not null, \`id_producto\` int unsigned not null, \`fecha_desde\` date not null, \`fecha_hasta\` date not null, \`created_at\` datetime not null, \`updated_at\` datetime not null) default character set utf8mb4 engine = InnoDB;`,
     );
-    this.addSql(`alter table \`descuento_producto\` add index \`descuento_producto_id_producto_index\`(\`id_producto\`);`);
-    this.addSql(`alter table \`descuento_producto\` add index \`idx_vigencia\`(\`id_producto\`, \`fecha_desde\`, \`fecha_hasta\`);`);
-    this.addSql(`alter table \`descuento_producto\` add constraint \`descuento_producto_id_descuento_foreign\` foreign key (\`id_descuento\`) references \`descuento\`(\`id\`);`);
-    this.addSql(`alter table \`descuento_producto\` add constraint \`descuento_producto_id_producto_foreign\` foreign key (\`id_producto\`) references \`producto\`(\`id\`);`);
+    this.addSql(
+      `alter table \`descuento_producto\` add index \`descuento_producto_id_producto_index\`(\`id_producto\`);`,
+    );
+    this.addSql(
+      `alter table \`descuento_producto\` add index \`idx_vigencia\`(\`id_producto\`, \`fecha_desde\`, \`fecha_hasta\`);`,
+    );
+    this.addSql(
+      `alter table \`descuento_producto\` add constraint \`descuento_producto_id_descuento_foreign\` foreign key (\`id_descuento\`) references \`descuento\`(\`id\`);`,
+    );
+    this.addSql(
+      `alter table \`descuento_producto\` add constraint \`descuento_producto_id_producto_foreign\` foreign key (\`id_producto\`) references \`producto\`(\`id\`);`,
+    );
   }
 
   override async down(): Promise<void> {

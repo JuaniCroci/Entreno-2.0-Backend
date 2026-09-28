@@ -20,7 +20,11 @@ export class DescuentoService {
 
   async findAll(): Promise<FindAllResult> {
     const [data, total] = await Promise.all([
-      this.em.find(Descuento, {}, { populate: ['aplicaciones', 'aplicaciones.producto'], orderBy: { id: 'DESC' } }),
+      this.em.find(
+        Descuento,
+        {},
+        { populate: ['aplicaciones', 'aplicaciones.producto'], orderBy: { id: 'DESC' } },
+      ),
       this.em.count(Descuento),
     ]);
     return { data: data.map((d) => d.toPublic()), total };
@@ -28,7 +32,11 @@ export class DescuentoService {
 
   async findById(id: number): Promise<DescuentoPublic> {
     if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
-    const descuento = await this.em.findOne(Descuento, { id }, { populate: ['aplicaciones', 'aplicaciones.producto'] });
+    const descuento = await this.em.findOne(
+      Descuento,
+      { id },
+      { populate: ['aplicaciones', 'aplicaciones.producto'] },
+    );
     if (!descuento) throw new AppError(404, 'Descuento no encontrado');
     return descuento.toPublic();
   }
@@ -76,15 +84,22 @@ export class DescuentoService {
       throw new AppError(400, 'fechaDesde debe ser menor o igual a fechaHasta');
     }
 
-    const solapamiento = await this.em.findOne(DescuentoProducto, {
-      producto: { id: dto.idProducto },
-      fechaDesde: { $lte: dto.fechaHasta },
-      fechaHasta: { $gte: dto.fechaDesde },
-      descuento: { id: { $ne: id }, activo: true },
-    }, { populate: ['descuento'] });
+    const solapamiento = await this.em.findOne(
+      DescuentoProducto,
+      {
+        producto: { id: dto.idProducto },
+        fechaDesde: { $lte: dto.fechaHasta },
+        fechaHasta: { $gte: dto.fechaDesde },
+        descuento: { id: { $ne: id }, activo: true },
+      },
+      { populate: ['descuento'] },
+    );
 
     if (solapamiento) {
-      throw new AppError(409, 'Ya existe una aplicación de descuento vigente con solapamiento para este producto');
+      throw new AppError(
+        409,
+        'Ya existe una aplicación de descuento vigente con solapamiento para este producto',
+      );
     }
 
     const aplicacion = this.em.create(DescuentoProducto, {
@@ -94,26 +109,39 @@ export class DescuentoService {
       fechaHasta: dto.fechaHasta,
     });
     await this.em.flush();
-    const aplicacionFull = await this.em.findOne(DescuentoProducto, { id: aplicacion.id }, { populate: ['producto', 'descuento'] });
+    const aplicacionFull = await this.em.findOne(
+      DescuentoProducto,
+      { id: aplicacion.id },
+      { populate: ['producto', 'descuento'] },
+    );
     return aplicacionFull!.toPublic();
   }
 
   async removeAplicacion(idDescuento: number, aplicacionId: number): Promise<void> {
-    if (!Number.isInteger(idDescuento) || idDescuento <= 0) throw new AppError(400, 'ID de descuento inválido');
-    if (!Number.isInteger(aplicacionId) || aplicacionId <= 0) throw new AppError(400, 'ID de aplicación inválido');
+    if (!Number.isInteger(idDescuento) || idDescuento <= 0)
+      throw new AppError(400, 'ID de descuento inválido');
+    if (!Number.isInteger(aplicacionId) || aplicacionId <= 0)
+      throw new AppError(400, 'ID de aplicación inválido');
     const aplicacion = await this.em.findOne(DescuentoProducto, { id: aplicacionId });
-    if (!aplicacion || aplicacion.descuento.id !== idDescuento) throw new AppError(404, 'Aplicación no encontrada');
+    if (!aplicacion || aplicacion.descuento.id !== idDescuento)
+      throw new AppError(404, 'Aplicación no encontrada');
     await this.em.remove(aplicacion);
     await this.em.flush();
   }
 
   async findVigentes(productoId: number, fecha: Date): Promise<DescuentoPublic[]> {
-    const aplicaciones = await this.em.find(DescuentoProducto, {
-      producto: { id: productoId },
-      fechaDesde: { $lte: fecha },
-      fechaHasta: { $gte: fecha },
-    }, { populate: ['descuento'] });
-    const vigentes = aplicaciones.filter((a) => a.descuento.activo).map((a) => a.descuento.toPublic());
+    const aplicaciones = await this.em.find(
+      DescuentoProducto,
+      {
+        producto: { id: productoId },
+        fechaDesde: { $lte: fecha },
+        fechaHasta: { $gte: fecha },
+      },
+      { populate: ['descuento'] },
+    );
+    const vigentes = aplicaciones
+      .filter((a) => a.descuento.activo)
+      .map((a) => a.descuento.toPublic());
     return vigentes;
   }
 }

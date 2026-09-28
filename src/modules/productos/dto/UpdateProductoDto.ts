@@ -12,7 +12,10 @@ export class UpdateProductoDto {
   @MaxLength(500, { message: 'descripcion debe tener máximo 500 caracteres' })
   descripcion?: string | null;
 
-  @IsDecimal({ decimal_digits: '0.00' }, { message: 'precioUnitario debe ser un valor decimal válido' })
+  @IsDecimal(
+    { decimal_digits: '0.00' },
+    { message: 'precioUnitario debe ser un valor decimal válido' },
+  )
   @IsOptional()
   precioUnitario?: string;
 

@@ -72,7 +72,10 @@ describe('DescuentoService', () => {
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
     const result = await service.create({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 10 });
     expect(result.descripcion).toBe('Test');
-    expect(em.create).toHaveBeenCalledWith(Descuento, expect.objectContaining({ descripcion: 'Test' }));
+    expect(em.create).toHaveBeenCalledWith(
+      Descuento,
+      expect.objectContaining({ descripcion: 'Test' }),
+    );
   });
 
   it('softDelete pone activo=false', async () => {
@@ -91,8 +94,13 @@ describe('DescuentoService', () => {
   it('addAplicacion valida fechaDesde <= fechaHasta', async () => {
     const d = makeDescuento();
     vi.spyOn(em, 'findOne').mockResolvedValue(d);
-    await expect(service.addAplicacion(1, { idProducto: 1, fechaDesde: new Date('2026-12-31'), fechaHasta: new Date('2026-01-01') } as CreateAplicacionDto))
-      .rejects.toMatchObject({ statusCode: 400 });
+    await expect(
+      service.addAplicacion(1, {
+        idProducto: 1,
+        fechaDesde: new Date('2026-12-31'),
+        fechaHasta: new Date('2026-01-01'),
+      } as CreateAplicacionDto),
+    ).rejects.toMatchObject({ statusCode: 400 });
   });
 
   it('addAplicacion lanza 409 si hay solapamiento', async () => {
@@ -100,8 +108,13 @@ describe('DescuentoService', () => {
     const a = makeAplicacion();
     vi.spyOn(em, 'findOne').mockResolvedValue(d);
     vi.spyOn(em, 'find').mockResolvedValue([a]);
-    await expect(service.addAplicacion(1, { idProducto: 1, fechaDesde: new Date('2026-06-01'), fechaHasta: new Date('2026-06-30') } as CreateAplicacionDto))
-      .rejects.toMatchObject({ statusCode: 409 });
+    await expect(
+      service.addAplicacion(1, {
+        idProducto: 1,
+        fechaDesde: new Date('2026-06-01'),
+        fechaHasta: new Date('2026-06-30'),
+      } as CreateAplicacionDto),
+    ).rejects.toMatchObject({ statusCode: 409 });
   });
 
   it('removeAplicacion elimina aplicacion', async () => {

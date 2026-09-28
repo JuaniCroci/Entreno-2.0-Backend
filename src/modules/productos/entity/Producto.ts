@@ -28,8 +28,8 @@ export class Producto {
   @Property({ type: 'string', nullable: true })
   descripcion: string | null = null;
 
-    @Property({ type: 'string', columnType: 'decimal(10,2)' })
-    precioUnitario!: string;
+  @Property({ type: 'string', columnType: 'decimal(10,2)' })
+  precioUnitario!: string;
 
   @Property({ type: 'integer', default: 0 })
   stock!: number;
@@ -43,8 +43,8 @@ export class Producto {
   @ManyToOne(() => Marca)
   marca!: Marca;
 
-    @ManyToOne(() => Proveedor, { nullable: true })
-    proveedor: Proveedor | null = null;
+  @ManyToOne(() => Proveedor, { nullable: true })
+  proveedor: Proveedor | null = null;
 
   @Property({ type: 'datetime', onCreate: () => new Date() })
   createdAt!: Date;
@@ -63,7 +63,11 @@ export class Producto {
       tipoProducto: { id: this.tipoProducto.id, nombre: this.tipoProducto.nombre },
       marca: { id: this.marca.id, nombre: this.marca.nombre },
       proveedor: this.proveedor
-        ? { id: this.proveedor.id, razonSocial: this.proveedor.razonSocial, activo: this.proveedor.activo }
+        ? {
+            id: this.proveedor.id,
+            razonSocial: this.proveedor.razonSocial,
+            activo: this.proveedor.activo,
+          }
         : null,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

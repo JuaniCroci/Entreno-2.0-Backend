@@ -92,9 +92,7 @@ describe('MarcaService', () => {
 
   it('update actualiza marca', async () => {
     const marca = makeMarca({ id: 1, nombre: 'Star Nutrition' });
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(marca)
-      .mockResolvedValueOnce(null);
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(marca).mockResolvedValueOnce(null);
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
     const result = await service.update(1, { nombre: 'ENA' });
@@ -104,9 +102,7 @@ describe('MarcaService', () => {
   it('update lanza 409 si nombre duplicado por otro', async () => {
     const marca = makeMarca({ id: 1, nombre: 'Star Nutrition' });
     const dup = makeMarca({ id: 2, nombre: 'ENA' });
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(marca)
-      .mockResolvedValueOnce(dup);
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(marca).mockResolvedValueOnce(dup);
     await expect(service.update(1, { nombre: 'ENA' })).rejects.toMatchObject({ statusCode: 409 });
   });
 

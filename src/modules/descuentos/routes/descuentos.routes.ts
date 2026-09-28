@@ -15,7 +15,18 @@ router.get('/:id', ctrl.findById);
 router.post('/', authenticate, authorize('ADMIN'), validateDto(CreateDescuentoDto), ctrl.create);
 router.put('/:id', authenticate, authorize('ADMIN'), validateDto(UpdateDescuentoDto), ctrl.update);
 router.delete('/:id', authenticate, authorize('ADMIN'), ctrl.softDelete);
-router.post('/:id/aplicaciones', authenticate, authorize('ADMIN'), validateDto(CreateAplicacionDto), ctrl.addAplicacion);
-router.delete('/:id/aplicaciones/:aplicacionId', authenticate, authorize('ADMIN'), ctrl.removeAplicacion);
+router.post(
+  '/:id/aplicaciones',
+  authenticate,
+  authorize('ADMIN'),
+  validateDto(CreateAplicacionDto),
+  ctrl.addAplicacion,
+);
+router.delete(
+  '/:id/aplicaciones/:aplicacionId',
+  authenticate,
+  authorize('ADMIN'),
+  ctrl.removeAplicacion,
+);
 
 export default router;

@@ -87,14 +87,14 @@ describe('TipoProductoService', () => {
   it('create lanza 409 si nombre duplicado', async () => {
     const existing = makeTipo({ nombre: 'Suplemento' });
     vi.spyOn(em, 'findOne').mockResolvedValue(existing);
-    await expect(service.create({ nombre: 'Suplemento' })).rejects.toMatchObject({ statusCode: 409 });
+    await expect(service.create({ nombre: 'Suplemento' })).rejects.toMatchObject({
+      statusCode: 409,
+    });
   });
 
   it('update actualiza tipo', async () => {
     const tipo = makeTipo({ id: 1, nombre: 'Suplemento' });
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(tipo)
-      .mockResolvedValueOnce(null);
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(tipo).mockResolvedValueOnce(null);
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
     const result = await service.update(1, { nombre: 'Accesorio' });
@@ -104,10 +104,10 @@ describe('TipoProductoService', () => {
   it('update lanza 409 si nombre duplicado por otro', async () => {
     const tipo = makeTipo({ id: 1, nombre: 'Suplemento' });
     const dup = makeTipo({ id: 2, nombre: 'Accesorio' });
-    vi.spyOn(em, 'findOne')
-      .mockResolvedValueOnce(tipo)
-      .mockResolvedValueOnce(dup);
-    await expect(service.update(1, { nombre: 'Accesorio' })).rejects.toMatchObject({ statusCode: 409 });
+    vi.spyOn(em, 'findOne').mockResolvedValueOnce(tipo).mockResolvedValueOnce(dup);
+    await expect(service.update(1, { nombre: 'Accesorio' })).rejects.toMatchObject({
+      statusCode: 409,
+    });
   });
 
   it('update lanza 404 si no existe', async () => {
