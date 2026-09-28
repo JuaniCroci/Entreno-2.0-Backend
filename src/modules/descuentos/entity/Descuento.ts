@@ -34,7 +34,7 @@ export class Descuento {
   @Property({ type: 'datetime' })
   createdAt!: Date;
 
-  @Property({ type: 'datetime', onUpdate: () => new Date() })
+  @Property({ type: 'datetime' })
   updatedAt!: Date;
 
   toPublic(): DescuentoPublic {
