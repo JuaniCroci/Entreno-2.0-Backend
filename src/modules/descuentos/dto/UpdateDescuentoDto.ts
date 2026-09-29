@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsInt, IsNumber, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsNumber, IsBoolean, Min, Max } from 'class-validator';
 
 export class UpdateDescuentoDto {
   @IsString({ message: 'descripcion debe ser una cadena de texto' })
@@ -16,7 +16,7 @@ export class UpdateDescuentoDto {
   @Max(100, { message: 'porcentaje debe ser menor o igual a 100' })
   porcentaje?: number;
 
-  @IsNumber({}, { message: 'activo debe ser un booleano' })
+  @IsBoolean({ message: 'activo debe ser un booleano' })
   @IsOptional()
   activo?: boolean;
 }

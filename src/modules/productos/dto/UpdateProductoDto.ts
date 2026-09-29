@@ -13,7 +13,7 @@ export class UpdateProductoDto {
   descripcion?: string | null;
 
   @IsDecimal(
-    { decimal_digits: '0.00' },
+    { decimal_digits: '1,2' },
     { message: 'precioUnitario debe ser un valor decimal válido' },
   )
   @IsOptional()

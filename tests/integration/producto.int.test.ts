@@ -9,11 +9,11 @@ import { Marca } from '../../src/modules/marcas/entity/Marca.js';
 import { TipoProducto } from '../../src/modules/tipos-producto/entity/TipoProducto.js';
 import { Proveedor } from '../../src/modules/proveedores/entity/Proveedor.js';
 import jwt from 'jsonwebtoken';
+import { randomInt } from 'node:crypto';
 import { hash } from 'bcryptjs';
 
 let adminUserId = 1;
 let clienteUserId = 1;
-let cuitCounter = 100000000;
 let marcaId = 1;
 let tipoProductoId = 1;
 let productoId = 1;
@@ -24,7 +24,7 @@ function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string 
   });
 }
 function makeCuit(): string {
-  return String(cuitCounter++).padStart(11, '0');
+  return String(randomInt(10_000_000_000, 100_000_000_000));
 }
 
 describe('CRUD Producto (integración)', () => {
@@ -101,7 +101,7 @@ describe('CRUD Producto (integración)', () => {
 
   it('POST /api/productos sin token responde 401', async () => {
     const res = await request(app).post('/api/productos').send({
-      nombre: 'X',
+      nombre: 'Producto Test X',
       stockInicial: 0,
       precioUnitario: '10.00',
       idTipoProducto: 1,
@@ -116,7 +116,7 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X',
+        nombre: 'Producto Test X',
         stockInicial: 0,
         precioUnitario: '10.00',
         idTipoProducto: 1,
@@ -150,7 +150,7 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X',
+        nombre: 'Producto Test X',
         stockInicial: 0,
         precioUnitario: '10.00',
         idTipoProducto: 99999,
@@ -165,7 +165,7 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X',
+        nombre: 'Producto Test X',
         stockInicial: 0,
         precioUnitario: '10.00',
         idTipoProducto: tipoProductoId,
@@ -180,7 +180,7 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X',
+        nombre: 'Producto Test X',
         stockInicial: 0,
         precioUnitario: '0.00',
         idTipoProducto: tipoProductoId,
@@ -195,7 +195,7 @@ describe('CRUD Producto (integración)', () => {
       .post('/api/productos')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        nombre: 'X',
+        nombre: 'Producto Test X',
         stockInicial: -1,
         precioUnitario: '10.00',
         idTipoProducto: tipoProductoId,

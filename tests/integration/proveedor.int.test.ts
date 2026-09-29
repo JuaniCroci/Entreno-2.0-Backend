@@ -6,11 +6,11 @@ import { closeDb, getOrm } from '../../src/config/db.js';
 import { RequestContext } from '@mikro-orm/core';
 import { Usuario } from '../../src/modules/usuarios/entity/Usuario.js';
 import jwt from 'jsonwebtoken';
+import { randomInt } from 'node:crypto';
 import { hash } from 'bcryptjs';
 
 let adminUserId = 1;
 let clienteUserId = 1;
-let cuitCounter = 100000000;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
   return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
@@ -19,7 +19,7 @@ function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string 
 }
 
 function makeCuit(): string {
-  return String(cuitCounter++).padStart(11, '0');
+  return String(randomInt(10_000_000_000, 100_000_000_000));
 }
 
 describe('CRUD Proveedor (integración)', () => {

@@ -13,6 +13,10 @@ export interface FindAllResult {
   total: number;
 }
 
+export interface DescuentoDetailPublic extends DescuentoPublic {
+  aplicaciones: DescuentoProductoPublic[];
+}
+
 export class DescuentoService {
   private get em(): EntityManager {
     return getEm();
@@ -30,7 +34,7 @@ export class DescuentoService {
     return { data: data.map((d) => d.toPublic()), total };
   }
 
-  async findById(id: number): Promise<DescuentoPublic> {
+  async findById(id: number): Promise<DescuentoDetailPublic> {
     if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
     const descuento = await this.em.findOne(
       Descuento,
@@ -38,7 +42,10 @@ export class DescuentoService {
       { populate: ['aplicaciones', 'aplicaciones.producto'] },
     );
     if (!descuento) throw new AppError(404, 'Descuento no encontrado');
-    return descuento.toPublic();
+    return {
+      ...descuento.toPublic(),
+      aplicaciones: descuento.aplicaciones.getItems().map((a) => a.toPublic()),
+    };
   }
 
   async create(dto: CreateDescuentoDto): Promise<DescuentoPublic> {

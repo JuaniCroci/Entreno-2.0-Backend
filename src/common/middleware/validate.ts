@@ -3,13 +3,17 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { AppError } from '../errors/AppError.js';
 
-export function validateDto<T extends object>(dtoClass: new () => T) {
+export interface ValidateDtoOptions {
+  forbidNonWhitelisted?: boolean;
+}
+
+export function validateDto<T extends object>(dtoClass: new () => T, options?: ValidateDtoOptions) {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       const instance = plainToInstance(dtoClass, req.body);
       const errors = await validate(instance, {
         whitelist: true,
-        forbidNonWhitelisted: true,
+        forbidNonWhitelisted: options?.forbidNonWhitelisted ?? true,
       });
       if (errors.length > 0) {
         const details = errors.flatMap((err) =>

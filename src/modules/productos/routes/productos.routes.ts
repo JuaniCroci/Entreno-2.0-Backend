@@ -17,7 +17,7 @@ router.put(
   '/admin/:id',
   authenticate,
   authorize('ADMIN'),
-  validateDto(UpdateProductoDto),
+  validateDto(UpdateProductoDto, { forbidNonWhitelisted: false }),
   ctrl.update,
 );
 router.delete('/admin/:id', authenticate, authorize('ADMIN'), ctrl.softDelete);

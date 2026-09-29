@@ -10,6 +10,7 @@ import { hash } from 'bcryptjs';
 
 let adminUserId = 1;
 let clienteUserId = 1;
+let productoId = 1;
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
   return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
@@ -48,6 +49,32 @@ describe('CRUD Descuento (integración)', () => {
     });
 
     app = createApp();
+
+    const adminToken = makeToken('ADMIN');
+    const marcaRes = await request(app)
+      .post('/api/marcas')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ nombre: `Marca Desc ${Date.now()}` });
+    expect(marcaRes.status).toBe(201);
+
+    const tipoRes = await request(app)
+      .post('/api/tipos-producto')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ nombre: `Tipo Desc ${Date.now()}` });
+    expect(tipoRes.status).toBe(201);
+
+    const productoRes = await request(app)
+      .post('/api/productos')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        nombre: `Producto Desc ${Date.now()}`,
+        stockInicial: 10,
+        precioUnitario: '100.00',
+        idTipoProducto: tipoRes.body.id,
+        idMarca: marcaRes.body.id,
+      });
+    expect(productoRes.status).toBe(201);
+    productoId = productoRes.body.id;
   });
 
   afterAll(async () => {
@@ -133,7 +160,7 @@ describe('CRUD Descuento (integración)', () => {
     const res = await request(app)
       .post(`/api/descuentos/${id}/aplicaciones`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ idProducto: 1, fechaDesde: '2026-01-01', fechaHasta: '2026-12-31' });
+      .send({ idProducto: productoId, fechaDesde: '2026-01-01', fechaHasta: '2026-12-31' });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
   });
