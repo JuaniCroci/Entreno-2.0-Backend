@@ -103,11 +103,36 @@ describe('DescuentoService', () => {
     ).rejects.toMatchObject({ statusCode: 400 });
   });
 
-  it('addAplicacion lanza 409 si hay solapamiento', async () => {
+  it('addAplicacion permite coexistencia con otro descuento solapado', async () => {
     const d = makeDescuento();
-    const a = makeAplicacion();
-    vi.spyOn(em, 'findOne').mockResolvedValue(d);
-    vi.spyOn(em, 'find').mockResolvedValue([a]);
+    const producto = { id: 1, activo: true };
+    const nueva = makeAplicacion({ producto: { id: 1, nombre: 'Prod Test' } });
+    vi.spyOn(em, 'findOne')
+      .mockResolvedValueOnce(d)
+      .mockResolvedValueOnce(producto as never)
+      .mockResolvedValueOnce(null);
+    vi.spyOn(em, 'create').mockReturnValue(nueva);
+    vi.spyOn(em, 'flush').mockResolvedValue(undefined);
+
+    const result = await service.addAplicacion(1, {
+      idProducto: 1,
+      fechaDesde: new Date('2026-06-01'),
+      fechaHasta: new Date('2026-06-30'),
+    } as CreateAplicacionDto);
+
+    expect(result.id).toBe(1);
+    expect(em.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('addAplicacion lanza 409 si el mismo descuento ya está aplicado con fechas solapadas', async () => {
+    const d = makeDescuento();
+    const producto = { id: 1, activo: true };
+    const existente = makeAplicacion();
+    vi.spyOn(em, 'findOne')
+      .mockResolvedValueOnce(d)
+      .mockResolvedValueOnce(producto as never)
+      .mockResolvedValueOnce(existente);
+
     await expect(
       service.addAplicacion(1, {
         idProducto: 1,
@@ -115,6 +140,7 @@ describe('DescuentoService', () => {
         fechaHasta: new Date('2026-06-30'),
       } as CreateAplicacionDto),
     ).rejects.toMatchObject({ statusCode: 409 });
+    expect(em.create).not.toHaveBeenCalled();
   });
 
   it('removeAplicacion elimina aplicacion', async () => {
@@ -129,5 +155,53 @@ describe('DescuentoService', () => {
   it('removeAplicacion lanza 404 si no existe', async () => {
     vi.spyOn(em, 'findOne').mockResolvedValue(null);
     await expect(service.removeAplicacion(1, 999)).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  describe('mejorElegible', () => {
+    it('elige el mayor porcentaje entre los elegibles', async () => {
+      const menor = makeAplicacion({
+        descuento: makeDescuento({ id: 1, descripcion: '10%', porcentaje: 10 }),
+        fechaDesde: new Date('2026-01-01'),
+      });
+      const mayor = makeAplicacion({
+        descuento: makeDescuento({ id: 2, descripcion: '20%', porcentaje: 20 }),
+        fechaDesde: new Date('2026-01-01'),
+      });
+      vi.spyOn(em, 'find').mockResolvedValue([menor, mayor]);
+
+      const result = await service.mejorElegible(1, 3, new Date('2026-06-15'));
+      expect(result?.porcentaje).toBe(20);
+    });
+
+    it('con empate de porcentaje elige la fechaDesde más reciente', async () => {
+      const temprano = makeAplicacion({
+        descuento: makeDescuento({ id: 1, descripcion: 'temprano', porcentaje: 10 }),
+        fechaDesde: new Date('2026-01-01'),
+      });
+      const tarde = makeAplicacion({
+        descuento: makeDescuento({ id: 2, descripcion: 'tarde', porcentaje: 10 }),
+        fechaDesde: new Date('2026-06-01'),
+      });
+      vi.spyOn(em, 'find').mockResolvedValue([temprano, tarde]);
+
+      const result = await service.mejorElegible(1, 3, new Date('2026-06-15'));
+      expect(result?.descripcion).toBe('tarde');
+    });
+
+    it('ignora descuentos con cantidadMinima mayor a la cantidad', async () => {
+      const escalonado = makeAplicacion({
+        descuento: makeDescuento({ id: 1, porcentaje: 30, cantidadMinima: 5 }),
+      });
+      vi.spyOn(em, 'find').mockResolvedValue([escalonado]);
+
+      const result = await service.mejorElegible(1, 3, new Date('2026-06-15'));
+      expect(result).toBeNull();
+    });
+
+    it('devuelve null sin aplicaciones vigentes', async () => {
+      vi.spyOn(em, 'find').mockResolvedValue([]);
+      const result = await service.mejorElegible(1, 1, new Date('2026-06-15'));
+      expect(result).toBeNull();
+    });
   });
 });

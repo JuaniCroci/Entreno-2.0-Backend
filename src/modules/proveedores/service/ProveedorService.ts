@@ -15,6 +15,13 @@ export class ProveedorService {
     return getEm();
   }
 
+  async assertExists(id: number): Promise<Proveedor> {
+    if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
+    const proveedor = await this.em.findOne(Proveedor, { id, activo: true });
+    if (!proveedor) throw new AppError(404, 'El proveedor seleccionado no existe o está inactivo');
+    return proveedor;
+  }
+
   async list(includeInactive = false): Promise<FindAllResult> {
     const where: Record<string, unknown> = {};
     if (!includeInactive) where.activo = true;

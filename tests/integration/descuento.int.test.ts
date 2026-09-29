@@ -167,6 +167,44 @@ describe('CRUD Descuento (integración)', () => {
     expect(res.body).toHaveProperty('id');
   });
 
+  it('dos descuentos distintos coexisten solapados en el mismo producto', async () => {
+    const token = makeToken('ADMIN');
+    const otro = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Coexistente', cantidadMinima: 2, porcentaje: 25 });
+    expect(otro.status).toBe(201);
+
+    const res = await request(app)
+      .post(`/api/descuentos/${otro.body.id}/aplicaciones`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ idProducto: productoId, fechaDesde: '2026-04-01', fechaHasta: '2026-08-31' });
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('id');
+  });
+
+  it('responde 409 al repetir el mismo descuento con fechas solapadas', async () => {
+    const token = makeToken('ADMIN');
+    const d = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: `Duplicado ${Date.now()}`, cantidadMinima: 1, porcentaje: 15 });
+    expect(d.status).toBe(201);
+
+    const primera = await request(app)
+      .post(`/api/descuentos/${d.body.id}/aplicaciones`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ idProducto: productoId, fechaDesde: '2027-01-01', fechaHasta: '2027-03-31' });
+    expect(primera.status).toBe(201);
+
+    const repetida = await request(app)
+      .post(`/api/descuentos/${d.body.id}/aplicaciones`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ idProducto: productoId, fechaDesde: '2027-03-01', fechaHasta: '2027-06-30' });
+    expect(repetida.status).toBe(409);
+    expect(repetida.body).toHaveProperty('statusCode', 409);
+  });
+
   it('GET /api/descuentos/:id responde 200 con aplicaciones', async () => {
     const token = makeToken('ADMIN');
     const res = await request(app).get('/api/descuentos').set('Authorization', `Bearer ${token}`);

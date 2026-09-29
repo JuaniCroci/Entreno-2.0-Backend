@@ -24,12 +24,14 @@ Segundo CRUD dependiente de regularidad (la proposal lo ligaba a Producto; el mo
 
 - [ ] Todas las rutas exigen `ADMIN` (`401`/`403`).
 - [ ] `cantidadMinima ≥ 1`; `porcentaje` en `(0, 100]`; `descripcion` obligatoria (`400` con `details`).
-- [ ] `POST /:id/aplicaciones` valida: producto existe y activo; `fechaDesde ≤ fechaHasta`; producto aún no tenga aplicación vigente con solapamiento → `409` si se solapa.
+- [ ] `POST /:id/aplicaciones` valida: producto existe y activo; `fechaDesde ≤ fechaHasta`.
+- [ ] **Coexistencia permitida**: descuentos **distintos** pueden cubrir el mismo producto en fechas solapadas (`201`). La selección del que aplica en un pedido la resuelve 011 con `DescuentoService.mejorElegible` (regla 2 de la constitución: mayor `porcentaje`, empate → `fechaDesde` más reciente; **no se acumulan**).
+- [ ] **No repetir el mismo descuento** sobre el mismo producto con ventanas solapadas (incluye el duplicado exacto) → `409`.
 - [ ] El detalle lista aplicaciones con nombre del producto y fechas.
 - [ ] `DELETE` de descuento es lógico (`204` sin body): sus aplicaciones dejan de ser elegibles en pedidos (011 chequea `descuento.activo`).
 - [ ] `DELETE /:id/aplicaciones/:aplicacionId` responde `204` sin body.
 - [ ] No se puede aplicar un descuento inactivo a un producto nuevo.
-- [ ] Tests: unit (rangos, solapamiento, porcentaje inválido) + integración (alta → aplicar a 2 productos → quitar una → baja lógica).
+- [ ] Tests: unit (rangos, duplicado solapado, porcentaje inválido, elección del mejor descuento) + integración (alta → aplicar a 2 productos → dos descuentos solapados coexisten → duplicado `409` → quitar una → baja lógica).
 
 ## Fuera de alcance
 

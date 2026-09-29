@@ -91,21 +91,17 @@ export class DescuentoService {
       throw new AppError(400, 'fechaDesde debe ser menor o igual a fechaHasta');
     }
 
-    const solapamiento = await this.em.findOne(
-      DescuentoProducto,
-      {
-        producto: { id: dto.idProducto },
-        fechaDesde: { $lte: dto.fechaHasta },
-        fechaHasta: { $gte: dto.fechaDesde },
-        descuento: { id: { $ne: id }, activo: true },
-      },
-      { populate: ['descuento'] },
-    );
+    const repetida = await this.em.findOne(DescuentoProducto, {
+      descuento: { id },
+      producto: { id: dto.idProducto },
+      fechaDesde: { $lte: dto.fechaHasta },
+      fechaHasta: { $gte: dto.fechaDesde },
+    });
 
-    if (solapamiento) {
+    if (repetida) {
       throw new AppError(
         409,
-        'Ya existe una aplicación de descuento vigente con solapamiento para este producto',
+        'Este descuento ya está aplicado a este producto con fechas solapadas',
       );
     }
 
@@ -116,12 +112,7 @@ export class DescuentoService {
       fechaHasta: dto.fechaHasta,
     });
     await this.em.flush();
-    const aplicacionFull = await this.em.findOne(
-      DescuentoProducto,
-      { id: aplicacion.id },
-      { populate: ['producto', 'descuento'] },
-    );
-    return aplicacionFull!.toPublic();
+    return aplicacion.toPublic();
   }
 
   async removeAplicacion(idDescuento: number, aplicacionId: number): Promise<void> {
@@ -150,5 +141,36 @@ export class DescuentoService {
       .filter((a) => a.descuento.activo)
       .map((a) => a.descuento.toPublic());
     return vigentes;
+  }
+
+  async mejorElegible(
+    productoId: number,
+    cantidad: number,
+    fecha: Date,
+  ): Promise<DescuentoPublic | null> {
+    const aplicaciones = await this.em.find(
+      DescuentoProducto,
+      {
+        producto: { id: productoId },
+        fechaDesde: { $lte: fecha },
+        fechaHasta: { $gte: fecha },
+        descuento: { activo: true },
+      },
+      { populate: ['descuento'] },
+    );
+
+    let mejor: DescuentoProducto | null = null;
+    for (const a of aplicaciones) {
+      if (a.descuento.cantidadMinima > cantidad) continue;
+      if (
+        !mejor ||
+        a.descuento.porcentaje > mejor.descuento.porcentaje ||
+        (a.descuento.porcentaje === mejor.descuento.porcentaje &&
+          a.fechaDesde.getTime() > mejor.fechaDesde.getTime())
+      ) {
+        mejor = a;
+      }
+    }
+    return mejor ? mejor.descuento.toPublic() : null;
   }
 }

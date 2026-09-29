@@ -2,7 +2,7 @@
 
 ## Enfoque
 
-Módulo `carritos` (entidades Carrito/CarritoItem) + creación de Pedido desde un `PedidoService.confirmarDesdeCarrito` (el módulo `pedidos` nace acá y 012 lo extiende). La confirmación corre en **una transacción MikroORM**: stock, pedidos, items e historial se escriben juntos. Los descuentos se resuelven con `DescuentoService.findVigentes` (008).
+Módulo `carritos` (entidades Carrito/CarritoItem) + creación de Pedido desde un `PedidoService.confirmarDesdeCarrito` (el módulo `pedidos` nace acá y 012 lo extiende). La confirmación corre en **una transacción MikroORM**: stock, pedidos, items e historial se escriben juntos. El descuento de cada línea se resuelve con `DescuentoService.mejorElegible` (008).
 
 ## Implementación
 
@@ -54,8 +54,10 @@ findById(id: number): Promise<Producto>
 // Populate: marca, tipoProducto
 
 // De DescuentoService (feature 008)
-findVigentes(productoId: number, fecha: Date): Promise<DescuentoProducto[]>
-// DescuentoProducto incluye: { descuento: { porcentaje, activo }, cantidadMinima, fechaDesde, fechaHasta }
-// Regla de selección: mayor porcentaje; empate → fechaDesde más reciente.
+mejorElegible(productoId: number, cantidad: number, fecha: Date): Promise<DescuentoPublic | null>
+// DescuentoPublic incluye: { id, descripcion, cantidadMinima, porcentaje, activo }
+// null = ningún descuento elegible. Filtro: activo + vigente + cantidad ≥ cantidadMinima.
+// Regla de selección: mayor porcentaje; empate → fechaDesde más reciente; no se acumulan.
+// (findVigentes(productoId, fecha) también existe y devuelve todas las vigentes; lo usa 010.)
 // Cálculos de importes con decimal.js.
 ```

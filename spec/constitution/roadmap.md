@@ -47,13 +47,12 @@ _Features de **aprobación** (se crean sus carpetas al iniciar la fase) y **volu
 ### Bloqueadores humanos ✍️ (antes del primer código)
 
 - ~~Confirmar con la cátedra que **TypeScript** cumple "Desarrollarse en JavaScript".~~ ✅ confirmado por el equipo (21/09/2026).
-- Validar con el docente que **Ingreso (009)** cuenta como CRUD y que **Descuento N:M** cumple "CRUD dependiente" (la proposal decía N:1). _(009 es alta+listado+detalle+anular, sin PUT clásico.)_
-- ~~Alinear `datos_pre_inicio/proposal.md` con el modelo final si la cátedra lo requiere (Ingreso, Descuento M:N, TS).~~ — pendiente solo si la cátedra lo pide.
+- **Aviso a la cátedra sobre 009 y Descuento N:M** — borrador en [`spec/facts/009-crud-ingreso/consulta-catedra.md`](../facts/009-crud-ingreso/consulta-catedra.md) (aviso no bloqueante; `proposal.md` ya quedó alineado: Descuento N:M con vigencia en alcance mínimo, Ingreso como CRUD de aprobación). Posición del equipo: los cupos de regularidad se cubren con 003–008 (4 CRUDs simples + 2 dependientes); 009 es clase de negocio necesaria (README §3.2) — alta+listado+detalle+anular, sin PUT porque es un asiento de movimiento. **No bloquea implementar 009.**
+- ~~Alinear `datos_pre_inicio/proposal.md` con el modelo final (Ingreso, Descuento M:N).~~ ✅ alineado (ver aviso de arriba). _TypeScript_: solo se aclara si la cátedra lo pide.
 
 ### Gestión / evidencia
 
 - **Evidencia ágil**: GitHub Projects (issues/PRs) + minutas de reuniones (README de la cátedra la exige).
-- **Distribución de tareas**: asignar 1 CRUD simple por integrante (003–006) con commits a nombre/legajo.
 - Checklist de arranque del `implementation-plan.md` completo antes de invocar cualquier agente de implementación.
 
 > Cada feature nueva se crea como `features/NNN-nombre/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.

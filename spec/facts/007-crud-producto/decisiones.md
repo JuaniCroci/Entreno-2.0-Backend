@@ -11,6 +11,13 @@
 
 **Razón:** Los services actuales (MarcaService, TipoProductoService, ProveedorService) no tienen este método. Seguir el patrón inline (`findOne` + `AppError(404)`) que ya usan.
 
+> **Revisión 29/09/2026 (feature 009):** decisión **revertida en forma aditiva**.
+> Se crea `assertExists(id)` en `ProveedorService` y `ProductoService` (nombres
+> canónicos del playbook §2) porque 009/011 lo consumen como interfaz entre
+> módulos. **No se refactorizan** los usos inline existentes de 003–007: siguen
+> válidos y sus tests no cambian. Lanza `404` (api-contract manda; el playbook
+> §2 se corrigió de 400 → 404 en el mismo fix).
+
 **Implementación en ProductoService:**
 
 ```ts

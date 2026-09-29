@@ -198,4 +198,22 @@ describe('ProductoService', () => {
     const result = await service.getByIdAdmin(1);
     expect(result.activo).toBe(false);
   });
+
+  it('assertExists devuelve el producto activo', async () => {
+    const producto = makeProducto();
+    vi.spyOn(em, 'findOne').mockResolvedValue(producto);
+
+    const result = await service.assertExists(1);
+    expect(em.findOne).toHaveBeenCalledWith(Producto, { id: 1, activo: true });
+    expect(result).toBe(producto);
+  });
+
+  it('assertExists lanza 404 si no existe o está inactivo', async () => {
+    vi.spyOn(em, 'findOne').mockResolvedValue(null);
+    await expect(service.assertExists(999)).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  it('assertExists lanza 400 para id inválido', async () => {
+    await expect(service.assertExists(-1)).rejects.toMatchObject({ statusCode: 400 });
+  });
 });

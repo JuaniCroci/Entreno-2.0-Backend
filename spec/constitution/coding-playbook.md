@@ -33,13 +33,15 @@ Vocabulario **canónico**. Usar siempre estos nombres para que los agentes de fe
 | ---------------------------- | ------------------------ | --------------------------------------- | ------------------ |
 | Crear                        | `create(dto)`            | `Promise<TEntity>`                      | —                  |
 | Traer por ID (activo)        | `findById(id)`           | `Promise<TEntity>`                      | `AppError 404`     |
-| Verificar existencia para FK | `assertExists(id)`       | `Promise<TEntity>`                      | `AppError 400`     |
+| Verificar existencia para FK | `assertExists(id)`       | `Promise<TEntity>`                      | `AppError 404`     |
 | Listar (solo activos)        | `findAll(filters?)`      | `Promise<{ data: T[]; total: number }>` | —                  |
 | Listar admin (con inactivos) | `findAllAdmin(filters?)` | `Promise<{ data: T[]; total: number }>` | —                  |
 | Actualizar                   | `update(id, dto)`        | `Promise<TEntity>`                      | `AppError 404`     |
 | Baja lógica                  | `softDelete(id)`         | `Promise<void>`                         | `AppError 404`     |
 
 > **findById** vs **assertExists**: `findById` devuelve el objeto para mostrarlo. `assertExists` valida antes de asociar por FK — mensaje de error en dominio (`"La marca con id X no existe o está inactiva"`).
+>
+> **`assertExists` lanza 404** (corregido el 29/09/2026, antes decía 400): `api-contract.md` manda — `404` = "recurso no encontrado (activo)" y todo el código existente ya responde `404` en FK inexistente/inactiva (`ProductoService`: _"El proveedor seleccionado no existe o está inactivo"_ → 404). Usar `400` rompería la consistencia de la API.
 
 ---
 

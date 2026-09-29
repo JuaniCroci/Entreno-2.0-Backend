@@ -35,7 +35,7 @@ Regularidad:
 |Req|Detalle|
 |:-|:-|
 |CRUD simple|1. CRUD Cliente<br>2. CRUD Proveedor<br>3. CRUD Tipo producto<br>4. CRUD Marca|
-|CRUD dependiente|1. CRUD Producto {depende de} CRUD Tipo producto + CRUD Proveedor + CRUD Marca<br>2. CRUD Descuento {depende de} CRUD Producto|
+|CRUD dependiente|1. CRUD Producto {depende de} CRUD Tipo producto + CRUD Proveedor + CRUD Marca<br>2. CRUD Descuento {depende de} CRUD Producto — relación **N:M con ventanas de vigencia** (`DescuentoProducto`): un descuento aplica a muchos productos y un producto puede tener varios descuentos distintos vigentes; al pedido se aplica **un solo** descuento por línea (gana el mayor %, sin acumular)|
 |Listado<br>+<br>detalle| 1. Listado de productos filtrado por tipo de producto, marca y rango de precio. Muestra: nombre, marca, precio y disponibilidad (en stock / sin stock). ⇒ Detalle muestra: Datos completos del producto + CRUD Producto<br> 2. Listado de pedidos realizados filtrado por rango de fecha de realizado, estado (realizado, cancelado, abonado, entregado) y cliente. Muestra: Nro. de pedido, fecha de realizado, fecha de entrega, importe total y nombre de cliente. ⇒ Detalle muestra: datos completos de los productos (nombre, cantidad, precio unitario, subtotal) y del cliente (nombre, dirección, telefono, mail)|
 |CUU/Epic|1. Hacer pedido (carrito)<br>2. Entregar/cancelar pedido|
 
@@ -43,7 +43,7 @@ Adicionales para Aprobación
 |Req|Detalle|
 |:-|:-|
 |CRUD simple|5. CRUD Tag|
-|CRUD dependiente| 3. CRUD Favorito {depende de} CRUD Producto + CRUD Cliente|
+|CRUD dependiente| 3. CRUD Favorito {depende de} CRUD Producto + CRUD Cliente<br>4. CRUD Ingreso {depende de} CRUD Proveedor + CRUD Producto — registro de ingresos de mercadería que actualiza el stock: alta, listado con filtros, detalle con líneas y anulación (sin edición: es un asiento de movimiento)|
 |CUU/Epic|3. Abonar pedido<br>4. Agregar reseña de producto|
 
 ### Alcance Adicional Voluntario

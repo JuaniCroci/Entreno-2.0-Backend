@@ -11,7 +11,7 @@ Endpoints (todos `ADMIN`):
 - `GET /api/ingresos` — listado (filtro `?estado=REGISTRADO|ANULADO`, `?desde=`, `?hasta=`)
 - `GET /api/ingresos/:id` — detalle con líneas
 - `POST /api/ingresos` — alta: `{ nroIngreso, idProveedor, fecha?, lineas: [{ idProducto, cantidad, precioUnitario }] }`
-- `POST /api/ingresos/:id/anular` — anula un ingreso `REGISTRADO` y restituye stock negativo (resta)
+- `POST /api/ingresos/:id/anular` — anula un ingreso `REGISTRADO` y restituye stock negativo (resta); responde `200` con el ingreso actualizado (acción de negocio, ver `api-contract.md`)
 
 ## Por qué
 
@@ -25,7 +25,7 @@ El DER lo trata como regla central del stock (notas 8–9): el stock se actualiz
 - [ ] El alta calcula `importeTotal = Σ cantidad × precioUnitario` (el cliente no lo envía; si lo envía, se ignora).
 - [ ] Al crear el ingreso, el `stock` de cada producto involucrado **aumenta** en su cantidad.
 - [ ] `GET /:id` devuelve líneas con nombre de producto, cantidad, precioUnitario e importe de línea.
-- [ ] `POST /:id/anular` solo actúa sobre `REGISTRADO`; sobre `ANULADO` responde `409`.
+- [ ] `POST /:id/anular` solo actúa sobre `REGISTRADO`; sobre `ANULADO` responde `409`; el caso exitoso responde `200` con el ingreso en estado `ANULADO`.
 - [ ] Al anular, el `stock` de cada producto **disminuye** en la cantidad original; si eso dejaría stock negativo, se responde `409` y no se anula (stock ≥ 0 es invariante).
 - [ ] Anular es irreversible en fase 1 (no hay "reactivar").
 - [ ] Tests: unit (cálculo de importes, anulación con stock insuficiente) + integración (alta → stock sube → anula → stock vuelve al valor inicial).

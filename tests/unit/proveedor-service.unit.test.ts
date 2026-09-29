@@ -76,6 +76,24 @@ describe('ProveedorService', () => {
     await expect(service.getById(-1)).rejects.toMatchObject({ statusCode: 400 });
   });
 
+  it('assertExists devuelve el proveedor activo', async () => {
+    const proveedor = makeProveedor();
+    vi.spyOn(em, 'findOne').mockResolvedValue(proveedor);
+
+    const result = await service.assertExists(1);
+    expect(em.findOne).toHaveBeenCalledWith(Proveedor, { id: 1, activo: true });
+    expect(result).toBe(proveedor);
+  });
+
+  it('assertExists lanza 404 si no existe o está inactivo', async () => {
+    vi.spyOn(em, 'findOne').mockResolvedValue(null);
+    await expect(service.assertExists(999)).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  it('assertExists lanza 400 para id inválido', async () => {
+    await expect(service.assertExists(0)).rejects.toMatchObject({ statusCode: 400 });
+  });
+
   it('crea proveedor con CUIT valido', async () => {
     const proveedor = makeProveedor({ cuit: '30987654321', razonSocial: 'Otra SA' });
     vi.spyOn(em, 'findOne').mockResolvedValue(null);

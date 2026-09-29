@@ -21,6 +21,13 @@ export class ProductoService {
     return getEm();
   }
 
+  async assertExists(id: number): Promise<Producto> {
+    if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
+    const producto = await this.em.findOne(Producto, { id, activo: true });
+    if (!producto) throw new AppError(404, 'El producto seleccionado no existe o está inactivo');
+    return producto;
+  }
+
   async create(dto: CreateProductoDto): Promise<ProductoPublic> {
     if (Number(dto.precioUnitario) <= 0)
       throw new AppError(400, 'precioUnitario debe ser mayor a 0');
