@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProductoService } from '../../src/modules/productos/service/ProductoService.js';
 import { Producto } from '../../src/modules/productos/entity/Producto.js';
+import type { UpdateProductoDto } from '../../src/modules/productos/dto/UpdateProductoDto.js';
 import * as db from '../../src/config/db.js';
 
 interface MakeEntity {
@@ -57,7 +58,7 @@ function makeProducto(overrides: Partial<MakeEntity> = {}): Record<string, unkno
 
 describe('ProductoService', () => {
   let service: ProductoService;
-  let em: ReturnType<typeof vi.fn>;
+  let em: ReturnType<typeof db.getEm>;
 
   beforeEach(() => {
     service = new ProductoService();
@@ -67,7 +68,7 @@ describe('ProductoService', () => {
       count: vi.fn(),
       create: vi.fn(),
       flush: vi.fn(),
-    } as unknown as ReturnType<typeof vi.fn>;
+    } as unknown as ReturnType<typeof db.getEm>;
     vi.spyOn(db, 'getEm').mockReturnValue(em);
   });
 
@@ -160,7 +161,7 @@ describe('ProductoService', () => {
     vi.spyOn(em, 'findOne').mockResolvedValue(producto);
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
 
-    await service.update(1, { nombre: 'Nuevo', stock: 999 });
+    await service.update(1, { nombre: 'Nuevo', stock: 999 } as UpdateProductoDto);
     expect(em.flush).toHaveBeenCalled();
   });
 

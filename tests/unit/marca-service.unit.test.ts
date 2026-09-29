@@ -16,7 +16,7 @@ function makeMarca(overrides: Partial<Marca> = {}): Marca {
 
 describe('MarcaService', () => {
   let service: MarcaService;
-  let em: ReturnType<typeof vi.fn>;
+  let em: ReturnType<typeof db.getEm>;
 
   beforeEach(() => {
     service = new MarcaService();
@@ -26,7 +26,7 @@ describe('MarcaService', () => {
       count: vi.fn(),
       create: vi.fn(),
       flush: vi.fn(),
-    } as unknown as ReturnType<typeof vi.fn>;
+    } as unknown as ReturnType<typeof db.getEm>;
     vi.spyOn(db, 'getEm').mockReturnValue(em);
   });
 
@@ -44,7 +44,7 @@ describe('MarcaService', () => {
   it('list con includeInactive devuelve todas', async () => {
     const data = [makeMarca(), makeMarca({ activo: false })];
     vi.spyOn(em, 'find').mockResolvedValue(data);
-    vi.spyOn(em, 'count').mockResolvedValue([2]);
+    vi.spyOn(em, 'count').mockResolvedValue(2);
 
     const result = await service.list(true);
     expect(em.find).toHaveBeenCalledWith(Marca, {}, expect.any(Object));

@@ -173,7 +173,7 @@ describe('AuthService', () => {
       isActive: () => true,
       usuarioId: 1,
     });
-    vi.spyOn(usuarioService, 'findById').mockResolvedValue(null);
+    vi.spyOn(usuarioService, 'findById').mockResolvedValue(null as never);
     await expect(auth.refresh('valid_but_user_deleted_token')).rejects.toMatchObject({
       statusCode: 404,
     });

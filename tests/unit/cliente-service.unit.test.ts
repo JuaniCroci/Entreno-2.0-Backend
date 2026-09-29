@@ -21,7 +21,7 @@ function makeUsuario(overrides: Partial<Usuario> = {}): Usuario {
 
 describe('ClienteService', () => {
   let service: ClienteService;
-  let em: ReturnType<typeof vi.fn>;
+  let em: ReturnType<typeof db.getEm>;
 
   beforeEach(() => {
     service = new ClienteService();
@@ -31,7 +31,7 @@ describe('ClienteService', () => {
       count: vi.fn(),
       create: vi.fn(),
       flush: vi.fn(),
-    } as unknown as ReturnType<typeof vi.fn>;
+    } as unknown as ReturnType<typeof db.getEm>;
     vi.spyOn(db, 'getEm').mockReturnValue(em);
   });
 

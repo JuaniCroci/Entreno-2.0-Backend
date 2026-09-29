@@ -41,6 +41,8 @@ describe('CRUD Cliente (integración)', () => {
           passwordHash,
           rol: 'CLIENTE',
           activo: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         });
         await getOrm().em.flush();
         clienteUserId = createdCliente.id;

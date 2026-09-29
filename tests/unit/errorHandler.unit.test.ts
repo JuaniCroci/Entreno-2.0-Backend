@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Request, Response } from 'express';
 import { errorHandler } from '../../src/common/errors/errorHandler.js';
 import { AppError } from '../../src/common/errors/AppError.js';
 import { env } from '../../src/config/env.js';
 
 vi.mock('../../src/config/env.js', async () => {
-  const actual = await vi.importActual('../../src/config/env.js');
+  const actual =
+    await vi.importActual<typeof import('../../src/config/env.js')>('../../src/config/env.js');
   return { ...actual, env: { ...actual.env, nodeEnv: 'test' } };
 });
 
@@ -53,7 +55,7 @@ describe('errorHandler', () => {
 
   it('responde 500 con mensaje genérico para Error no-Authorizado en prod', () => {
     const originalEnv = env.nodeEnv;
-    (env as Record<string, unknown>).nodeEnv = 'production';
+    (env as unknown as Record<string, unknown>).nodeEnv = 'production';
     const res = makeMockRes();
     const err = new Error('internal failure');
     errorHandler(err, {} as Request, res, vi.fn());
@@ -62,7 +64,7 @@ describe('errorHandler', () => {
       statusCode: 500,
       message: 'Error interno del servidor',
     });
-    (env as Record<string, unknown>).nodeEnv = originalEnv;
+    (env as unknown as Record<string, unknown>).nodeEnv = originalEnv;
   });
 
   it('responde 500 con message del Error en dev/test', () => {

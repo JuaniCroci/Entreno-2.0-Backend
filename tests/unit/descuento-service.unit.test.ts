@@ -30,7 +30,7 @@ function makeAplicacion(overrides: Record<string, unknown> = {}): DescuentoProdu
 
 describe('DescuentoService', () => {
   let service: DescuentoService;
-  let em: ReturnType<typeof vi.fn>;
+  let em: ReturnType<typeof db.getEm>;
 
   beforeEach(() => {
     service = new DescuentoService();
@@ -41,7 +41,7 @@ describe('DescuentoService', () => {
       create: vi.fn(),
       flush: vi.fn(),
       remove: vi.fn(),
-    } as unknown as ReturnType<typeof vi.fn>;
+    } as unknown as ReturnType<typeof db.getEm>;
     vi.spyOn(db, 'getEm').mockReturnValue(em);
   });
 
@@ -120,7 +120,7 @@ describe('DescuentoService', () => {
   it('removeAplicacion elimina aplicacion', async () => {
     const a = makeAplicacion();
     vi.spyOn(em, 'findOne').mockResolvedValue(a);
-    vi.spyOn(em, 'remove').mockResolvedValue(undefined);
+    vi.spyOn(em, 'remove').mockResolvedValue(undefined as never);
     vi.spyOn(em, 'flush').mockResolvedValue(undefined);
     await service.removeAplicacion(1, 1);
     expect(em.remove).toHaveBeenCalledWith(a);

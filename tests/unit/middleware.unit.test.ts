@@ -51,7 +51,7 @@ describe('middleware authenticate', () => {
     usuario.updatedAt = new Date();
     vi.spyOn(db, 'getEm').mockReturnValue({
       findOne: vi.fn().mockResolvedValue(usuario),
-    } as unknown as Parameters<typeof db.getEm>[0]);
+    } as unknown as ReturnType<typeof db.getEm>);
 
     const token = makeValidToken(1, 'ADMIN');
     await authenticate(fakeReq({ authorization: `Bearer ${token}` }), fakeRes, next);
@@ -62,7 +62,7 @@ describe('middleware authenticate', () => {
     const next = vi.fn();
     vi.spyOn(db, 'getEm').mockReturnValue({
       findOne: vi.fn().mockResolvedValue(null),
-    } as unknown as Parameters<typeof db.getEm>[0]);
+    } as unknown as ReturnType<typeof db.getEm>);
 
     const token = makeValidToken(999, 'ADMIN');
     await authenticate(fakeReq({ authorization: `Bearer ${token}` }), fakeRes, next);

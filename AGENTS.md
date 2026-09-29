@@ -17,6 +17,7 @@ API REST para e-commerce de artículos de gimnasio. **TypeScript + Express 5 + M
 | ----------------------------------- | ----------------------------------------------- |
 | `pnpm dev`                          | Desarrollo (tsx watch) en http://localhost:3000 |
 | `pnpm build`                        | Compila TS a `dist/`                            |
+| `pnpm typecheck`                    | `tsc --noEmit` (src + tests)                    |
 | `pnpm lint` / `pnpm lint:fix`       | ESLint                                          |
 | `pnpm format` / `pnpm format:check` | Prettier                                        |
 | `pnpm test`                         | Suite completa (Vitest)                         |
@@ -26,7 +27,7 @@ API REST para e-commerce de artículos de gimnasio. **TypeScript + Express 5 + M
 | `pnpm migrate`                      | Aplica migraciones pendientes                   |
 | `pnpm seed:admin`                   | Seed de admin idempotente                       |
 
-Verificación mínima tras cambios: `pnpm lint` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
+Verificación mínima tras cambios: `pnpm lint`, `pnpm typecheck` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
 
 ## Estructura
 
@@ -55,7 +56,7 @@ spec/              # constitución y features (fuente de verdad)
       corepack prepare pnpm@10 --activate
   - uses: actions/setup-node@v4
     with:
-      node-version: '20'
+      node-version: '24'
       cache: 'pnpm'
       cache-dependency-path: pnpm-lock.yaml
   ```
@@ -86,7 +87,7 @@ spec/              # constitución y features (fuente de verdad)
     - Aparece un error o bug → `systematic-debugging`: seguir su método de diagnóstico antes de proponer cualquier fix.
     - Hay que decidir entre enfoques de diseño/implementación (caso no trivial) → `brainstorming`: descomponer el problema y evaluar opciones antes de elegir. En decisiones triviales no hace falta.
     - Implementar algo nuevo no trivial (feature, módulo, refactor multi-archivo) → `writing-plans` para armar el plan por fases (con verificación por fase) y `executing-plans` para ejecutarlo paso a paso sin desviarse. Cambios pequeños/obvios (1–2 archivos) no requieren el ciclo.
-    - Antes de dar cualquier tarea por terminada → `verification-before-completion`: correr la verificación mínima (`pnpm lint` + `pnpm test:unit`; `pnpm test` completo si el cambio toca integración/DB) y solo entonces marcar done.
+    - Antes de dar cualquier tarea por terminada → `verification-before-completion`: correr la verificación mínima (`pnpm lint` + `pnpm typecheck` + `pnpm test:unit`; `pnpm test` completo si el cambio toca integración/DB) y solo entonces marcar done.
     - Escribir tests o arreglar bugs → `test-driven-development` (red-green-refactor).
     - Evaluar un cambio antes de darlo por bueno → `code-review-and-quality` (5 ejes: correctness, readability, architecture, security, performance).
     - Diseñar nuevos endpoints o contratos de módulo → `api-and-interface-design` (el shape final lo define `api-contract.md`).

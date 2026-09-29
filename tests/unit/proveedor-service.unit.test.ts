@@ -20,7 +20,7 @@ function makeProveedor(overrides: Partial<Proveedor> = {}): Proveedor {
 
 describe('ProveedorService', () => {
   let service: ProveedorService;
-  let em: ReturnType<typeof vi.fn>;
+  let em: ReturnType<typeof db.getEm>;
 
   beforeEach(() => {
     service = new ProveedorService();
@@ -30,7 +30,7 @@ describe('ProveedorService', () => {
       count: vi.fn(),
       create: vi.fn(),
       flush: vi.fn(),
-    } as unknown as ReturnType<typeof vi.fn>;
+    } as unknown as ReturnType<typeof db.getEm>;
     vi.spyOn(db, 'getEm').mockReturnValue(em);
   });
 
