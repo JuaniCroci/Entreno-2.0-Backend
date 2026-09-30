@@ -3,6 +3,12 @@ import { ProductoService, type FindAllResult } from '../service/ProductoService.
 import type { CreateProductoDto } from '../dto/CreateProductoDto.js';
 import type { UpdateProductoDto } from '../dto/UpdateProductoDto.js';
 import type { FilterProductoAdminDto } from '../dto/FilterProductoAdminDto.js';
+import type {
+  FilterProductoPublicDto,
+  ProductoOrden,
+  ProductoDir,
+} from '../dto/FilterProductoPublicDto.js';
+import type { ProductoListPublic } from '../entity/Producto.js';
 
 export class ProductoController {
   private service = new ProductoService();
@@ -19,6 +25,21 @@ export class ProductoController {
       size: req.query.size ? Number(req.query.size) : 20,
     };
     const result: FindAllResult = await this.service.listAdmin(filters);
+    res.json(result);
+  };
+
+  findAll = async (req: Request, res: Response): Promise<void> => {
+    const filters: FilterProductoPublicDto = {
+      idTipoProducto: req.query.idTipoProducto ? Number(req.query.idTipoProducto) : undefined,
+      idMarca: req.query.idMarca ? Number(req.query.idMarca) : undefined,
+      precioMin: req.query.precioMin ? Number(req.query.precioMin) : undefined,
+      precioMax: req.query.precioMax ? Number(req.query.precioMax) : undefined,
+      orden: req.query.orden as ProductoOrden | undefined,
+      dir: req.query.dir as ProductoDir | undefined,
+      page: req.query.page ? Number(req.query.page) : 1,
+      size: req.query.size ? Number(req.query.size) : 20,
+    };
+    const result: FindAllResult<ProductoListPublic> = await this.service.findAll(filters);
     res.json(result);
   };
 

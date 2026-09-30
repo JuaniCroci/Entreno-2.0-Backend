@@ -11,6 +11,7 @@ const ctrl = new ProductoController();
 
 router.get('/admin', authenticate, authorize('ADMIN'), ctrl.listAdmin);
 router.get('/admin/:id', authenticate, authorize('ADMIN'), ctrl.getByIdAdmin);
+router.get('/', ctrl.findAll);
 router.get('/:id', ctrl.getByIdPublic);
 router.post('/', authenticate, authorize('ADMIN'), validateDto(CreateProductoDto), ctrl.create);
 router.put(

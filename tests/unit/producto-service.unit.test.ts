@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProductoService } from '../../src/modules/productos/service/ProductoService.js';
+import { DescuentoService } from '../../src/modules/descuentos/service/DescuentoService.js';
+import type { DescuentoPublic } from '../../src/modules/descuentos/entity/Descuento.js';
 import { Producto } from '../../src/modules/productos/entity/Producto.js';
+import { Marca } from '../../src/modules/marcas/entity/Marca.js';
 import type { UpdateProductoDto } from '../../src/modules/productos/dto/UpdateProductoDto.js';
 import * as db from '../../src/config/db.js';
 
@@ -215,5 +218,203 @@ describe('ProductoService', () => {
 
   it('assertExists lanza 400 para id inválido', async () => {
     await expect(service.assertExists(-1)).rejects.toMatchObject({ statusCode: 400 });
+  });
+
+  describe('findAll (listado público)', () => {
+    function realProducto(
+      id: number,
+      nombre: string,
+      precio: string,
+      stock: number,
+      marca: Marca,
+    ): Producto {
+      const p = new Producto();
+      p.id = id;
+      p.nombre = nombre;
+      p.precioUnitario = precio;
+      p.stock = stock;
+      p.marca = marca;
+      return p;
+    }
+
+    it('siempre filtra activo=true, pagina con defaults page=1/size=20 y ordena por id DESC', async () => {
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(0);
+
+      const result = await service.findAll({});
+
+      expect(em.find).toHaveBeenCalledWith(
+        Producto,
+        { activo: true },
+        expect.objectContaining({
+          populate: ['marca'],
+          offset: 0,
+          limit: 20,
+          orderBy: { id: 'DESC' },
+        }),
+      );
+      expect(result).toEqual({ data: [], total: 0, page: 1, size: 20 });
+    });
+
+    it('combina filtros de tipo, marca y rango de precio en AND', async () => {
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(0);
+
+      await service.findAll({ idTipoProducto: 3, idMarca: 5, precioMin: 100, precioMax: 2000 });
+
+      expect(em.find).toHaveBeenCalledWith(
+        Producto,
+        {
+          activo: true,
+          tipoProducto: { id: 3 },
+          marca: { id: 5 },
+          precioUnitario: { $gte: 100, $lte: 2000 },
+        },
+        expect.anything(),
+      );
+    });
+
+    it('lanza 400 si precioMin es mayor a precioMax', async () => {
+      await expect(service.findAll({ precioMin: 500, precioMax: 100 })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+    });
+
+    it('lanza 400 si orden o dir no son valores permitidos', async () => {
+      await expect(service.findAll({ orden: 'stock' as never })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+      await expect(service.findAll({ dir: 'random' as never })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+    });
+
+    it('lanza 400 si un id de filtro no es numérico', async () => {
+      await expect(service.findAll({ idMarca: NaN })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.findAll({ idTipoProducto: NaN })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+    });
+
+    it('lanza 400 si page o size están fuera de rango', async () => {
+      await expect(service.findAll({ page: 0 })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.findAll({ page: 1.5 })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.findAll({ size: 500 })).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it('lanza 400 si precioMin o precioMax no son numéricos o son negativos', async () => {
+      await expect(service.findAll({ precioMin: NaN })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.findAll({ precioMax: -1 })).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it('ordena por precioUnitario cuando orden=precio&dir=desc', async () => {
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(0);
+
+      await service.findAll({ orden: 'precio', dir: 'desc' });
+
+      expect(em.find).toHaveBeenCalledWith(
+        Producto,
+        expect.anything(),
+        expect.objectContaining({ orderBy: { precioUnitario: 'DESC' } }),
+      );
+    });
+
+    it('pagina con page/size explícitos y devuelve total real', async () => {
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(7);
+
+      const result = await service.findAll({ page: 3, size: 5 });
+
+      expect(em.find).toHaveBeenCalledWith(
+        Producto,
+        expect.anything(),
+        expect.objectContaining({ offset: 10, limit: 5 }),
+      );
+      expect(result.page).toBe(3);
+      expect(result.size).toBe(5);
+      expect(result.total).toBe(7);
+    });
+
+    it('mapea items a ProductoListPublic con disponible computado y sin campos internos', async () => {
+      const marca = new Marca();
+      marca.id = 7;
+      marca.nombre = 'Nike';
+      const conStock = realProducto(1, 'Proteína', '1500.00', 5, marca);
+      const sinStock = realProducto(2, 'Barra', '20.00', 0, marca);
+      vi.spyOn(em, 'find').mockResolvedValue([conStock, sinStock] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(2);
+
+      const result = await service.findAll({});
+
+      expect(result.data).toEqual([
+        {
+          id: 1,
+          nombre: 'Proteína',
+          marca: { id: 7, nombre: 'Nike' },
+          precioUnitario: '1500.00',
+          disponible: true,
+        },
+        {
+          id: 2,
+          nombre: 'Barra',
+          marca: { id: 7, nombre: 'Nike' },
+          precioUnitario: '20.00',
+          disponible: false,
+        },
+      ]);
+      expect(result.data[0]).not.toHaveProperty('activo');
+      expect(result.data[0]).not.toHaveProperty('stock');
+      expect(result.data[0]).not.toHaveProperty('createdAt');
+    });
+  });
+
+  describe('getByIdPublic (detalle público, 010)', () => {
+    it('agrega disponible=true y descuentosVigentes=[] al detalle', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(makeProducto({ stock: 5 }));
+      vi.spyOn(DescuentoService.prototype, 'findVigentes').mockResolvedValue([]);
+
+      const result = await service.getByIdPublic(1);
+
+      expect(result).toEqual(
+        expect.objectContaining({ id: 1, stock: 5, disponible: true, descuentosVigentes: [] }),
+      );
+      expect(DescuentoService.prototype.findVigentes).toHaveBeenCalledWith(1, expect.any(Date));
+    });
+
+    it('disponible=false cuando stock=0', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(makeProducto({ stock: 0 }));
+      vi.spyOn(DescuentoService.prototype, 'findVigentes').mockResolvedValue([]);
+
+      const result = await service.getByIdPublic(1);
+
+      expect(result.disponible).toBe(false);
+    });
+
+    it('incluye los descuentos vigentes devueltos por DescuentoService', async () => {
+      const vigente: DescuentoPublic = {
+        id: 9,
+        descripcion: 'Oferta 010',
+        cantidadMinima: 1,
+        porcentaje: 15,
+        activo: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      vi.spyOn(em, 'findOne').mockResolvedValue(makeProducto());
+      vi.spyOn(DescuentoService.prototype, 'findVigentes').mockResolvedValue([vigente]);
+
+      const result = await service.getByIdPublic(1);
+
+      expect(result.descuentosVigentes).toEqual([vigente]);
+    });
+
+    it('no llama a findVigentes si el producto no existe', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(null);
+      const spy = vi.spyOn(DescuentoService.prototype, 'findVigentes');
+
+      await expect(service.getByIdPublic(1)).rejects.toMatchObject({ statusCode: 404 });
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 });

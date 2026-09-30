@@ -1,22 +1,32 @@
 import type { EntityManager } from '@mikro-orm/mysql';
 import { getEm } from '../../../config/db.js';
 import { AppError } from '../../../common/errors/AppError.js';
-import { Producto, ProductoPublic } from '../entity/Producto.js';
+import { Producto, ProductoPublic, ProductoListPublic } from '../entity/Producto.js';
 import { TipoProducto } from '../../../modules/tipos-producto/entity/TipoProducto.js';
 import { Marca } from '../../../modules/marcas/entity/Marca.js';
 import { Proveedor } from '../../../modules/proveedores/entity/Proveedor.js';
+import { DescuentoService } from '../../../modules/descuentos/service/DescuentoService.js';
+import type { DescuentoPublic } from '../../../modules/descuentos/entity/Descuento.js';
 import type { CreateProductoDto } from '../dto/CreateProductoDto.js';
 import type { UpdateProductoDto } from '../dto/UpdateProductoDto.js';
 import type { FilterProductoAdminDto } from '../dto/FilterProductoAdminDto.js';
+import type { FilterProductoPublicDto } from '../dto/FilterProductoPublicDto.js';
 
-export interface FindAllResult {
-  data: ProductoPublic[];
+export interface FindAllResult<T = ProductoPublic> {
+  data: T[];
   total: number;
   page: number;
   size: number;
 }
 
+export type ProductoDetallePublic = ProductoPublic & {
+  disponible: boolean;
+  descuentosVigentes: DescuentoPublic[];
+};
+
 export class ProductoService {
+  private descuentosService = new DescuentoService();
+
   private get em(): EntityManager {
     return getEm();
   }
@@ -152,6 +162,81 @@ export class ProductoService {
     };
   }
 
+  async findAll(filters: FilterProductoPublicDto): Promise<FindAllResult<ProductoListPublic>> {
+    const page = filters.page ?? 1;
+    const size = filters.size ?? 20;
+
+    if (filters.idTipoProducto !== undefined && !Number.isInteger(filters.idTipoProducto)) {
+      throw new AppError(400, 'idTipoProducto debe ser un entero');
+    }
+    if (filters.idMarca !== undefined && !Number.isInteger(filters.idMarca)) {
+      throw new AppError(400, 'idMarca debe ser un entero');
+    }
+    if (
+      filters.precioMin !== undefined &&
+      (!Number.isFinite(filters.precioMin) || filters.precioMin < 0)
+    ) {
+      throw new AppError(400, 'precioMin debe ser un número mayor o igual a 0');
+    }
+    if (
+      filters.precioMax !== undefined &&
+      (!Number.isFinite(filters.precioMax) || filters.precioMax < 0)
+    ) {
+      throw new AppError(400, 'precioMax debe ser un número mayor o igual a 0');
+    }
+    if (
+      filters.precioMin !== undefined &&
+      filters.precioMax !== undefined &&
+      filters.precioMin > filters.precioMax
+    ) {
+      throw new AppError(400, 'precioMin no puede ser mayor a precioMax');
+    }
+    if (filters.orden !== undefined && filters.orden !== 'nombre' && filters.orden !== 'precio') {
+      throw new AppError(400, 'orden debe ser nombre o precio');
+    }
+    if (filters.dir !== undefined && filters.dir !== 'asc' && filters.dir !== 'desc') {
+      throw new AppError(400, 'dir debe ser asc o desc');
+    }
+    if (!Number.isInteger(page) || page < 1) {
+      throw new AppError(400, 'page debe ser un entero mayor o igual a 1');
+    }
+    if (!Number.isInteger(size) || size < 1 || size > 100) {
+      throw new AppError(400, 'size debe ser un entero entre 1 y 100');
+    }
+
+    const where: Record<string, unknown> = { activo: true };
+    if (filters.idTipoProducto !== undefined) where.tipoProducto = { id: filters.idTipoProducto };
+    if (filters.idMarca !== undefined) where.marca = { id: filters.idMarca };
+    if (filters.precioMin !== undefined || filters.precioMax !== undefined) {
+      const rango: { $gte?: number; $lte?: number } = {};
+      if (filters.precioMin !== undefined) rango.$gte = filters.precioMin;
+      if (filters.precioMax !== undefined) rango.$lte = filters.precioMax;
+      where.precioUnitario = rango;
+    }
+
+    let orderBy: Record<string, 'ASC' | 'DESC'>;
+    if (filters.orden === 'nombre') {
+      orderBy = { nombre: filters.dir === 'desc' ? 'DESC' : 'ASC' };
+    } else if (filters.orden === 'precio') {
+      orderBy = { precioUnitario: filters.dir === 'desc' ? 'DESC' : 'ASC' };
+    } else if (filters.dir !== undefined) {
+      orderBy = { id: filters.dir === 'asc' ? 'ASC' : 'DESC' };
+    } else {
+      orderBy = { id: 'DESC' };
+    }
+
+    const [data, total] = await Promise.all([
+      this.em.find(Producto, where, {
+        populate: ['marca'],
+        orderBy,
+        offset: (page - 1) * size,
+        limit: size,
+      }),
+      this.em.count(Producto, where),
+    ]);
+    return { data: data.map((p) => p.toListPublic()), total, page, size };
+  }
+
   async getByIdAdmin(id: number): Promise<ProductoPublic> {
     if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
     const producto = await this.em.findOne(
@@ -163,7 +248,7 @@ export class ProductoService {
     return producto.toPublic();
   }
 
-  async getByIdPublic(id: number): Promise<ProductoPublic> {
+  async getByIdPublic(id: number): Promise<ProductoDetallePublic> {
     if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
     const producto = await this.em.findOne(
       Producto,
@@ -171,6 +256,11 @@ export class ProductoService {
       { populate: ['marca', 'tipoProducto', 'proveedor'] },
     );
     if (!producto) throw new AppError(404, 'Producto no encontrado');
-    return producto.toPublic();
+    const descuentosVigentes = await this.descuentosService.findVigentes(id, new Date());
+    return {
+      ...producto.toPublic(),
+      disponible: producto.stock > 0,
+      descuentosVigentes,
+    };
   }
 }

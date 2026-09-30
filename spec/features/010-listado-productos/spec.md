@@ -1,6 +1,6 @@
 # 010 · Listado de productos
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 
@@ -25,18 +25,18 @@ Es **el listado con filtro** de regularidad (1 cada 2 integrantes; este es el de
 
 ## Criterios de aceptación
 
-- [ ] `GET /api/productos` es **público** (no requiere token) y responde `200`.
-- [ ] Solo devuelve productos `activo=true`.
-- [ ] Filtro por `idTipoProducto` devuelve únicamente ese tipo; id inexistente → lista vacía `200` (no 404).
-- [ ] Filtro por `idMarca` análogo.
-- [ ] `precioMin`/`precioMax` filtran por `precioUnitario` inclusive; `precioMin > precioMax` → `400`.
-- [ ] Dos o más filtros combinados se aplican en AND.
-- [ ] Paginación: `page` fuera de rango devuelve `items: []` con `total` correcto.
-- [ ] Cada item incluye `disponible` calculado desde `stock` (no un campo guardado aparte).
-- [ ] `GET /api/productos/:id` de inactivo o inexistente → `404`.
-- [ ] El detalle incluye al menos: nombre, descripción, precio, marca, tipo, stock/disponibilidad.
-- [ ] `GET /api/productos` **no** devuelve productos inactivos ni campos internos sensibles.
-- [ ] Tests: unit (construcción de filtros/queries del service) + integración (cada filtro solo y combinado, paginación, detalle 404).
+- [x] `GET /api/productos` es **público** (no requiere token) y responde `200`.
+- [x] Solo devuelve productos `activo=true`.
+- [x] Filtro por `idTipoProducto` devuelve únicamente ese tipo; id inexistente → lista vacía `200` (no 404).
+- [x] Filtro por `idMarca` análogo.
+- [x] `precioMin`/`precioMax` filtran por `precioUnitario` inclusive; `precioMin > precioMax` → `400`.
+- [x] Dos o más filtros combinados se aplican en AND.
+- [x] Paginación: `page` fuera de rango devuelve `items: []` con `total` correcto.
+- [x] Cada item incluye `disponible` calculado desde `stock` (no un campo guardado aparte).
+- [x] `GET /api/productos/:id` de inactivo o inexistente → `404`.
+- [x] El detalle incluye al menos: nombre, descripción, precio, marca, tipo, stock/disponibilidad.
+- [x] `GET /api/productos` **no** devuelve productos inactivos ni campos internos sensibles.
+- [x] Tests: unit (construcción de filtros/queries del service) + integración (cada filtro solo y combinado, paginación, detalle 404).
 
 ## Fuera de alcance
 

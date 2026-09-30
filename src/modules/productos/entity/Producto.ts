@@ -17,6 +17,14 @@ export interface ProductoPublic {
   updatedAt: Date;
 }
 
+export interface ProductoListPublic {
+  id: number;
+  nombre: string;
+  marca: { id: number; nombre: string };
+  precioUnitario: string;
+  disponible: boolean;
+}
+
 @Entity()
 export class Producto {
   @PrimaryKey({ type: 'number' })
@@ -51,6 +59,16 @@ export class Producto {
 
   @Property({ type: 'datetime', onCreate: () => new Date(), onUpdate: () => new Date() })
   updatedAt!: Date;
+
+  toListPublic(): ProductoListPublic {
+    return {
+      id: this.id,
+      nombre: this.nombre,
+      marca: { id: this.marca.id, nombre: this.marca.nombre },
+      precioUnitario: this.precioUnitario,
+      disponible: this.stock > 0,
+    };
+  }
 
   toPublic(): ProductoPublic {
     return {
