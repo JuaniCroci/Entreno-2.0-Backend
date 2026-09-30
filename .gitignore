@@ -22,3 +22,6 @@ coverage/
 
 # MikroORM temporales
 .mikro-orm/
+
+# Workspace de skills SDD
+.superpowers/

@@ -16,6 +16,7 @@ import proveedoresRoutes from './modules/proveedores/routes/proveedores.routes.j
 import productosRoutes from './modules/productos/routes/productos.routes.js';
 import clientesRoutes from './modules/clientes/routes/clientes.routes.js';
 import descuentosRoutes from './modules/descuentos/routes/descuentos.routes.js';
+import ingresosRoutes from './modules/ingresos/routes/ingresos.routes.js';
 
 export function createApp(): express.Express {
   const app = express();
@@ -39,6 +40,7 @@ export function createApp(): express.Express {
   app.use('/api/clientes', clientesRoutes);
   app.use('/api/productos', productosRoutes);
   app.use('/api/descuentos', descuentosRoutes);
+  app.use('/api/ingresos', ingresosRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

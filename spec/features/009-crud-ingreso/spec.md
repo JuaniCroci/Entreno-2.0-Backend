@@ -1,6 +1,6 @@
 # 009 · CRUD Ingreso
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 
@@ -19,16 +19,16 @@ El DER lo trata como regla central del stock (notas 8–9): el stock se actualiz
 
 ## Criterios de aceptación
 
-- [ ] Todas las rutas exigen `ADMIN` (`401`/`403`).
-- [ ] El alta valida: proveedor existe y activo; al menos 1 línea; cada producto existe y activo; `cantidad ≥ 1`; `precioUnitario > 0`; `nroIngreso` unique (`409` si duplicado).
-- [ ] No se permiten dos líneas del mismo producto en el mismo ingreso (`400`).
-- [ ] El alta calcula `importeTotal = Σ cantidad × precioUnitario` (el cliente no lo envía; si lo envía, se ignora).
-- [ ] Al crear el ingreso, el `stock` de cada producto involucrado **aumenta** en su cantidad.
-- [ ] `GET /:id` devuelve líneas con nombre de producto, cantidad, precioUnitario e importe de línea.
-- [ ] `POST /:id/anular` solo actúa sobre `REGISTRADO`; sobre `ANULADO` responde `409`; el caso exitoso responde `200` con el ingreso en estado `ANULADO`.
-- [ ] Al anular, el `stock` de cada producto **disminuye** en la cantidad original; si eso dejaría stock negativo, se responde `409` y no se anula (stock ≥ 0 es invariante).
-- [ ] Anular es irreversible en fase 1 (no hay "reactivar").
-- [ ] Tests: unit (cálculo de importes, anulación con stock insuficiente) + integración (alta → stock sube → anula → stock vuelve al valor inicial).
+- [x] Todas las rutas exigen `ADMIN` (`401`/`403`).
+- [x] El alta valida: proveedor existe y activo; al menos 1 línea; cada producto existe y activo; `cantidad ≥ 1`; `precioUnitario > 0`; `nroIngreso` unique (`409` si duplicado).
+- [x] No se permiten dos líneas del mismo producto en el mismo ingreso (`400`).
+- [x] El alta calcula `importeTotal = Σ cantidad × precioUnitario` (el cliente no lo envía; si lo envía, se ignora).
+- [x] Al crear el ingreso, el `stock` de cada producto involucrado **aumenta** en su cantidad.
+- [x] `GET /:id` devuelve líneas con nombre de producto, cantidad, precioUnitario e importe de línea.
+- [x] `POST /:id/anular` solo actúa sobre `REGISTRADO`; sobre `ANULADO` responde `409`; el caso exitoso responde `200` con el ingreso en estado `ANULADO`.
+- [x] Al anular, el `stock` de cada producto **disminuye** en la cantidad original; si eso dejaría stock negativo, se responde `409` y no se anula (stock ≥ 0 es invariante).
+- [x] Anular es irreversible en fase 1 (no hay "reactivar").
+- [x] Tests: unit (cálculo de importes, anulación con stock insuficiente) + integración (alta → stock sube → anula → stock vuelve al valor inicial).
 
 ## Fuera de alcance
 
