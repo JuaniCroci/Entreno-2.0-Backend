@@ -17,6 +17,8 @@ import productosRoutes from './modules/productos/routes/productos.routes.js';
 import clientesRoutes from './modules/clientes/routes/clientes.routes.js';
 import descuentosRoutes from './modules/descuentos/routes/descuentos.routes.js';
 import ingresosRoutes from './modules/ingresos/routes/ingresos.routes.js';
+import carritoRoutes from './modules/carritos/routes/carrito.routes.js';
+import misPedidosRoutes from './modules/pedidos/routes/misPedidos.routes.js';
 
 export function createApp(): express.Express {
   const app = express();
@@ -41,6 +43,8 @@ export function createApp(): express.Express {
   app.use('/api/productos', productosRoutes);
   app.use('/api/descuentos', descuentosRoutes);
   app.use('/api/ingresos', ingresosRoutes);
+  app.use('/api/carrito', carritoRoutes);
+  app.use('/api/mis-pedidos', misPedidosRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

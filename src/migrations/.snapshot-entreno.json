@@ -19,6 +19,267 @@
           "enumItems": [],
           "mappedType": "integer"
         },
+        "estado": {
+          "name": "estado",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": "'ACTIVO'",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "usuario_activo_slot": {
+          "name": "usuario_activo_slot",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": true,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "carrito",
+      "indexes": [
+        {
+          "columnNames": ["usuario_activo_slot"],
+          "keyName": "carrito_usuario_activo_slot_unique",
+          "unique": true,
+          "primary": false,
+          "constraint": true
+        },
+        {
+          "columnNames": ["usuario_id"],
+          "keyName": "carrito_usuario_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["id"],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "carrito_usuario_id_foreign": {
+          "columnNames": ["usuario_id"],
+          "constraintName": "carrito_usuario_id_foreign",
+          "localTableName": "carrito",
+          "referencedTableName": "usuario",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "carrito_id": {
+          "name": "carrito_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "producto_id": {
+          "name": "producto_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        }
+      },
+      "name": "carrito_item",
+      "indexes": [
+        {
+          "columnNames": ["carrito_id"],
+          "keyName": "carrito_item_carrito_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["carrito_id", "producto_id"],
+          "keyName": "carrito_item_carrito_id_producto_id_unique",
+          "unique": true,
+          "primary": false,
+          "constraint": true,
+          "composite": true
+        },
+        {
+          "columnNames": ["producto_id"],
+          "keyName": "carrito_item_producto_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["id"],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "carrito_item_carrito_id_foreign": {
+          "columnNames": ["carrito_id"],
+          "constraintName": "carrito_item_carrito_id_foreign",
+          "localTableName": "carrito_item",
+          "referencedTableName": "carrito",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        },
+        "carrito_item_producto_id_foreign": {
+          "columnNames": ["producto_id"],
+          "constraintName": "carrito_item_producto_id_foreign",
+          "localTableName": "carrito_item",
+          "referencedTableName": "producto",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
         "descripcion": {
           "name": "descripcion",
           "type": "varchar(255)",
@@ -119,13 +380,6 @@
       "name": "descuento",
       "indexes": [
         {
-          "columnNames": ["activo"],
-          "keyName": "descuento_activo_index",
-          "unique": false,
-          "primary": false,
-          "constraint": false
-        },
-        {
           "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
@@ -146,38 +400,6 @@
           "unsigned": true,
           "autoincrement": true,
           "primary": true,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": 10,
-          "scale": 0,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "id_descuento": {
-          "name": "id_descuento",
-          "type": "int",
-          "unsigned": true,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": 10,
-          "scale": 0,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "id_producto": {
-          "name": "id_producto",
-          "type": "int",
-          "unsigned": true,
-          "autoincrement": false,
-          "primary": false,
           "nullable": false,
           "unique": false,
           "length": null,
@@ -220,24 +442,139 @@
           "enumItems": [],
           "mappedType": "date"
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
+        "descuento_id": {
+          "name": "descuento_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "producto_id": {
+          "name": "producto_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        }
+      },
+      "name": "descuento_producto",
+      "indexes": [
+        {
+          "columnNames": ["descuento_id"],
+          "keyName": "descuento_producto_descuento_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["producto_id"],
+          "keyName": "descuento_producto_producto_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["id"],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "descuento_producto_descuento_id_foreign": {
+          "columnNames": ["descuento_id"],
+          "constraintName": "descuento_producto_descuento_id_foreign",
+          "localTableName": "descuento_producto",
+          "referencedTableName": "descuento",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        },
+        "descuento_producto_producto_id_foreign": {
+          "columnNames": ["producto_id"],
+          "constraintName": "descuento_producto_producto_id_foreign",
+          "localTableName": "descuento_producto",
+          "referencedTableName": "producto",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "pedido_id": {
+          "name": "pedido_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "estado": {
+          "name": "estado",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 0,
+          "length": 255,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
           "enumItems": [],
-          "mappedType": "datetime"
+          "mappedType": "string"
         },
-        "updated_at": {
-          "name": "updated_at",
+        "fecha": {
+          "name": "fecha",
           "type": "datetime",
           "unsigned": false,
           "autoincrement": false,
@@ -253,29 +590,22 @@
           "mappedType": "datetime"
         }
       },
-      "name": "descuento_producto",
+      "name": "historial_estado",
       "indexes": [
         {
-          "columnNames": ["id_descuento"],
-          "keyName": "descuento_producto_id_descuento_foreign",
-          "unique": false,
-          "primary": false,
-          "constraint": false
-        },
-        {
-          "columnNames": ["id_producto"],
-          "keyName": "descuento_producto_id_producto_index",
-          "unique": false,
-          "primary": false,
-          "constraint": false
-        },
-        {
-          "columnNames": ["id_producto", "fecha_desde", "fecha_hasta"],
-          "keyName": "idx_vigencia",
+          "columnNames": ["pedido_id", "estado"],
+          "keyName": "historial_estado_pedido_id_estado_index",
           "unique": false,
           "primary": false,
           "constraint": false,
           "composite": true
+        },
+        {
+          "columnNames": ["pedido_id"],
+          "keyName": "historial_estado_pedido_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
         },
         {
           "columnNames": ["id"],
@@ -287,22 +617,13 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "descuento_producto_id_descuento_foreign": {
-          "columnNames": ["id_descuento"],
-          "constraintName": "descuento_producto_id_descuento_foreign",
-          "localTableName": "descuento_producto",
-          "referencedTableName": "descuento",
+        "historial_estado_pedido_id_foreign": {
+          "columnNames": ["pedido_id"],
+          "constraintName": "historial_estado_pedido_id_foreign",
+          "localTableName": "historial_estado",
+          "referencedTableName": "pedido",
           "referencedColumnNames": ["id"],
-          "updateRule": "no action",
-          "deleteRule": "no action"
-        },
-        "descuento_producto_id_producto_foreign": {
-          "columnNames": ["id_producto"],
-          "constraintName": "descuento_producto_id_producto_foreign",
-          "localTableName": "descuento_producto",
-          "referencedTableName": "producto",
-          "referencedColumnNames": ["id"],
-          "updateRule": "no action",
+          "updateRule": "cascade",
           "deleteRule": "no action"
         }
       },
@@ -741,6 +1062,324 @@
           "enumItems": [],
           "mappedType": "integer"
         },
+        "fecha": {
+          "name": "fecha",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "estado": {
+          "name": "estado",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": "'REALIZADO'",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "importe_total": {
+          "name": "importe_total",
+          "type": "decimal(10,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 2,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "decimal"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "pedido",
+      "indexes": [
+        {
+          "columnNames": ["usuario_id"],
+          "keyName": "pedido_usuario_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["id"],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "pedido_usuario_id_foreign": {
+          "columnNames": ["usuario_id"],
+          "constraintName": "pedido_usuario_id_foreign",
+          "localTableName": "pedido",
+          "referencedTableName": "usuario",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "pedido_id": {
+          "name": "pedido_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "producto_id": {
+          "name": "producto_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "precio_unitario": {
+          "name": "precio_unitario",
+          "type": "decimal(10,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 2,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "decimal"
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "decimal(10,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 2,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "decimal"
+        },
+        "descuento_aplicado": {
+          "name": "descuento_aplicado",
+          "type": "decimal(10,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 2,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "decimal"
+        }
+      },
+      "name": "pedido_item",
+      "indexes": [
+        {
+          "columnNames": ["pedido_id"],
+          "keyName": "pedido_item_pedido_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["pedido_id", "producto_id"],
+          "keyName": "pedido_item_pedido_id_producto_id_unique",
+          "unique": true,
+          "primary": false,
+          "constraint": true,
+          "composite": true
+        },
+        {
+          "columnNames": ["producto_id"],
+          "keyName": "pedido_item_producto_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": ["id"],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "pedido_item_pedido_id_foreign": {
+          "columnNames": ["pedido_id"],
+          "constraintName": "pedido_item_pedido_id_foreign",
+          "localTableName": "pedido_item",
+          "referencedTableName": "pedido",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        },
+        "pedido_item_producto_id_foreign": {
+          "columnNames": ["producto_id"],
+          "constraintName": "pedido_item_producto_id_foreign",
+          "localTableName": "pedido_item",
+          "referencedTableName": "producto",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
         "nombre": {
           "name": "nombre",
           "type": "varchar(255)",
@@ -759,13 +1398,13 @@
         },
         "descripcion": {
           "name": "descripcion",
-          "type": "varchar(500)",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
           "unique": false,
-          "length": 500,
+          "length": 255,
           "precision": null,
           "scale": null,
           "default": null,
@@ -821,40 +1460,8 @@
           "enumItems": [],
           "mappedType": "boolean"
         },
-        "id_tipo_producto": {
-          "name": "id_tipo_producto",
-          "type": "int",
-          "unsigned": true,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": 10,
-          "scale": 0,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "id_marca": {
-          "name": "id_marca",
-          "type": "int",
-          "unsigned": true,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": 10,
-          "scale": 0,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "id_proveedor": {
-          "name": "id_proveedor",
+        "proveedor_id": {
+          "name": "proveedor_id",
           "type": "int",
           "unsigned": true,
           "autoincrement": false,
@@ -900,6 +1507,38 @@
           "comment": null,
           "enumItems": [],
           "mappedType": "datetime"
+        },
+        "tipo_producto_id": {
+          "name": "tipo_producto_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "marca_id": {
+          "name": "marca_id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
         }
       },
       "name": "producto",
@@ -912,22 +1551,22 @@
           "constraint": true
         },
         {
-          "columnNames": ["id_marca"],
-          "keyName": "producto_id_marca_index",
+          "columnNames": ["marca_id"],
+          "keyName": "producto_marca_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": ["id_proveedor"],
-          "keyName": "producto_id_proveedor_index",
+          "columnNames": ["proveedor_id"],
+          "keyName": "producto_proveedor_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": ["id_tipo_producto"],
-          "keyName": "producto_id_tipo_producto_index",
+          "columnNames": ["tipo_producto_id"],
+          "keyName": "producto_tipo_producto_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
@@ -935,31 +1574,31 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "producto_id_marca_foreign": {
-          "columnNames": ["id_marca"],
-          "constraintName": "producto_id_marca_foreign",
+        "producto_marca_id_foreign": {
+          "columnNames": ["marca_id"],
+          "constraintName": "producto_marca_id_foreign",
           "localTableName": "producto",
           "referencedTableName": "marca",
           "referencedColumnNames": ["id"],
-          "updateRule": "no action",
+          "updateRule": "cascade",
           "deleteRule": "no action"
         },
-        "producto_id_proveedor_foreign": {
-          "columnNames": ["id_proveedor"],
-          "constraintName": "producto_id_proveedor_foreign",
+        "producto_proveedor_id_foreign": {
+          "columnNames": ["proveedor_id"],
+          "constraintName": "producto_proveedor_id_foreign",
           "localTableName": "producto",
           "referencedTableName": "proveedor",
           "referencedColumnNames": ["id"],
-          "updateRule": "no action",
-          "deleteRule": "no action"
+          "updateRule": "cascade",
+          "deleteRule": "set null"
         },
-        "producto_id_tipo_producto_foreign": {
-          "columnNames": ["id_tipo_producto"],
-          "constraintName": "producto_id_tipo_producto_foreign",
+        "producto_tipo_producto_id_foreign": {
+          "columnNames": ["tipo_producto_id"],
+          "constraintName": "producto_tipo_producto_id_foreign",
           "localTableName": "producto",
           "referencedTableName": "tipo_producto",
           "referencedColumnNames": ["id"],
-          "updateRule": "no action",
+          "updateRule": "cascade",
           "deleteRule": "no action"
         }
       },
@@ -1002,13 +1641,13 @@
         },
         "cuit": {
           "name": "cuit",
-          "type": "varchar(11)",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": true,
-          "length": 11,
+          "length": 255,
           "precision": null,
           "scale": null,
           "default": null,
@@ -1234,7 +1873,7 @@
           "mappedType": "datetime"
         }
       },
-      "name": "refresh_tokens",
+      "name": "refresh_token",
       "indexes": [
         {
           "columnNames": ["id"],
@@ -1245,7 +1884,7 @@
         },
         {
           "columnNames": ["usuario_id"],
-          "keyName": "refresh_tokens_usuario_id_index",
+          "keyName": "refresh_token_usuario_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
@@ -1253,13 +1892,13 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "refresh_tokens_usuario_id_foreign": {
+        "refresh_token_usuario_id_foreign": {
           "columnNames": ["usuario_id"],
-          "constraintName": "refresh_tokens_usuario_id_foreign",
-          "localTableName": "refresh_tokens",
+          "constraintName": "refresh_token_usuario_id_foreign",
+          "localTableName": "refresh_token",
           "referencedTableName": "usuario",
           "referencedColumnNames": ["id"],
-          "updateRule": "no action",
+          "updateRule": "cascade",
           "deleteRule": "no action"
         }
       },
@@ -1302,13 +1941,13 @@
         },
         "descripcion": {
           "name": "descripcion",
-          "type": "varchar(500)",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
           "unique": false,
-          "length": 500,
+          "length": 255,
           "precision": null,
           "scale": null,
           "default": null,
