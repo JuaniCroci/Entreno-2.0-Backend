@@ -22,12 +22,28 @@ API REST para e-commerce de artículos de gimnasio. **TypeScript + Express 5 + M
 | `pnpm format` / `pnpm format:check` | Prettier                                        |
 | `pnpm test`                         | Suite completa (Vitest)                         |
 | `pnpm test:unit`                    | Solo unitarios (sin DB)                         |
-| `pnpm test:integration`             | Integración (requiere MySQL en Docker)          |
+| `pnpm test:integration`             | Integración (requiere MySQL, ver Entorno)       |
 | `pnpm migrate:dev`                  | Crea + aplica migraciones MikroORM              |
 | `pnpm migrate`                      | Aplica migraciones pendientes                   |
 | `pnpm seed:admin`                   | Seed de admin idempotente                       |
 
 Verificación mínima tras cambios: `pnpm lint`, `pnpm typecheck` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
+
+## Entorno: base de datos (Podman)
+
+La DB se levanta con **Podman** (no Docker) usando el `docker-compose.yml` del repo. Ambos `test:unit` y `test:integration` conectan a MySQL — `tests/setup.ts` arma el schema al arrancar, así que **sin contenedor la suite falla**.
+
+```bash
+podman machine start                      # si "Cannot connect to Podman" (Windows/macOS)
+podman compose up -d mysql                # MySQL 8 en localhost:3307
+pnpm test                                 # unit + integración
+podman compose down                       # para (el volume entreno_mysql_data persiste)
+```
+
+- `.env` ya apunta a `DB_HOST=localhost`, `DB_PORT=3307` (mapeo del compose).
+- DBs: `entreno` (dev) y `entreno_test` (suite; la crea `tests/setup.ts`).
+- Alternativa: un MySQL nativo sirve igual cambiando `DB_PORT` en el entorno del run.
+- En CI no se usa compose: GitHub Actions corre el service `mysql:8` en el puerto 3306.
 
 ## Estructura
 
