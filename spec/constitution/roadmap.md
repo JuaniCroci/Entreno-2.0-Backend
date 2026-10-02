@@ -15,6 +15,7 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 9. **[009 · CRUD Ingreso](../features/009-crud-ingreso/)** — ingresos de mercadería con líneas, importes y actualización de stock.
 10. **[010 · Listado de productos](../features/010-listado-productos/)** — listado público con filtros (tipo, marca, rango de precio) + detalle.
 11. **[011 · Carrito y pedido](../features/011-carrito-pedido/)** — CU: carrito persistente y confirmación de pedido con stock y descuentos.
+12. **[012 · Gestión de pedido](../features/012-gestion-pedido/)** — CU: admin entrega/cancela pedido con historial de estados y restitución de stock.
 
 ## En orden (regularidad)
 
@@ -29,8 +30,8 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 9. ~~[009 · CRUD Ingreso](../features/009-crud-ingreso/)~~ — ✅
 10. ~~[010 · Listado de productos](../features/010-listado-productos/)~~ — ✅
 11. ~~[011 · Carrito y pedido](../features/011-carrito-pedido/)~~ — ✅
-12. **[012 · Gestión de pedido](../features/012-gestion-pedido/)** — CU: admin entrega/cancela pedido con historial de estados y restitución de stock. _(próxima)_
-13. **[013 · Listado de pedidos](../features/013-listado-pedidos/)** — listado admin con filtros (fecha, estado, cliente) + detalle; el cliente ve los suyos.
+12. ~~[012 · Gestión de pedido](../features/012-gestion-pedido/)~~ — ✅
+13. **[013 · Listado de pedidos](../features/013-listado-pedidos/)** — listado admin con filtros (fecha, estado, cliente) + detalle; el cliente ve los suyos. _(próxima)_
 
 ## Backlog / ideas 💡
 

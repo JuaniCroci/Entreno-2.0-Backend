@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.2.10 — Feature 012: Gestión de pedido (2026-10-02)
+
+### Feature
+
+- `src/modules/pedidos/service/transiciones.ts`: máquina de transiciones de fase 1 (`REALIZADO → ENTREGADO | CANCELADO`); `ABONADO` sin salidas hasta la feature de pago (aprobación)
+- `PedidoService`: `findById(id)`, `entregar(id)`, `cancelar(id)` (transaccionales) y `historial(id)`
+- `HistorialEstado`: `toPublic()` + interfaz `HistorialEstadoPublic`
+- `src/modules/pedidos/routes/pedidos.routes.ts` (nuevo) + mount `/api/pedidos` en `app.ts`
+- Endpoints (solo ADMIN): `POST /api/pedidos/:id/entregar`, `POST /api/pedidos/:id/cancelar`, `GET /api/pedidos/:id/historial`
+- `PedidoController`: handlers `entregar`, `cancelar`, `historial`
+
+### Comportamiento
+
+- Acción de negocio → `200` con el pedido en su nuevo estado (detalle con items, api-contract.md:98)
+- Transición inválida → `409` con el estado actual en el mensaje (doble entregar, cancelar dos veces, entregar un cancelado)
+- Id no entero → `400`; pedido inexistente → `404`; sin token → `401`; rol distinto de ADMIN → `403`
+- `cancelar` restituye stock (`stock += item.cantidad`, ordenado por `producto.id`) **sin** tocar `importeTotal` ni los items
+- Cada acción agrega una fila en `HistorialEstado` (solo append, auditoría); `GET /:id/historial` → `{ data, total }` ordenado `fecha asc`
+
+### Tests
+
+- `tests/unit/transiciones.unit.test.ts`: 5 tests (nuevo, matriz 4 estados × 2 acciones)
+- `tests/unit/pedido-service.unit.test.ts`: +13 (21 en total)
+- `tests/integration/pedido-admin.int.test.ts`: 13 tests (nuevo; flujo 011 → entregar/cancelar, 409, 401/403/404/400)
+
+### Suite total: 361 tests (29 files) — 204 unit + 157 integración
+
+### Gates: `format:check` + `lint` + `typecheck` + `build` + `test` — pasa limpio
+
+---
+
 ## v0.2.9 — Feature 011: Carrito y pedido (2026-10-01)
 
 ### Feature

@@ -40,3 +40,10 @@ findById(id: number): Promise<Pedido>
 // Mutación de stock al cancelar: producto.stock += item.cantidad (directo en entidad)
 // La mutación la hace GestionPedidoService / PedidoService en cancelar(), no otro módulo.
 ```
+
+## Desvíos de implementación
+
+- **`findById` no existía en 011** pese a figurar acá como interfaz heredada: se creó en esta feature con firma `findById(id: number): Promise<Pedido | null>` (valida id → `400`; el `404` lo lanzan `entregar`/`cancelar`/`historial`).
+- **Router nuevo**: 011 solo montaba `/api/mis-pedidos`; se creó `src/modules/pedidos/routes/pedidos.routes.ts` montado en `/api/pedidos` para las 3 rutas de esta feature — 013 sumará `GET /` y `GET /:id` ahí.
+- **Métodos compartidos**: `entregar` y `cancelar` delegan en `cambiarEstado(id, accion)` (misma validación, transacción e historial); no hay `GestionPedidoService` separado — se extiende `PedidoService` como decía el enfoque.
+- **Ciclo TDD**: los tests de integración se escribieron antes del wiring (RED por rutas inexistentes) y se commitearon junto con el wiring.
