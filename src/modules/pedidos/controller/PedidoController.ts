@@ -10,4 +10,19 @@ export class PedidoController {
     const result = await this.service.listByUsuario(usuarioId);
     res.json(result);
   };
+
+  entregar = async (req: Request, res: Response): Promise<void> => {
+    const detalle = await this.service.entregar(Number(req.params.id));
+    res.json(detalle);
+  };
+
+  cancelar = async (req: Request, res: Response): Promise<void> => {
+    const detalle = await this.service.cancelar(Number(req.params.id));
+    res.json(detalle);
+  };
+
+  historial = async (req: Request, res: Response): Promise<void> => {
+    const result = await this.service.historial(Number(req.params.id));
+    res.json(result);
+  };
 }
