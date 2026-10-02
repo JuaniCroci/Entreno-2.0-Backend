@@ -1,6 +1,12 @@
 import { Entity, PrimaryKey, Property, ManyToOne, Index } from '@mikro-orm/core';
 import { Pedido, type EstadoPedido } from './Pedido.js';
 
+export interface HistorialEstadoPublic {
+  id: number;
+  estado: EstadoPedido;
+  fecha: Date;
+}
+
 @Entity()
 @Index({ properties: ['pedido', 'estado'] })
 export class HistorialEstado {
@@ -15,4 +21,8 @@ export class HistorialEstado {
 
   @Property({ type: 'datetime' })
   fecha!: Date;
+
+  toPublic(): HistorialEstadoPublic {
+    return { id: this.id, estado: this.estado, fecha: this.fecha };
+  }
 }

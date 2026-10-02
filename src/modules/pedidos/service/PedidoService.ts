@@ -7,7 +7,8 @@ import { Carrito } from '../../carritos/entity/Carrito.js';
 import { DescuentoService } from '../../descuentos/service/DescuentoService.js';
 import { Pedido, type PedidoDetallePublic, type PedidoPublic } from '../entity/Pedido.js';
 import { PedidoItem } from '../entity/PedidoItem.js';
-import { HistorialEstado } from '../entity/HistorialEstado.js';
+import { HistorialEstado, type HistorialEstadoPublic } from '../entity/HistorialEstado.js';
+import { transicion, type Accion } from './transiciones.js';
 
 export class PedidoService {
   private descuentos = new DescuentoService();
@@ -115,5 +116,79 @@ export class PedidoService {
   async listByUsuario(usuarioId: number): Promise<{ data: PedidoPublic[]; total: number }> {
     const pedidos = await this.em.find(Pedido, { usuario: usuarioId }, { orderBy: { id: 'desc' } });
     return { data: pedidos.map((pedido) => pedido.toPublic()), total: pedidos.length };
+  }
+
+  async findById(id: number): Promise<Pedido | null> {
+    this.validarId(id);
+    return this.em.findOne(
+      Pedido,
+      { id },
+      {
+        populate: ['items', 'items.producto', 'usuario'],
+      },
+    );
+  }
+
+  async entregar(id: number): Promise<PedidoDetallePublic> {
+    return this.cambiarEstado(id, 'entregar');
+  }
+
+  async cancelar(id: number): Promise<PedidoDetallePublic> {
+    return this.cambiarEstado(id, 'cancelar');
+  }
+
+  async historial(id: number): Promise<{ data: HistorialEstadoPublic[]; total: number }> {
+    this.validarId(id);
+    const pedido = await this.em.findOne(Pedido, { id });
+    if (!pedido) {
+      throw new AppError(404, 'Pedido no encontrado');
+    }
+    const filas = await this.em.find(
+      HistorialEstado,
+      { pedido: id },
+      {
+        orderBy: { fecha: 'asc' },
+      },
+    );
+    return { data: filas.map((fila) => fila.toPublic()), total: filas.length };
+  }
+
+  private validarId(id: number): void {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new AppError(400, 'ID inválido');
+    }
+  }
+
+  private async cambiarEstado(id: number, accion: Accion): Promise<PedidoDetallePublic> {
+    this.validarId(id);
+    return this.em.transactional(async (em) => {
+      const pedido = await em.findOne(
+        Pedido,
+        { id },
+        { populate: ['items', 'items.producto', 'usuario'] },
+      );
+      if (!pedido) {
+        throw new AppError(404, 'Pedido no encontrado');
+      }
+      const destino = transicion(pedido.estado, accion);
+      if (!destino) {
+        throw new AppError(
+          409,
+          `El pedido está en estado ${pedido.estado} y no se puede ${accion}`,
+        );
+      }
+      const items = pedido.items.getItems();
+      if (accion === 'cancelar') {
+        const ordenados = [...items].sort((a, b) => a.producto.id - b.producto.id);
+        for (const item of ordenados) {
+          item.producto.stock += item.cantidad;
+        }
+      }
+      const now = new Date();
+      pedido.estado = destino;
+      em.create(HistorialEstado, { pedido, estado: destino, fecha: now });
+      await em.flush();
+      return pedido.toDetalle(items.map((item) => item.toPublic()));
+    });
   }
 }
