@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { LockMode } from '@mikro-orm/core';
 import { PedidoService } from '../../src/modules/pedidos/service/PedidoService.js';
 import { DescuentoService } from '../../src/modules/descuentos/service/DescuentoService.js';
 import { Pedido } from '../../src/modules/pedidos/entity/Pedido.js';
@@ -247,6 +248,12 @@ describe('PedidoService', () => {
       expect(result).toBe(pedido);
     });
 
+    it('findById de pedido inexistente lanza 404', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(null);
+
+      await expect(service.findById(404)).rejects.toMatchObject({ statusCode: 404 });
+    });
+
     it('findById con id no entero responde 400', async () => {
       await expect(service.findById(0)).rejects.toMatchObject({ statusCode: 400 });
       await expect(service.findById(2.5)).rejects.toMatchObject({ statusCode: 400 });
@@ -256,6 +263,18 @@ describe('PedidoService', () => {
     it('entregar con id no entero responde 400 sin abrir transacción', async () => {
       await expect(service.entregar(-1)).rejects.toMatchObject({ statusCode: 400 });
       expect(em.transactional).not.toHaveBeenCalled();
+    });
+
+    it('entregar bloquea el pedido con lock pesimista dentro de la transacción', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(makePedido() as never);
+
+      await service.entregar(42);
+
+      expect(em.findOne).toHaveBeenCalledWith(
+        Pedido,
+        { id: 42 },
+        expect.objectContaining({ lockMode: LockMode.PESSIMISTIC_WRITE }),
+      );
     });
 
     it('entregar pedido inexistente responde 404', async () => {
@@ -273,6 +292,17 @@ describe('PedidoService', () => {
         statusCode: 409,
         message: expect.stringContaining('CANCELADO'),
       });
+      expect(em.create).not.toHaveBeenCalled();
+    });
+
+    it('ABONADO responde 409 en ambas acciones (fase 1 sin transición de salida)', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(makePedido({ estado: 'ABONADO' }) as never);
+
+      await expect(service.entregar(42)).rejects.toMatchObject({
+        statusCode: 409,
+        message: expect.stringContaining('ABONADO'),
+      });
+      await expect(service.cancelar(42)).rejects.toMatchObject({ statusCode: 409 });
       expect(em.create).not.toHaveBeenCalled();
     });
 
@@ -367,7 +397,7 @@ describe('PedidoService', () => {
         HistorialEstado,
         { pedido: 42 },
         {
-          orderBy: { fecha: 'asc' },
+          orderBy: { fecha: 'asc', id: 'asc' },
         },
       );
       expect(result.total).toBe(2);

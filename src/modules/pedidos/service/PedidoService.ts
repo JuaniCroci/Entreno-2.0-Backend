@@ -24,7 +24,6 @@ export class PedidoService {
         { usuario: usuarioId },
         {
           populate: ['items', 'items.producto', 'usuario'],
-          lockMode: LockMode.PESSIMISTIC_WRITE,
           orderBy: { id: 'desc' },
         },
       );
@@ -118,15 +117,19 @@ export class PedidoService {
     return { data: pedidos.map((pedido) => pedido.toPublic()), total: pedidos.length };
   }
 
-  async findById(id: number): Promise<Pedido | null> {
+  async findById(id: number): Promise<Pedido> {
     this.validarId(id);
-    return this.em.findOne(
+    const pedido = await this.em.findOne(
       Pedido,
       { id },
       {
         populate: ['items', 'items.producto', 'usuario'],
       },
     );
+    if (!pedido) {
+      throw new AppError(404, 'Pedido no encontrado');
+    }
+    return pedido;
   }
 
   async entregar(id: number): Promise<PedidoDetallePublic> {
@@ -138,16 +141,12 @@ export class PedidoService {
   }
 
   async historial(id: number): Promise<{ data: HistorialEstadoPublic[]; total: number }> {
-    this.validarId(id);
-    const pedido = await this.em.findOne(Pedido, { id });
-    if (!pedido) {
-      throw new AppError(404, 'Pedido no encontrado');
-    }
+    await this.findById(id);
     const filas = await this.em.find(
       HistorialEstado,
       { pedido: id },
       {
-        orderBy: { fecha: 'asc' },
+        orderBy: { fecha: 'asc', id: 'asc' },
       },
     );
     return { data: filas.map((fila) => fila.toPublic()), total: filas.length };
@@ -165,7 +164,10 @@ export class PedidoService {
       const pedido = await em.findOne(
         Pedido,
         { id },
-        { populate: ['items', 'items.producto', 'usuario'] },
+        {
+          populate: ['items', 'items.producto', 'usuario'],
+          lockMode: LockMode.PESSIMISTIC_WRITE,
+        },
       );
       if (!pedido) {
         throw new AppError(404, 'Pedido no encontrado');

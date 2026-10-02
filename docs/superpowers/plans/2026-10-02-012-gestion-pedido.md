@@ -36,21 +36,21 @@
 
 **Produces:** `transicion(actual: EstadoPedido, accion: Accion): EstadoPedido | null`, `type Accion = 'entregar' | 'cancelar'`.
 
-- [ ] Test RED: matriz completa (4 estados × 2 acciones): válidas `REALIZADO+entregar→ENTREGADO`, `REALIZADO+cancelar→CANCELADO`; el resto `null`.
-- [ ] GREEN: `TRANSICIONES` como `Record<EstadoPedido, Partial<Record<Accion, EstadoPedido>>>` con `ABONADO/ENTREGADO/CANCELADO` sin salidas.
-- [ ] `pnpm exec vitest run tests/unit/transiciones.unit.test.ts` → PASS · commit.
+- [x] Test RED: matriz completa (4 estados × 2 acciones): válidas `REALIZADO+entregar→ENTREGADO`, `REALIZADO+cancelar→CANCELADO`; el resto `null`.
+- [x] GREEN: `TRANSICIONES` como `Record<EstadoPedido, Partial<Record<Accion, EstadoPedido>>>` con `ABONADO/ENTREGADO/CANCELADO` sin salidas.
+- [x] `pnpm exec vitest run tests/unit/transiciones.unit.test.ts` → PASS · commit.
 
 ### Task 2: PedidoService (findById, entregar, cancelar, historial)
 
 **Files:** Modify `src/modules/pedidos/service/PedidoService.ts` · Test `tests/unit/pedido-service.unit.test.ts`
 
-**Consumes:** `transicion()` del Task 1. **Produces:** `findById(id): Promise<Pedido | null>`, `entregar(id): Promise<PedidoDetallePublic>`, `cancelar(id): Promise<PedidoDetallePublic>`, `historial(id): Promise<{ data: HistorialEstadoPublic[]; total: number }>` (los 3 acciones son las que consume el Task 3).
+**Consumes:** `transicion()` del Task 1. **Produces:** `findById(id): Promise<Pedido>` (valida id → `400`, inexistente → `404`), `entregar(id): Promise<PedidoDetallePublic>`, `cancelar(id): Promise<PedidoDetallePublic>`, `historial(id): Promise<{ data: HistorialEstadoPublic[]; total: number }>` (los 3 acciones son las que consume el Task 3).
 
-- [ ] Test RED: `entregar` sin pedido → 404; id no entero → 400; transición inválida → 409 con el estado actual en el mensaje; OK → estado `ENTREGADO` + `HistorialEstado` creado.
-- [ ] Test RED: `cancelar` OK → suma exacta `stock += item.cantidad` (espejo del descuento de 011), `importeTotal` e items intactos; doble cancelar → 409 sin re-sumar.
-- [ ] Test RED: `historial` → `{ data, total }` ordenado `fecha asc`; pedido inexistente → 404.
-- [ ] GREEN: implementación transaccional (find → validar → mutar → `em.create(HistorialEstado)` → `flush` → `toDetalle`). Para el detalle popular `['items','items.producto','usuario']`.
-- [ ] `pnpm exec vitest run tests/unit/pedido-service.unit.test.ts tests/unit/transiciones.unit.test.ts` → PASS · commit.
+- [x] Test RED: `entregar` sin pedido → 404; id no entero → 400; transición inválida → 409 con el estado actual en el mensaje; OK → estado `ENTREGADO` + `HistorialEstado` creado.
+- [x] Test RED: `cancelar` OK → suma exacta `stock += item.cantidad` (espejo del descuento de 011), `importeTotal` e items intactos; doble cancelar → 409 sin re-sumar.
+- [x] Test RED: `historial` → `{ data, total }` ordenado `fecha asc`; pedido inexistente → 404.
+- [x] GREEN: implementación transaccional (find → validar → mutar → `em.create(HistorialEstado)` → `flush` → `toDetalle`). Para el detalle popular `['items','items.producto','usuario']`.
+- [x] `pnpm exec vitest run tests/unit/pedido-service.unit.test.ts tests/unit/transiciones.unit.test.ts` → PASS · commit.
 
 ### Task 3: HTTP (controller + router + mount)
 
@@ -58,25 +58,25 @@
 
 **Consumes:** los 3 métodos del Task 2.
 
-- [ ] Controller: `entregar`/`cancelar` → `res.json(detalle)`; `historial` → `res.json({ data, total })`.
-- [ ] Router: `POST /:id/entregar`, `POST /:id/cancelar`, `GET /:id/historial` con `authenticate, authorize('ADMIN')`.
-- [ ] `app.ts`: `app.use('/api/pedidos', pedidosRoutes)`.
-- [ ] RED→GREEN con test de integración mínimo del Task 4 (rutas 401/403 antes de existir → 404); `pnpm lint` + `pnpm typecheck` · commit.
+- [x] Controller: `entregar`/`cancelar` → `res.json(detalle)`; `historial` → `res.json({ data, total })`.
+- [x] Router: `POST /:id/entregar`, `POST /:id/cancelar`, `GET /:id/historial` con `authenticate, authorize('ADMIN')`.
+- [x] `app.ts`: `app.use('/api/pedidos', pedidosRoutes)`.
+- [x] RED→GREEN con test de integración mínimo del Task 4 (rutas 401/403 antes de existir → 404); `pnpm lint` + `pnpm typecheck` · commit.
 
 ### Task 4: Integración
 
 **Files:** Create `tests/integration/pedido-admin.int.test.ts`
 
-- [ ] Setup estilo `carrito.int.test.ts`: seeds (marca/tipo/producto/cliente), `makeToken()`, y helper que arma carrito + `POST /api/carrito/confirmar` para obtener un `pedidoId` con stock conocido.
-- [ ] Casos: entregar → 200 `ENTREGADO` + historial con 2 filas ordenadas `fecha asc`; cancelar → 200 `CANCELADO`, stock restaurado al original, `importeTotal`/items sin cambios; entregar cancelado → 409; doble entregar → 409; 401 sin token; 403 con CLIENTE; 404 id inexistente; 400 id no numérico.
-- [ ] `pnpm test:integration` → PASS (limpieza idempotente en `beforeAll`, precedente 011) · commit.
+- [x] Setup estilo `carrito.int.test.ts`: seeds (marca/tipo/producto/cliente), `makeToken()`, y helper que arma carrito + `POST /api/carrito/confirmar` para obtener un `pedidoId` con stock conocido.
+- [x] Casos: entregar → 200 `ENTREGADO` + historial con 2 filas ordenadas `fecha asc`; cancelar → 200 `CANCELADO`, stock restaurado al original, `importeTotal`/items sin cambios; entregar cancelado → 409; doble entregar → 409; 401 sin token; 403 con CLIENTE; 404 id inexistente; 400 id no numérico.
+- [x] `pnpm test:integration` → PASS (limpieza idempotente en `beforeAll`, precedente 011) · commit.
 
 ### Task 5: Cierre (gates + docs)
 
-- [ ] Gates: `pnpm format:check` · `pnpm lint` · `pnpm typecheck` · `pnpm build` · `pnpm test` (unit + integración con Podman).
-- [ ] `spec/features/012-gestion-pedido/tasks.md` → todos `[x]`.
-- [ ] `spec.md`: `Estado: implementada` + criterios de aceptación en `[x]`.
-- [ ] `constitution/roadmap.md`: 012 a "Hecho", tachado en "En orden", 013 queda como próxima.
-- [ ] `CHANGELOG.md` → `v0.2.10 — Feature 012` + `package.json` versión `0.2.10`.
-- [ ] `plan.md`: desvíos (`findById` no existía en 011 → creado acá; router nuevo `/api/pedidos`).
-- [ ] Ledger: líneas de cierre · commit final.
+- [x] Gates: `pnpm format:check` · `pnpm lint` · `pnpm typecheck` · `pnpm build` · `pnpm test` (unit + integración con Podman).
+- [x] `spec/features/012-gestion-pedido/tasks.md` → todos `[x]`.
+- [x] `spec.md`: `Estado: implementada` + criterios de aceptación en `[x]`.
+- [x] `constitution/roadmap.md`: 012 a "Hecho", tachado en "En orden", 013 queda como próxima.
+- [x] `CHANGELOG.md` → `v0.2.10 — Feature 012` + `package.json` versión `0.2.10`.
+- [x] `plan.md`: desvíos (`findById` no existía en 011 → creado acá; router nuevo `/api/pedidos`).
+- [x] Ledger: líneas de cierre · commit final.

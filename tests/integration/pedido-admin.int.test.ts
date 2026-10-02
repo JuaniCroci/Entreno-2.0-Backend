@@ -288,6 +288,31 @@ describe('Gestión de pedido admin (012)', () => {
     expect(historial.body.total).toBe(2);
   });
 
+  it('dos entregar concurrentes: solo uno gana y el historial no se duplica', async () => {
+    const productoId = await crearProducto();
+    const pedido = await crearPedido(productoId, CANTIDAD);
+
+    const [a, b] = await Promise.all([
+      request(app)
+        .post(`/api/pedidos/${pedido.id}/entregar`)
+        .set('Authorization', `Bearer ${adminToken()}`),
+      request(app)
+        .post(`/api/pedidos/${pedido.id}/entregar`)
+        .set('Authorization', `Bearer ${adminToken()}`),
+    ]);
+
+    expect([a.status, b.status].sort()).toEqual([200, 409]);
+
+    const historial = await request(app)
+      .get(`/api/pedidos/${pedido.id}/historial`)
+      .set('Authorization', `Bearer ${adminToken()}`);
+    expect(historial.body.total).toBe(2);
+    expect(historial.body.data.map((fila: { estado: string }) => fila.estado)).toEqual([
+      'REALIZADO',
+      'ENTREGADO',
+    ]);
+  });
+
   it('cancelar restaura el stock, conserva importeTotal e items y agrega historial', async () => {
     const productoId = await crearProducto();
     const pedido = await crearPedido(productoId, CANTIDAD);
