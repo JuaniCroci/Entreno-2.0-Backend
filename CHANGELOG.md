@@ -1,5 +1,135 @@
 # Changelog
 
+## v0.2.9 — Feature 011: Carrito y pedido (2026-10-01)
+
+### Feature
+
+- `src/modules/carritos/`: `Carrito` / `CarritoItem` + DTOs (`AddItemDto`, `UpdateItemDto`) + service/controller/routes
+- `src/modules/pedidos/`: entidades `Pedido`, `PedidoItem`, `HistorialEstado` + `PedidoService` / `PedidoController` / `misPedidos.routes.ts`
+- `src/migrations/Migration20261001203952.ts`: tablas `carrito`, `carrito_item`, `pedido`, `pedido_item`, `historial_estado`
+- `src/app.ts`: `/api/carrito` y `/api/mis-pedidos`
+- Endpoints carrito (cliente autenticado): `GET /api/carrito`, `POST /api/carrito`, `POST /api/carrito/items`, `PUT /api/carrito/items/:id`, `DELETE /api/carrito/items/:id`, `POST /api/carrito/confirmar`
+- `GET /api/mis-pedidos`: listado propio (`PedidoService.listByUsuario`)
+
+### Decisiones clave
+
+- **Confirmación transaccional**: `confirmarDesdeCarrito` corre en `em.transactional` con `LockMode.PESSIMISTIC_WRITE` sobre el carrito; items ordenados por `producto.id` para evitar deadlocks
+- **Stock**: validación previa por item → `409` con stock actual y requerido; descuento de stock dentro de la misma transacción
+- **Descuentos**: por línea vía `DescuentoService.mejorElegible(productoId, cantidad, fecha)`; importes calculados con `decimal.js` (`importeTotal` con `toFixed(2)`)
+- **Estado inicial**: pedido `REALIZADO` + primera fila en `HistorialEstado`; carrito pasa a `CONCLUIDO` y se libera el slot del usuario
+- Carrito vacío → `400`; carrito ya confirmado → `409`; sin carrito → `404`
+
+### Tests
+
+- `tests/unit/carrito-service.unit.test.ts`: 18 tests unitarios (nuevo)
+- `tests/unit/pedido-service.unit.test.ts`: 8 tests unitarios (nuevo)
+- `tests/integration/carrito.int.test.ts`: 24 tests de integración (nuevo; incluye flujos de pedido)
+
+### Suite total: 330 tests (27 files) — 186 unit + 144 integración
+
+### Lint + typecheck: pasa limpio
+
+---
+
+## v0.2.8 — Feature 010: Listado público de productos (2026-09-30)
+
+### Feature
+
+- `src/modules/productos/dto/FilterProductoPublicDto.ts`: filtros `idTipoProducto`, `idMarca`, `precioMin`, `precioMax`, `orden` (`nombre` | `precio`), `dir` (`asc` | `desc`), `page`, `size` (1–100)
+- `ProductoService.findAll(filters)`: solo productos activos, shape `{ data, total, page, size }` (contrato de listados)
+- `GET /api/productos`: listado público con filtros combinables + orden + paginación
+- `GET /api/productos/:id`: detalle ampliado con `disponible` (stock > 0) y `descuentosVigentes` (via `DescuentoService`)
+- `src/modules/productos/entity/Producto.ts`: `ProductoListPublic` para el shape de listado
+
+### Validaciones
+
+- `400` por `precioMin > precioMax`, enteros no enteros, `size` fuera de 1–100, `orden`/`dir` inválidos (defensa en service además del DTO)
+
+### Tests
+
+- `tests/unit/producto-service.unit.test.ts` + `tests/integration/producto.int.test.ts`: 29 tests nuevos (filtros, combinaciones, paginación, detalle ampliado)
+
+### Lint + typecheck: pasa limpio
+
+---
+
+## v0.2.7 — Feature 009: CRUD Ingreso (2026-09-29)
+
+### Feature
+
+- `src/modules/ingresos/`: entities `Ingreso` (número, fecha, importe total, estado, proveedor) + `IngresoItem` (líneas)
+- `src/migrations/Migration20260929224545_CreateIngresos.ts`
+- `src/app.ts`: `/api/ingresos` (todos ADMIN)
+- Endpoints: `GET /api/ingresos` (filtros), `GET /api/ingresos/:id`, `POST /api/ingresos`, `POST /api/ingresos/:id/anular`
+- **Sin PUT**: es un asiento de movimiento (decisión de equipo, ver `spec/facts/009-crud-ingreso/consulta-catedra.md`)
+
+### Comportamiento
+
+- `create` transaccional: dos líneas del mismo producto → `400`; `precioUnitario <= 0` → `400`; número de ingreso duplicado → `409`; suma `stock` por línea
+- `anular` transaccional: ya anulado → `409`; stock insuficiente para reversar → `409`; resta stock y marca `ANULADO`
+- `FilterIngresoDto`: paginación + `estado` (`REGISTRADO` | `ANULADO`)
+
+### Tests
+
+- `tests/unit/ingreso-service.unit.test.ts`: 19 tests unitarios (nuevo)
+- `tests/integration/ingreso.int.test.ts`: 15 tests de integración (nuevo)
+
+### Lint + typecheck: pasa limpio
+
+---
+
+## v0.2.6 — Estabilización: tests, DTOs, helpers y typecheck en CI (2026-09-28 / 2026-09-29)
+
+### Test harness
+
+- `tests/setup.ts`: `await setup()` al final del archivo (evita race condition con `createSchema()`), vuelta a `createSchema()` + creación idempotente de `refresh_token`
+- Eliminados callbacks auto-timestamp (`onCreate` en `createdAt`/`updatedAt`) de `Producto` y `Descuento` — chocaban con `em.create()` en tests
+- Tests de integración: seed de usuario `CLIENTE`, `updateSchema` para evitar `TableNotFoundException`
+
+### Validaciones y CI
+
+- Reparadas validaciones de DTOs que rompían 10 tests de integración
+- **248 errores `tsc` en tests corregidos**; script `pnpm typecheck` agregado a `package.json` y como gate en CI (Node 24)
+- `AGENTS.md`: patrones de CI (corepack + pnpm, env vars para `test:unit`, `--frozen-lockfile`)
+
+### Código nuevo compartido
+
+- `src/common/utils/date-range.ts`: `parseDateRange` (rango desde/hasta con validación) + `tests/unit/date-range.unit.test.ts` (7 tests)
+- `assertExists` en `ProveedorService` y `ProductoService`: valida FK activa antes de asociar → `404` (playbook corregido: antes decía `400`)
+- `DescuentoService.mejorElegible(productoId, cantidad, fecha)`: elige el descuento más conveniente vigente (mejora de 008 usada por 011)
+- `spec/facts/009-crud-ingreso/consulta-catedra.md`: aviso a la cátedra sobre 009 y Descuento N:M (no bloqueante)
+
+### Commits
+
+`8f43514`, `375ed36`, `e064806`, `77685c8`, `80fc8e3`, `ba35116`, `fddc3d2`, `1a76586`, `fac75ab`
+
+### Lint + typecheck: pasa limpio
+
+---
+
+## v0.2.5 — Feature 008: CRUD Descuento (2026-09-26)
+
+### Feature
+
+- `src/modules/descuentos/`: `Descuento` (`descripcion`, `cantidadMinima`, `porcentaje`, `activo`) + `DescuentoProducto` (N:M aplicaciones a productos) + DTOs (Create/Update/Aplicacion)
+- `src/migrations/Migration20260926_CreateDescuentos.ts`
+- `src/app.ts`: `/api/descuentos`
+- Endpoints: `GET /api/descuentos`, `GET /api/descuentos/:id` (públicos); `POST`, `PUT /:id`, `DELETE /:id`, `POST /:id/aplicaciones`, `DELETE /:id/aplicaciones/:aplicacionId` (ADMIN)
+- Soft-delete con `activo=false`
+
+### Tests
+
+- `tests/unit/descuento-service.unit.test.ts`: 15 tests unitarios (nuevo)
+- `tests/integration/descuento.int.test.ts`: 14 tests de integración (nuevo)
+
+### Nota
+
+- Commit `ef4f9f2` ("008 + CI fail solved"): la feature cerró junto con la reparación del fallo de CI
+
+### Lint + Build: pasa limpio
+
+---
+
 ## v0.2.4 — Feature 007: CRUD Producto (2026-09-26)
 
 ### Feature
@@ -119,6 +249,30 @@
 
 ---
 
+## v0.1.6 — Refresh Token (BR-8) y CI (2026-09-23)
+
+### Auth
+
+- `src/modules/auth/entity/RefreshToken.ts` + `src/modules/auth/refresh-token.service.ts`: refresh token persistido en DB con hash, expiración y revocación
+- `src/migrations/Migration20260923095424.ts`: tabla `refresh_token`
+- `POST /api/auth/refresh` con `RefreshTokenDto`; integrado con `login` / `register` / `logout`
+- `src/config/env.ts`: ajuste de configuración para refresh
+
+### CI / DX
+
+- `.github/workflows/ci.yml` v2/v3: lint + build + `test:unit` + `test:integration`
+- `AGENTS.md`: patrones de CI para agentes (commit `6858f99`)
+- `vitest.config.ts`: `BCRYPT_ROUNDS=4` y admin de test para acelerar la suite
+
+### Tests
+
+- `tests/integration/auth-refresh.int.test.ts`: 5 tests (nuevo)
+- `tests/unit/auth-service.unit.test.ts`: ampliado — 12 tests nuevos en total (commit `9a04e5a`)
+
+### Lint + Build: pasa limpio
+
+---
+
 ## v0.1.5 — Post-implementación: CI, Barrel, Security (2026-09-22)
 
 ### CI/CD
@@ -151,7 +305,7 @@
 
 ### Items pendientes
 
-- 4.7 BR-8: Refresh token (requiere almacenamiento)
+- 4.7 BR-8: Refresh token ~~(requiere almacenamiento)~~ ✅ implementado en v0.1.6
 - 4.8 BR-7: Patrón de imports ya resuelto con barrel exports
 - 4.10 TD-10: Adoptar TDD real para features nuevas
 
@@ -277,18 +431,18 @@
 
 Las 11 skills aplicadas (code-review, systematic-debugging, brainstorming, writing-plans, executing-plans, verification-before-completion, test-driven-development, code-review-and-quality, api-and-interface-design, security-and-hardening, find-skills) identificaron ~74 hallazgos. Se priorizaron así:
 
-| Nivel   | Categoría                | Rationale                                                   | Estado         |
-| ------- | ------------------------ | ----------------------------------------------------------- | -------------- |
-| Nivel 0 | Base + Pre-003 + Testing | Fixear la base antes de que features nuevas la multipliquen | ✅ 10/10 items |
-| Nivel 1 | Pre-003                  | Seguridad y clean code de la feature existente (Auth)       | ✅ 8/8 items   |
-| Nivel 2 | Pre-006                  | Testing y estructura para features CRUD nuevas              | 🔜 Pendiente   |
-| Nivel 3 | Pre-007+                 | Tests de integración y refinamiento                         | 🔜 Pendiente   |
-| Nivel 4 | Post-implementación      | CI, refresh token, logout (opcional)                        | 🔜 Pendiente   |
+| Nivel   | Categoría                | Rationale                                                   | Estado                   |
+| ------- | ------------------------ | ----------------------------------------------------------- | ------------------------ |
+| Nivel 0 | Base + Pre-003 + Testing | Fixear la base antes de que features nuevas la multipliquen | ✅ 10/10 items           |
+| Nivel 1 | Pre-003                  | Seguridad y clean code de la feature existente (Auth)       | ✅ 8/8 items             |
+| Nivel 2 | Pre-006                  | Testing y estructura para features CRUD nuevas              | ✅ 7/7 items             |
+| Nivel 3 | Pre-007+                 | Tests de integración y refinamiento                         | ✅ completo              |
+| Nivel 4 | Post-implementación      | CI, refresh token, logout (opcional)                        | ⚠️ parcial (falta TD-10) |
 
 ### Decisiones clave tomadas
 
 1. **No agregar comentarios al código**: seguir convención del proyecto (AGENTS.md) — nunca agregar `//` a menos que se pida
-2. **No implementar features 003–013**: las specs están en `spec/features/` pero el código no está implementado; esto es intencional — primero se consolida la base
+2. **No implementar features 003–013**: ~~las specs están en `spec/features/` pero el código no está implementado; esto es intencional — primero se consolida la base~~ actualizado (2026-10-01): 003–011 implementadas (v0.2.0 → v0.2.9); quedan **012 · Gestión de pedido** y **013 · Listado de pedidos**
 3. **No commitear `.env`**: se mantiene `.env.example` como referencia
 4. **No forzar `pnpm test:integration`**: requiere MySQL Docker; se usa `pnpm test:unit` como verificación mínima
 5. **rate-limit en auth como seguridad base**: se decidió aplicar `express-rate-limit` a `POST /register` y `POST /login` antes de cualquier feature nueva, protegiendo contra brute-force
