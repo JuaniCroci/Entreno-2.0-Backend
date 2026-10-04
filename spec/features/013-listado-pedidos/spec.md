@@ -1,6 +1,6 @@
 # 013 · Listado de pedidos
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 
@@ -27,17 +27,17 @@ Segundo **listado con filtro** de regularidad (junto con 010) y el detalle oblig
 
 ## Criterios de aceptación
 
-- [ ] `GET /api/pedidos` sin token → `401`; con CLIENTE → `403`; con ADMIN → `200`.
-- [ ] Filtro `desde`/`hasta` por fecha de creación del pedido, inclusivos; `desde > hasta` → `400`.
-- [ ] Filtro `estado` con valor inválido → `400`.
-- [ ] Filtro `cliente` coincide con nombre o email (parcial, case-insensitive).
-- [ ] Combinación de filtros aplica AND; paginación `{ data, total, page, size }` con `total` correcto.
-- [ ] El item del listado incluye cliente (nombre) aunque el pedido tenga estado `CANCELADO`.
-- [ ] El item incluye `fechaEntrega` derivada del `HistorialEstado` (`ENTREGADO`); `null` si no está entregado (índice `(idPedido, estado)`).
-- [ ] `GET /api/pedidos/:id` devuelve items con `cantidad`, `precioUnitario`, `subtotal`, `descuentoAplicado` y datos del cliente.
-- [ ] `GET /api/mis-pedidos` solo contiene pedidos del usuario del token.
-- [ ] `GET /api/mis-pedidos/:id` de pedido ajeno → `404` (no `403`, para no revelar existencia).
-- [ ] Tests: unit (filtros del service) + integración (cada filtro, combinados, ownership, 401/403/404).
+- [x] `GET /api/pedidos` sin token → `401`; con CLIENTE → `403`; con ADMIN → `200`.
+- [x] Filtro `desde`/`hasta` por fecha de creación del pedido, inclusivos; `desde > hasta` → `400`.
+- [x] Filtro `estado` con valor inválido → `400`.
+- [x] Filtro `cliente` coincide con nombre o email (parcial, case-insensitive).
+- [x] Combinación de filtros aplica AND; paginación `{ data, total, page, size }` con `total` correcto.
+- [x] El item del listado incluye cliente (nombre) aunque el pedido tenga estado `CANCELADO`.
+- [x] El item incluye `fechaEntrega` derivada del `HistorialEstado` (`ENTREGADO`); `null` si no está entregado (índice `(idPedido, estado)`).
+- [x] `GET /api/pedidos/:id` devuelve items con `cantidad`, `precioUnitario`, `subtotal`, `descuentoAplicado` y datos del cliente.
+- [x] `GET /api/mis-pedidos` solo contiene pedidos del usuario del token.
+- [x] `GET /api/mis-pedidos/:id` de pedido ajeno → `404` (no `403`, para no revelar existencia).
+- [x] Tests: unit (filtros del service) + integración (cada filtro, combinados, ownership, 401/403/404).
 
 ## Fuera de alcance
 

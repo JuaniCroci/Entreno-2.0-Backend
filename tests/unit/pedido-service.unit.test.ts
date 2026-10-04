@@ -440,7 +440,9 @@ describe('PedidoService', () => {
       await expect(service.listAdmin({ estado: 'PENDIENTE' as never })).rejects.toMatchObject({
         statusCode: 400,
       });
-      await expect(service.listAdmin({ desde: '2026-12-31', hasta: '2026-01-01' })).rejects.toMatchObject({
+      await expect(
+        service.listAdmin({ desde: '2026-12-31', hasta: '2026-01-01' }),
+      ).rejects.toMatchObject({
         statusCode: 400,
       });
       await expect(service.listAdmin({ desde: '31-12-2026' })).rejects.toMatchObject({
@@ -448,7 +450,9 @@ describe('PedidoService', () => {
       });
       await expect(service.listAdmin({ page: 0 })).rejects.toMatchObject({ statusCode: 400 });
       await expect(service.listAdmin({ size: 101 })).rejects.toMatchObject({ statusCode: 400 });
-      await expect(service.listAdmin({ idCliente: NaN })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.listAdmin({ idCliente: NaN })).rejects.toMatchObject({
+        statusCode: 400,
+      });
       expect(em.find).not.toHaveBeenCalled();
       expect(em.count).not.toHaveBeenCalled();
     });
@@ -474,7 +478,12 @@ describe('PedidoService', () => {
         Pedido,
         {
           $and: [
-            { fecha: { $gte: new Date('2026-10-01T00:00:00.000Z'), $lte: new Date('2026-10-31T23:59:59.999Z') } },
+            {
+              fecha: {
+                $gte: new Date('2026-10-01T00:00:00.000Z'),
+                $lte: new Date('2026-10-31T23:59:59.999Z'),
+              },
+            },
             { estado: 'REALIZADO' },
             { usuario: { id: 5 } },
             {
@@ -492,7 +501,10 @@ describe('PedidoService', () => {
           limit: 5,
         }),
       );
-      expect(em.count).toHaveBeenCalledWith(Pedido, expect.objectContaining({ $and: expect.any(Array) }));
+      expect(em.count).toHaveBeenCalledWith(
+        Pedido,
+        expect.objectContaining({ $and: expect.any(Array) }),
+      );
       expect(result).toEqual({
         data: [expect.objectContaining({ id: 9, fechaEntrega: null })],
         total: 3,

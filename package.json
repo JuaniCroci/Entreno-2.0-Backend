@@ -1,6 +1,6 @@
 {
   "name": "entreno-2-0-backend",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "Backend e-commerce Entreno 2.0 — API REST (Express 5 + MikroORM + MySQL 8)",
   "type": "module",
   "private": true,

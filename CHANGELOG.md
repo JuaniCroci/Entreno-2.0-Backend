@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.2.11 — Feature 013: Listado de pedidos (2026-10-04)
+
+### Feature
+
+- `src/modules/pedidos/dto/FilterPedidoAdminDto.ts` (nuevo): contrato de query `desde`, `hasta`, `estado`, `idCliente`, `cliente`, `page`, `size`
+- `PedidoService.listAdmin(filters)`: filtros AND combinados (rango de fecha inclusivo, estado, id de cliente, nombre/email parcial case-insensitive) + paginación `{ data, total, page, size }` (default `page=1`/`size=20`, `size` máx 100) + orden `fecha desc, id desc`
+- `fechaEntrega` derivada del `HistorialEstado` (`ENTREGADO`, primera fila por pedido vía índice `(idPedido, estado)`); `null` si aún no se entregó; se omite la consulta si la página está vacía
+- `PedidoService.getByIdAdmin(id)`: detalle con items (reutiliza `findById`, populate `items/producto/usuario`)
+- `PedidoService.getByIdOwn(id, usuarioId)`: `{ id, usuario }` en el where → pedido ajeno responde `404` (no `403`, sin enumeración de IDs)
+- `Pedido.ts`: `ESTADOS_PEDIDO`, interfaces `PedidoListPublic` / `ClienteDetallePublic` / `PedidoDetalleAdminPublic`, métodos `toListPublic(fechaEntrega)` y `toDetalleAdmin(items)`
+- `PedidoController`: handlers `listAdmin`, `getByIdAdmin`, `getByIdOwn`
+- Endpoints: `GET /api/pedidos`, `GET /api/pedidos/:id` (ADMIN) y `GET /api/mis-pedidos/:id` (autenticado)
+
+### Comportamiento
+
+- El item del listado expone `usuario { id, nombre, email }` aunque el pedido esté `CANCELADO`, más `fechaEntrega`
+- El detalle admin expone datos completos del cliente (`telefono`, `direccion`) + items con `cantidad`/`precioUnitario`/`subtotal`/`descuentoAplicado`; nunca `passwordHash`
+- Query inválida → `400` (paginación, `estado`, `idCliente`, `desde > hasta`); pedido inexistente o ajeno → `404`; sin token → `401`; rol distinto de ADMIN en rutas admin → `403`
+- Sin migración nueva: el índice `(idPedido, estado)` ya existía desde 011
+
+### Tests
+
+- `tests/unit/pedido-service.unit.test.ts`: +11 (35 en total; filtros, `$and`, defaults, `fechaEntrega`, página vacía, 404/400 de detalle)
+- `tests/integration/pedido-listado.int.test.ts`: 24 tests (nuevo; semilla de 3 pedidos en 3 estados/2 clientes → cada filtro, AND, paginación, orden, `fechaEntrega` vs historial, detalle admin, ownership `mis-pedidos`, 401/403/404/400)
+
+### Suite total: 400 tests (30 files) — 218 unit + 182 integración
+
+### Gates: `format:check` + `lint` + `typecheck` + `build` + `test` — pasa limpio
+
+---
+
 ## v0.2.10 — Feature 012: Gestión de pedido (2026-10-02)
 
 ### Feature

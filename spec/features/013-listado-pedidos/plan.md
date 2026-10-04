@@ -38,3 +38,13 @@ findById(id: number): Promise<Pedido>
 // (decisión al implementar; documentar en "Desvíos de implementación" si se elige service nuevo).
 // Shape de respuesta: { data: PedidoResumen[], total, page, size } (api-contract.md)
 ```
+
+## Desvíos de implementación
+
+- **Índice `(idPedido, estado)` ya existía** desde 011 (`HistorialEstado` lo declara con `@Index` y está en `Migration20261001203952.ts`) → no se creó migración nueva.
+- **`GET /api/mis-pedidos` no requirió cambios**: `listByUsuario` ya devolvía `fecha`, `estado` e `importeTotal` vía `toPublic()` desde 011; solo se agregó el test de integración que lo asegura.
+- **Validación de query en el service**, no en el middleware `validate` (que solo aplica a `req.body`): mismo criterio que `IngresoService.findAll` (009) y `ProductoService.findAll` (010). El `FilterPedidoAdminDto` documenta el contrato con decoradores `class-validator`.
+- **`fechaEntrega` con una segunda consulta** (`em.find(HistorialEstado, { pedido: { $in: ids }, estado: 'ENTREGADO' }, …)`) en lugar de un join/MAX: más simple, aprovecha el índice y se omite si la página está vacía.
+- **`fechaEntrega` no se expone en `GET /api/pedidos/:id`** (detalle admin): el spec solo la pide en el item del listado; el detalle expone cliente completo + items.
+- **Sin service nuevo**: `listAdmin`, `getByIdAdmin` y `getByIdOwn` viven en `PedidoService` (misma decisión implícita del plan).
+- **Ejecución inline con TDD por fase** (red → green → commit) en lugar de subagentes: el flujo SDD completo no era ejecutable en este entorno (skill de ejecución no instalada, Windows sin bash); los rulings quedaron en `.superpowers/sdd/013-listado-pedidos/progress.md`.
