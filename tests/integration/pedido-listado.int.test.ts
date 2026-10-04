@@ -72,6 +72,7 @@ describe('Listado y detalle de pedidos (013)', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
+        await em.flush();
         id = cliente.id;
       }
       await em.flush();
