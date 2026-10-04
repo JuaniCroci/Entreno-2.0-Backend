@@ -6,5 +6,6 @@ const router = Router();
 const ctrl = new PedidoController();
 
 router.get('/', authenticate, ctrl.listMine);
+router.get('/:id', authenticate, ctrl.getByIdOwn);
 
 export default router;
