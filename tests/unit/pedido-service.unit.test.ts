@@ -549,4 +549,105 @@ describe('PedidoService', () => {
       expect(result).toEqual({ data: [], total: 0, page: 1, size: 20 });
     });
   });
+
+  describe('detalle de pedidos admin y propio (013)', () => {
+    function makePedidoDetalle(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+      return Object.assign(Object.create(Pedido.prototype), {
+        id: 42,
+        fecha: new Date('2026-10-02T10:00:00.000Z'),
+        estado: 'REALIZADO',
+        importeTotal: '20.00',
+        usuario: {
+          id: 5,
+          nombre: 'Juan',
+          email: 'juan@x.com',
+          telefono: '123',
+          direccion: 'Av. Siempreviva 742',
+        },
+        items: { getItems: () => [] },
+        createdAt: new Date('2026-10-02T10:00:00.000Z'),
+        updatedAt: new Date('2026-10-02T10:00:00.000Z'),
+        ...overrides,
+      });
+    }
+
+    function makeItemDetalle(cantidad: number) {
+      return {
+        toPublic: () => ({
+          id: 1,
+          producto: { id: 10, nombre: 'Barra' },
+          cantidad,
+          precioUnitario: '10.00',
+          subtotal: '20.00',
+          descuentoAplicado: null,
+        }),
+      };
+    }
+
+    it('getByIdAdmin devuelve items y datos completos del cliente', async () => {
+      const pedido = makePedidoDetalle({ items: { getItems: () => [makeItemDetalle(2)] } });
+      vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+
+      const result = await service.getByIdAdmin(42);
+
+      expect(em.findOne).toHaveBeenCalledWith(
+        Pedido,
+        { id: 42 },
+        { populate: ['items', 'items.producto', 'usuario'] },
+      );
+      expect(result.usuario).toEqual({
+        id: 5,
+        nombre: 'Juan',
+        email: 'juan@x.com',
+        telefono: '123',
+        direccion: 'Av. Siempreviva 742',
+      });
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]).toEqual(
+        expect.objectContaining({ cantidad: 2, precioUnitario: '10.00', subtotal: '20.00' }),
+      );
+      expect(result).not.toHaveProperty('passwordHash');
+    });
+
+    it('getByIdAdmin inexistente responde 404', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(null);
+
+      await expect(service.getByIdAdmin(404)).rejects.toMatchObject({ statusCode: 404 });
+    });
+
+    it('getByIdAdmin con id no entero responde 400 sin consultar la DB', async () => {
+      await expect(service.getByIdAdmin(2.5)).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.getByIdAdmin(0)).rejects.toMatchObject({ statusCode: 400 });
+      expect(em.findOne).not.toHaveBeenCalled();
+    });
+
+    it('getByIdOwn de pedido ajeno responde 404 con el usuario en el where', async () => {
+      vi.spyOn(em, 'findOne').mockResolvedValue(null);
+
+      await expect(service.getByIdOwn(42, 7)).rejects.toMatchObject({ statusCode: 404 });
+      expect(em.findOne).toHaveBeenCalledWith(
+        Pedido,
+        { id: 42, usuario: 7 },
+        { populate: ['items', 'items.producto', 'usuario'] },
+      );
+    });
+
+    it('getByIdOwn propio devuelve el detalle con items', async () => {
+      const pedido = makePedidoDetalle({ items: { getItems: () => [makeItemDetalle(2)] } });
+      vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+
+      const result = await service.getByIdOwn(42, 5);
+
+      expect(result).toEqual(
+        expect.objectContaining({ id: 42, items: [expect.objectContaining({ cantidad: 2 })] }),
+      );
+    });
+
+    it('getByIdOwn con id no entero responde 400 sin consultar la DB', async () => {
+      await expect(service.getByIdOwn('abc' as never, 5)).rejects.toMatchObject({
+        statusCode: 400,
+      });
+      expect(em.findOne).not.toHaveBeenCalled();
+    });
+  });
 });

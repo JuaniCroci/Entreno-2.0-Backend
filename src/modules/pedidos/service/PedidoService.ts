@@ -9,6 +9,7 @@ import { DescuentoService } from '../../descuentos/service/DescuentoService.js';
 import {
   Pedido,
   ESTADOS_PEDIDO,
+  type PedidoDetalleAdminPublic,
   type PedidoDetallePublic,
   type PedidoListPublic,
   type PedidoPublic,
@@ -202,6 +203,26 @@ export class PedidoService {
       throw new AppError(404, 'Pedido no encontrado');
     }
     return pedido;
+  }
+
+  async getByIdAdmin(id: number): Promise<PedidoDetalleAdminPublic> {
+    const pedido = await this.findById(id);
+    const items = pedido.items.getItems();
+    return pedido.toDetalleAdmin(items.map((item) => item.toPublic()));
+  }
+
+  async getByIdOwn(id: number, usuarioId: number): Promise<PedidoDetallePublic> {
+    this.validarId(id);
+    const pedido = await this.em.findOne(
+      Pedido,
+      { id, usuario: usuarioId },
+      { populate: ['items', 'items.producto', 'usuario'] },
+    );
+    if (!pedido) {
+      throw new AppError(404, 'Pedido no encontrado');
+    }
+    const items = pedido.items.getItems();
+    return pedido.toDetalle(items.map((item) => item.toPublic()));
   }
 
   async entregar(id: number): Promise<PedidoDetallePublic> {
