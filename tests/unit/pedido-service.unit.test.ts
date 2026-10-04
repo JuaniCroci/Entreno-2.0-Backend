@@ -40,6 +40,7 @@ describe('PedidoService', () => {
     const base = {
       findOne: vi.fn(),
       find: vi.fn(),
+      count: vi.fn(),
       flush: vi.fn().mockResolvedValue(undefined),
       remove: vi.fn(),
       create: vi.fn((entity: { prototype: object }, data: Record<string, unknown>) =>
@@ -418,6 +419,134 @@ describe('PedidoService', () => {
       await expect(service.historial('abc' as never)).rejects.toMatchObject({
         statusCode: 400,
       });
+    });
+  });
+
+  describe('listado admin de pedidos (013)', () => {
+    function makePedidoLista(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+      return Object.assign(Object.create(Pedido.prototype), {
+        id: 9,
+        fecha: new Date('2026-10-01T10:00:00.000Z'),
+        estado: 'REALIZADO',
+        importeTotal: '81.00',
+        usuario: { id: 5, nombre: 'Juan', email: 'juan@x.com' },
+        createdAt: new Date('2026-10-01T10:00:00.000Z'),
+        updatedAt: new Date('2026-10-01T10:00:00.000Z'),
+        ...overrides,
+      });
+    }
+
+    it('validaciones de listAdmin responden 400 sin consultar la DB', async () => {
+      await expect(service.listAdmin({ estado: 'PENDIENTE' as never })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+      await expect(service.listAdmin({ desde: '2026-12-31', hasta: '2026-01-01' })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+      await expect(service.listAdmin({ desde: '31-12-2026' })).rejects.toMatchObject({
+        statusCode: 400,
+      });
+      await expect(service.listAdmin({ page: 0 })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.listAdmin({ size: 101 })).rejects.toMatchObject({ statusCode: 400 });
+      await expect(service.listAdmin({ idCliente: NaN })).rejects.toMatchObject({ statusCode: 400 });
+      expect(em.find).not.toHaveBeenCalled();
+      expect(em.count).not.toHaveBeenCalled();
+    });
+
+    it('combina filtros, pagina y ordena por fecha desc', async () => {
+      const pedido = makePedidoLista();
+      vi.spyOn(em, 'find')
+        .mockResolvedValueOnce([pedido] as never)
+        .mockResolvedValueOnce([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(3 as never);
+
+      const result = await service.listAdmin({
+        desde: '2026-10-01',
+        hasta: '2026-10-31',
+        estado: 'REALIZADO',
+        idCliente: 5,
+        cliente: 'juan',
+        page: 2,
+        size: 5,
+      });
+
+      expect(em.find).toHaveBeenCalledWith(
+        Pedido,
+        {
+          $and: [
+            { fecha: { $gte: new Date('2026-10-01T00:00:00.000Z'), $lte: new Date('2026-10-31T23:59:59.999Z') } },
+            { estado: 'REALIZADO' },
+            { usuario: { id: 5 } },
+            {
+              $or: [
+                { usuario: { nombre: { $like: '%juan%' } } },
+                { usuario: { email: { $like: '%juan%' } } },
+              ],
+            },
+          ],
+        },
+        expect.objectContaining({
+          populate: ['usuario'],
+          orderBy: { fecha: 'desc', id: 'desc' },
+          offset: 5,
+          limit: 5,
+        }),
+      );
+      expect(em.count).toHaveBeenCalledWith(Pedido, expect.objectContaining({ $and: expect.any(Array) }));
+      expect(result).toEqual({
+        data: [expect.objectContaining({ id: 9, fechaEntrega: null })],
+        total: 3,
+        page: 2,
+        size: 5,
+      });
+    });
+
+    it('sin filtros el where queda vacio y usa defaults page 1 / size 20', async () => {
+      vi.spyOn(em, 'find').mockResolvedValueOnce([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(0 as never);
+
+      const result = await service.listAdmin({});
+
+      expect(em.find).toHaveBeenCalledWith(Pedido, {}, expect.anything());
+      expect(result).toEqual({ data: [], total: 0, page: 1, size: 20 });
+    });
+
+    it('deriva fechaEntrega del historial ENTREGADO y la deja null sin fila', async () => {
+      const entregado = makePedidoLista({ id: 1, estado: 'ENTREGADO' });
+      const pendiente = makePedidoLista({ id: 2 });
+      const fecha = new Date('2026-10-03T09:00:00.000Z');
+      vi.spyOn(em, 'find')
+        .mockResolvedValueOnce([entregado, pendiente] as never)
+        .mockResolvedValueOnce([
+          Object.assign(Object.create(HistorialEstado.prototype), {
+            id: 7,
+            estado: 'ENTREGADO',
+            fecha,
+            pedido: { id: 1 },
+          }),
+        ] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(2 as never);
+
+      const result = await service.listAdmin({});
+
+      expect(em.find).toHaveBeenNthCalledWith(
+        2,
+        HistorialEstado,
+        { pedido: { $in: [1, 2] }, estado: 'ENTREGADO' },
+        { orderBy: { fecha: 'asc', id: 'asc' } },
+      );
+      expect(result.data[0]?.fechaEntrega).toEqual(fecha);
+      expect(result.data[1]?.fechaEntrega).toBeNull();
+    });
+
+    it('pagina vacia no consulta el historial', async () => {
+      vi.spyOn(em, 'find').mockResolvedValueOnce([] as never);
+      vi.spyOn(em, 'count').mockResolvedValue(0 as never);
+
+      const result = await service.listAdmin({});
+
+      expect(em.find).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ data: [], total: 0, page: 1, size: 20 });
     });
   });
 });

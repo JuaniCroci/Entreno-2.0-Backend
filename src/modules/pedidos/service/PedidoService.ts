@@ -3,12 +3,27 @@ import { LockMode } from '@mikro-orm/core';
 import { Decimal } from 'decimal.js';
 import { getEm } from '../../../config/db.js';
 import { AppError } from '../../../common/errors/AppError.js';
+import { parseDateRange } from '../../../common/utils/date-range.js';
 import { Carrito } from '../../carritos/entity/Carrito.js';
 import { DescuentoService } from '../../descuentos/service/DescuentoService.js';
-import { Pedido, type PedidoDetallePublic, type PedidoPublic } from '../entity/Pedido.js';
+import {
+  Pedido,
+  ESTADOS_PEDIDO,
+  type PedidoDetallePublic,
+  type PedidoListPublic,
+  type PedidoPublic,
+} from '../entity/Pedido.js';
 import { PedidoItem } from '../entity/PedidoItem.js';
 import { HistorialEstado, type HistorialEstadoPublic } from '../entity/HistorialEstado.js';
 import { transicion, type Accion } from './transiciones.js';
+import type { FilterPedidoAdminDto } from '../dto/FilterPedidoAdminDto.js';
+
+export interface PedidosPageResult {
+  data: PedidoListPublic[];
+  total: number;
+  page: number;
+  size: number;
+}
 
 export class PedidoService {
   private descuentos = new DescuentoService();
@@ -117,6 +132,63 @@ export class PedidoService {
     return { data: pedidos.map((pedido) => pedido.toPublic()), total: pedidos.length };
   }
 
+  async listAdmin(filters: FilterPedidoAdminDto): Promise<PedidosPageResult> {
+    const page = filters.page ?? 1;
+    const size = filters.size ?? 20;
+    if (!Number.isInteger(page) || page < 1) {
+      throw new AppError(400, 'page debe ser un entero mayor o igual a 1');
+    }
+    if (!Number.isInteger(size) || size < 1 || size > 100) {
+      throw new AppError(400, 'size debe ser un entero entre 1 y 100');
+    }
+    if (filters.estado !== undefined && !ESTADOS_PEDIDO.includes(filters.estado)) {
+      throw new AppError(400, 'estado debe ser REALIZADO, ABONADO, ENTREGADO o CANCELADO');
+    }
+    if (filters.idCliente !== undefined && !Number.isInteger(filters.idCliente)) {
+      throw new AppError(400, 'idCliente debe ser un entero');
+    }
+
+    const { desde, hasta } = parseDateRange(filters.desde, filters.hasta);
+
+    const condiciones: Record<string, unknown>[] = [];
+    if (desde || hasta) {
+      const rango: { $gte?: Date; $lte?: Date } = {};
+      if (desde) rango.$gte = desde;
+      if (hasta) rango.$lte = hasta;
+      condiciones.push({ fecha: rango });
+    }
+    if (filters.estado !== undefined) condiciones.push({ estado: filters.estado });
+    if (filters.idCliente !== undefined) condiciones.push({ usuario: { id: filters.idCliente } });
+    if (filters.cliente) {
+      const patron = `%${filters.cliente}%`;
+      condiciones.push({
+        $or: [
+          { usuario: { nombre: { $like: patron } } },
+          { usuario: { email: { $like: patron } } },
+        ],
+      });
+    }
+    const where = condiciones.length > 0 ? { $and: condiciones } : {};
+
+    const [pedidos, total] = await Promise.all([
+      this.em.find(Pedido, where, {
+        populate: ['usuario'],
+        orderBy: { fecha: 'desc', id: 'desc' },
+        offset: (page - 1) * size,
+        limit: size,
+      }),
+      this.em.count(Pedido, where),
+    ]);
+
+    const fechaEntrega = await this.calcularFechaEntrega(pedidos.map((pedido) => pedido.id));
+    return {
+      data: pedidos.map((pedido) => pedido.toListPublic(fechaEntrega.get(pedido.id) ?? null)),
+      total,
+      page,
+      size,
+    };
+  }
+
   async findById(id: number): Promise<Pedido> {
     this.validarId(id);
     const pedido = await this.em.findOne(
@@ -156,6 +228,21 @@ export class PedidoService {
     if (!Number.isInteger(id) || id <= 0) {
       throw new AppError(400, 'ID inválido');
     }
+  }
+
+  private async calcularFechaEntrega(ids: number[]): Promise<Map<number, Date>> {
+    const mapa = new Map<number, Date>();
+    if (ids.length === 0) return mapa;
+    const filas = await this.em.find(
+      HistorialEstado,
+      { pedido: { $in: ids }, estado: 'ENTREGADO' },
+      { orderBy: { fecha: 'asc', id: 'asc' } },
+    );
+    for (const fila of filas) {
+      const pedidoId = fila.pedido.id;
+      if (!mapa.has(pedidoId)) mapa.set(pedidoId, fila.fecha);
+    }
+    return mapa;
   }
 
   private async cambiarEstado(id: number, accion: Accion): Promise<PedidoDetallePublic> {

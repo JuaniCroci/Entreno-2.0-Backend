@@ -4,6 +4,8 @@ import { PedidoItem, type PedidoItemPublic } from './PedidoItem.js';
 
 export type EstadoPedido = 'REALIZADO' | 'ABONADO' | 'ENTREGADO' | 'CANCELADO';
 
+export const ESTADOS_PEDIDO: EstadoPedido[] = ['REALIZADO', 'ABONADO', 'ENTREGADO', 'CANCELADO'];
+
 export interface PedidoPublic {
   id: number;
   fecha: Date;
@@ -16,6 +18,22 @@ export interface PedidoPublic {
 
 export interface PedidoDetallePublic extends PedidoPublic {
   items: PedidoItemPublic[];
+}
+
+export interface PedidoListPublic extends PedidoPublic {
+  fechaEntrega: Date | null;
+}
+
+export interface ClienteDetallePublic {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  direccion: string | null;
+}
+
+export interface PedidoDetalleAdminPublic extends PedidoDetallePublic {
+  usuario: ClienteDetallePublic;
 }
 
 @Entity()
@@ -58,5 +76,23 @@ export class Pedido {
 
   toDetalle(items: PedidoItemPublic[]): PedidoDetallePublic {
     return { ...this.toPublic(), items };
+  }
+
+  toListPublic(fechaEntrega: Date | null): PedidoListPublic {
+    return { ...this.toPublic(), fechaEntrega };
+  }
+
+  toDetalleAdmin(items: PedidoItemPublic[]): PedidoDetalleAdminPublic {
+    return {
+      ...this.toPublic(),
+      usuario: {
+        id: this.usuario.id,
+        nombre: this.usuario.nombre,
+        email: this.usuario.email,
+        telefono: this.usuario.telefono,
+        direccion: this.usuario.direccion,
+      },
+      items,
+    };
   }
 }
