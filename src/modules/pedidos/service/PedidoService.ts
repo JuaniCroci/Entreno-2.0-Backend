@@ -19,7 +19,7 @@ import { HistorialEstado, type HistorialEstadoPublic } from '../entity/Historial
 import { transicion, type Accion } from './transiciones.js';
 import type { FilterPedidoAdminDto } from '../dto/FilterPedidoAdminDto.js';
 
-export interface PedidosPageResult {
+export interface FindAllResult {
   data: PedidoListPublic[];
   total: number;
   page: number;
@@ -133,7 +133,7 @@ export class PedidoService {
     return { data: pedidos.map((pedido) => pedido.toPublic()), total: pedidos.length };
   }
 
-  async listAdmin(filters: FilterPedidoAdminDto): Promise<PedidosPageResult> {
+  async listAdmin(filters: FilterPedidoAdminDto): Promise<FindAllResult> {
     const page = filters.page ?? 1;
     const size = filters.size ?? 20;
     if (!Number.isInteger(page) || page < 1) {
@@ -145,8 +145,11 @@ export class PedidoService {
     if (filters.estado !== undefined && !ESTADOS_PEDIDO.includes(filters.estado)) {
       throw new AppError(400, 'estado debe ser REALIZADO, ABONADO, ENTREGADO o CANCELADO');
     }
-    if (filters.idCliente !== undefined && !Number.isInteger(filters.idCliente)) {
-      throw new AppError(400, 'idCliente debe ser un entero');
+    if (
+      filters.idCliente !== undefined &&
+      (!Number.isInteger(filters.idCliente) || filters.idCliente < 1)
+    ) {
+      throw new AppError(400, 'idCliente debe ser un entero mayor a 0');
     }
 
     const { desde, hasta } = parseDateRange(filters.desde, filters.hasta);

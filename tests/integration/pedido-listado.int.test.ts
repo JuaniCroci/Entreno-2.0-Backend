@@ -269,6 +269,22 @@ describe('Listado y detalle de pedidos (013)', () => {
       expect(res.body).toMatchObject({ statusCode: 400 });
     });
 
+    it('estado ENTREGADO y ABONADO filtran correctamente', async () => {
+      const entregado = await request(app)
+        .get(`/api/pedidos?estado=ENTREGADO&idCliente=${clienteAId}`)
+        .set('Authorization', `Bearer ${adminToken()}`);
+      expect(entregado.status).toBe(200);
+      expect(entregado.body.total).toBe(1);
+      expect(entregado.body.data.map((fila: { id: number }) => fila.id)).toEqual([ped1]);
+
+      const abonado = await request(app)
+        .get('/api/pedidos?estado=ABONADO')
+        .set('Authorization', `Bearer ${adminToken()}`);
+      expect(abonado.status).toBe(200);
+      expect(abonado.body.total).toBe(0);
+      expect(abonado.body.data).toEqual([]);
+    });
+
     it('desde/hasta es inclusivo por fecha de creación', async () => {
       const mismoDia = await request(app)
         .get(`/api/pedidos?idCliente=${clienteAId}&desde=2026-03-15&hasta=2026-03-15`)
@@ -283,6 +299,13 @@ describe('Listado y detalle de pedidos (013)', () => {
       expect(hastaAnterior.status).toBe(200);
       expect(hastaAnterior.body.total).toBe(0);
       expect(hastaAnterior.body.data.map((fila: { id: number }) => fila.id)).not.toContain(ped1);
+
+      const soloDesde = await request(app)
+        .get(`/api/pedidos?idCliente=${clienteAId}&desde=2026-03-16`)
+        .set('Authorization', `Bearer ${adminToken()}`);
+      expect(soloDesde.status).toBe(200);
+      expect(soloDesde.body.total).toBe(1);
+      expect(soloDesde.body.data.map((fila: { id: number }) => fila.id)).toEqual([ped2]);
     });
 
     it('desde posterior a hasta responde 400', async () => {
@@ -297,6 +320,18 @@ describe('Listado y detalle de pedidos (013)', () => {
     it('cliente por nombre es case-insensitive y parcial', async () => {
       const res = await request(app)
         .get(`/api/pedidos?idCliente=${clienteAId}&cliente=LISTADO`)
+        .set('Authorization', `Bearer ${adminToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.total).toBe(2);
+      expect(res.body.data.map((fila: { id: number }) => fila.id).sort()).toEqual(
+        [ped1, ped2].sort((a, b) => a - b),
+      );
+    });
+
+    it('cliente coincide por nombre aunque el token no aparezca en el email', async () => {
+      const res = await request(app)
+        .get('/api/pedidos?cliente=013%20A')
         .set('Authorization', `Bearer ${adminToken()}`);
 
       expect(res.status).toBe(200);
@@ -368,13 +403,18 @@ describe('Listado y detalle de pedidos (013)', () => {
       expect(page.body).toMatchObject({ statusCode: 400 });
     });
 
-    it('idCliente no numérico responde 400', async () => {
-      const res = await request(app)
+    it('idCliente no numérico o menor a 1 responde 400', async () => {
+      const noNumerico = await request(app)
         .get('/api/pedidos?idCliente=x')
         .set('Authorization', `Bearer ${adminToken()}`);
+      expect(noNumerico.status).toBe(400);
+      expect(noNumerico.body).toMatchObject({ statusCode: 400 });
 
-      expect(res.status).toBe(400);
-      expect(res.body).toMatchObject({ statusCode: 400 });
+      const cero = await request(app)
+        .get('/api/pedidos?idCliente=0')
+        .set('Authorization', `Bearer ${adminToken()}`);
+      expect(cero.status).toBe(400);
+      expect(cero.body).toMatchObject({ statusCode: 400 });
     });
 
     it('item incluye fecha, estado, importeTotal y nombre de cliente aunque esté cancelado', async () => {
@@ -411,6 +451,7 @@ describe('Listado y detalle de pedidos (013)', () => {
       const filaEntrega = historial.body.data.find(
         (fila: { estado: string }) => fila.estado === 'ENTREGADO',
       );
+      expect(filaEntrega).toBeDefined();
 
       expect(porId.get(ped1)?.fechaEntrega).toBeTruthy();
       expect(porId.get(ped1)?.fechaEntrega).toBe(filaEntrega.fecha);

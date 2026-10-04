@@ -23,9 +23,9 @@
 ### Tests
 
 - `tests/unit/pedido-service.unit.test.ts`: +11 (35 en total; filtros, `$and`, defaults, `fechaEntrega`, página vacía, 404/400 de detalle)
-- `tests/integration/pedido-listado.int.test.ts`: 24 tests (nuevo; semilla de 3 pedidos en 3 estados/2 clientes → cada filtro, AND, paginación, orden, `fechaEntrega` vs historial, detalle admin, ownership `mis-pedidos`, 401/403/404/400)
+- `tests/integration/pedido-listado.int.test.ts`: 26 tests (nuevo; semilla de 3 pedidos en 3 estados/2 clientes → cada filtro por nombre y por email aisladamente, AND, paginación, orden, `fechaEntrega` vs historial, detalle admin, ownership `mis-pedidos`, 401/403/404/400)
 
-### Suite total: 400 tests (30 files) — 218 unit + 182 integración
+### Suite total: 402 tests (30 files) — 218 unit + 184 integración
 
 ### Gates: `format:check` + `lint` + `typecheck` + `build` + `test` — pasa limpio
 

@@ -453,6 +453,9 @@ describe('PedidoService', () => {
       await expect(service.listAdmin({ idCliente: NaN })).rejects.toMatchObject({
         statusCode: 400,
       });
+      await expect(service.listAdmin({ idCliente: 0 })).rejects.toMatchObject({
+        statusCode: 400,
+      });
       expect(em.find).not.toHaveBeenCalled();
       expect(em.count).not.toHaveBeenCalled();
     });
@@ -501,10 +504,8 @@ describe('PedidoService', () => {
           limit: 5,
         }),
       );
-      expect(em.count).toHaveBeenCalledWith(
-        Pedido,
-        expect.objectContaining({ $and: expect.any(Array) }),
-      );
+      const whereDeFind = vi.mocked(em.find).mock.calls[0]?.[1];
+      expect(em.count).toHaveBeenCalledWith(Pedido, whereDeFind);
       expect(result).toEqual({
         data: [expect.objectContaining({ id: 9, fechaEntrega: null })],
         total: 3,
