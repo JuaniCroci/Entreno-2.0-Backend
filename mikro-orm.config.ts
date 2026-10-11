@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import 'reflect-metadata';
+import { Migrator } from '@mikro-orm/migrations';
 import type { Options } from '@mikro-orm/mysql';
 import { MySqlDriver } from '@mikro-orm/mysql';
 
@@ -26,6 +27,7 @@ const dbOptions: Options = {
     tableName: 'mikro_orm_migrations',
     transactional: true,
   },
+  extensions: [Migrator],
   debug: process.env.NODE_ENV === 'development',
 };
 

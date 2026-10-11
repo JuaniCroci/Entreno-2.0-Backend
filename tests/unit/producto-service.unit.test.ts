@@ -67,7 +67,7 @@ describe('ProductoService', () => {
     service = new ProductoService();
     em = {
       findOne: vi.fn(),
-      find: vi.fn(),
+      find: vi.fn().mockResolvedValue([]),
       count: vi.fn(),
       create: vi.fn(),
       flush: vi.fn(),
@@ -342,7 +342,9 @@ describe('ProductoService', () => {
       marca.nombre = 'Nike';
       const conStock = realProducto(1, 'Proteína', '1500.00', 5, marca);
       const sinStock = realProducto(2, 'Barra', '20.00', 0, marca);
-      vi.spyOn(em, 'find').mockResolvedValue([conStock, sinStock] as never);
+      vi.spyOn(em, 'find')
+        .mockResolvedValueOnce([conStock, sinStock] as never)
+        .mockResolvedValueOnce([] as never);
       vi.spyOn(em, 'count').mockResolvedValue(2);
 
       const result = await service.findAll({});
@@ -354,6 +356,7 @@ describe('ProductoService', () => {
           marca: { id: 7, nombre: 'Nike' },
           precioUnitario: '1500.00',
           disponible: true,
+          imagenPrincipal: null,
         },
         {
           id: 2,
@@ -361,6 +364,7 @@ describe('ProductoService', () => {
           marca: { id: 7, nombre: 'Nike' },
           precioUnitario: '20.00',
           disponible: false,
+          imagenPrincipal: null,
         },
       ]);
       expect(result.data[0]).not.toHaveProperty('activo');

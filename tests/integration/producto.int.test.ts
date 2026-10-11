@@ -14,12 +14,16 @@ import { Proveedor } from '../../src/modules/proveedores/entity/Proveedor.js';
 import jwt from 'jsonwebtoken';
 import { randomInt } from 'node:crypto';
 import { hash } from 'bcryptjs';
+import { rm } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { env } from '../../src/config/env.js';
 
 let adminUserId = 1;
 let clienteUserId = 1;
 let marcaId = 1;
 let tipoProductoId = 1;
 let productoId = 1;
+const uploadedImageFiles: string[] = [];
 
 function makeToken(rol: string = 'ADMIN', userId: number = adminUserId): string {
   return jwt.sign({ sub: userId, rol }, 'test_secret_no_produccion_1234567890', {
@@ -88,6 +92,7 @@ describe('CRUD Producto (integración)', () => {
   });
 
   afterAll(async () => {
+    await Promise.all(uploadedImageFiles.map((file) => rm(file, { force: true })));
     await closeDb();
   });
 
@@ -146,7 +151,124 @@ describe('CRUD Producto (integración)', () => {
     expect(res.body).toHaveProperty('id');
     expect(res.body.stock).toBe(10);
     expect(res.body.precioUnitario).toBe('1500.00');
+    expect(res.body.imagenPrincipal).toBeNull();
     productoId = res.body.id;
+  });
+
+  it('POST /api/productos/admin/:id/imagenes exige ADMIN', async () => {
+    const image = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+    const anonimo = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .attach('imagen', image, { filename: 'foto.png', contentType: 'image/png' });
+    expect(anonimo.status).toBe(401);
+
+    const cliente = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${makeToken('CLIENTE', clienteUserId)}`)
+      .attach('imagen', image, { filename: 'foto.png', contentType: 'image/png' });
+    expect(cliente.status).toBe(403);
+  });
+
+  it('registra con UUID, reemplaza la principal y expone imagen e historial', async () => {
+    const token = makeToken('ADMIN');
+    const firstImage = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2]);
+    const first = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('altText', 'Creatina en su envase')
+      .field('fuente', 'Fotografía propia')
+      .field('licencia', 'Uso académico; permiso de marca pendiente')
+      .attach('imagen', firstImage, { filename: 'nombre-original.png', contentType: 'image/png' });
+
+    expect(first.status).toBe(201);
+    expect(first.body.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
+    expect(first.body).toMatchObject({
+      url: `/api/productos/imagenes/${first.body.id}`,
+      altText: 'Creatina en su envase',
+      fuente: 'Fotografía propia',
+      esPrincipal: true,
+      mimeType: 'image/png',
+    });
+    uploadedImageFiles.push(resolve(env.productImagesDir, `${first.body.id}.png`));
+
+    const secondImage = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 3, 4]);
+    const second = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('altText', 'Creatina, segunda toma')
+      .field('fuente', 'Fotografía propia')
+      .field('licencia', 'Uso académico')
+      .attach('imagen', secondImage, { filename: 'segunda.png', contentType: 'image/png' });
+    expect(second.status).toBe(201);
+    uploadedImageFiles.push(resolve(env.productImagesDir, `${second.body.id}.png`));
+
+    const history = await request(app)
+      .get(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(history.status).toBe(200);
+    expect(history.body.data).toHaveLength(2);
+    expect(
+      history.body.data.find((image: { id: string }) => image.id === first.body.id),
+    ).toMatchObject({ esPrincipal: false, fuente: 'Fotografía propia' });
+    expect(
+      history.body.data.find((image: { id: string }) => image.id === second.body.id),
+    ).toMatchObject({ esPrincipal: true, licencia: 'Uso académico' });
+
+    const publicList = await request(app).get(`/api/productos?idMarca=${marcaId}&size=100`);
+    const listedProduct = publicList.body.data.find(
+      (product: { id: number }) => product.id === productoId,
+    );
+    expect(listedProduct.imagenPrincipal).toEqual({
+      id: second.body.id,
+      url: second.body.url,
+      altText: 'Creatina, segunda toma',
+    });
+
+    const fileResponse = await request(app).get(second.body.url);
+    expect(fileResponse.status).toBe(200);
+    expect(fileResponse.body).toEqual(secondImage);
+    expect(fileResponse.headers['cross-origin-resource-policy']).toBe('cross-origin');
+  });
+
+  it('rechaza formatos no permitidos y metadatos faltantes', async () => {
+    const token = makeToken('ADMIN');
+    const invalidFormat = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('altText', 'Imagen')
+      .field('fuente', 'Fotografía propia')
+      .field('licencia', 'Uso académico')
+      .attach('imagen', Buffer.from('no es png'), {
+        filename: 'foto.png',
+        contentType: 'image/png',
+      });
+    expect(invalidFormat.status).toBe(400);
+
+    const missingMetadata = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${token}`)
+      .attach('imagen', Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), {
+        filename: 'foto.png',
+        contentType: 'image/png',
+      });
+    expect(missingMetadata.status).toBe(400);
+  });
+
+  it('rechaza imágenes que superan el límite de 5 MiB', async () => {
+    const token = makeToken('ADMIN');
+    const oversizedImage = Buffer.alloc(5 * 1024 * 1024 + 1);
+    const response = await request(app)
+      .post(`/api/productos/admin/${productoId}/imagenes`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('altText', 'Imagen')
+      .field('fuente', 'Fotografía propia')
+      .field('licencia', 'Uso académico')
+      .attach('imagen', oversizedImage, { filename: 'foto.png', contentType: 'image/png' });
+
+    expect(response.status).toBe(413);
+    expect(response.body.message).toContain('5 MiB');
   });
 
   it('POST /api/productos con idTipoProducto inexistente responde 404', async () => {
@@ -355,6 +477,7 @@ describe('CRUD Producto (integración)', () => {
         marca: { id: marcaAId, nombre: expect.any(String) },
         precioUnitario: '100.00',
         disponible: true,
+        imagenPrincipal: null,
       });
       const sinStock = res.body.data.find((p: { id: number }) => p.id === prod2Id);
       expect(sinStock.disponible).toBe(false);

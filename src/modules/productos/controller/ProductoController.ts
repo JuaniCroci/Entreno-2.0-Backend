@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { ProductoService, type FindAllResult } from '../service/ProductoService.js';
 import type { CreateProductoDto } from '../dto/CreateProductoDto.js';
 import type { UpdateProductoDto } from '../dto/UpdateProductoDto.js';
@@ -9,9 +9,12 @@ import type {
   ProductoDir,
 } from '../dto/FilterProductoPublicDto.js';
 import type { ProductoListPublic } from '../entity/Producto.js';
+import type { UploadFotoProductoDto } from '../dto/UploadFotoProductoDto.js';
+import { FotoProductoService } from '../service/FotoProductoService.js';
 
 export class ProductoController {
   private service = new ProductoService();
+  private fotoService = new FotoProductoService();
 
   listAdmin = async (req: Request, res: Response): Promise<void> => {
     const filters: FilterProductoAdminDto = {
@@ -70,5 +73,29 @@ export class ProductoController {
     const id = Number(req.params.id);
     const producto = await this.service.getByIdPublic(id);
     res.json(producto);
+  };
+
+  uploadImage = async (req: Request, res: Response): Promise<void> => {
+    const image = await this.fotoService.upload(
+      Number(req.params.id),
+      req.file,
+      req.body as UploadFotoProductoDto,
+    );
+    res.status(201).json(image);
+  };
+
+  listImages = async (req: Request, res: Response): Promise<void> => {
+    const images = await this.fotoService.list(Number(req.params.id));
+    res.json({ data: images });
+  };
+
+  getImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const image = await this.fotoService.findFile(String(req.params.uid ?? ''));
+    res.type(image.mimeType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.sendFile(image.absolutePath, (error) => {
+      if (error) next(error);
+    });
   };
 }

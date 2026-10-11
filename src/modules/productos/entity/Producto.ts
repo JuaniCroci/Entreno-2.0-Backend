@@ -2,6 +2,7 @@ import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
 import { Marca } from '../../marcas/entity/Marca.js';
 import { TipoProducto } from '../../tipos-producto/entity/TipoProducto.js';
 import { Proveedor } from '../../proveedores/entity/Proveedor.js';
+import type { ImagenPrincipalProducto } from './FotoProducto.js';
 
 export interface ProductoPublic {
   id: number;
@@ -13,6 +14,7 @@ export interface ProductoPublic {
   tipoProducto: { id: number; nombre: string };
   marca: { id: number; nombre: string };
   proveedor: { id: number; razonSocial: string; activo: boolean } | null;
+  imagenPrincipal: ImagenPrincipalProducto | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +25,7 @@ export interface ProductoListPublic {
   marca: { id: number; nombre: string };
   precioUnitario: string;
   disponible: boolean;
+  imagenPrincipal: ImagenPrincipalProducto | null;
 }
 
 @Entity()
@@ -60,17 +63,18 @@ export class Producto {
   @Property({ type: 'datetime', onCreate: () => new Date(), onUpdate: () => new Date() })
   updatedAt!: Date;
 
-  toListPublic(): ProductoListPublic {
+  toListPublic(imagenPrincipal: ImagenPrincipalProducto | null = null): ProductoListPublic {
     return {
       id: this.id,
       nombre: this.nombre,
       marca: { id: this.marca.id, nombre: this.marca.nombre },
       precioUnitario: this.precioUnitario,
       disponible: this.stock > 0,
+      imagenPrincipal,
     };
   }
 
-  toPublic(): ProductoPublic {
+  toPublic(imagenPrincipal: ImagenPrincipalProducto | null = null): ProductoPublic {
     return {
       id: this.id,
       nombre: this.nombre,
@@ -87,6 +91,7 @@ export class Producto {
             activo: this.proveedor.activo,
           }
         : null,
+      imagenPrincipal,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

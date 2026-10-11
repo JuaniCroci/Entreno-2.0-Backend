@@ -2,6 +2,7 @@ import type { EntityManager } from '@mikro-orm/mysql';
 import { getEm } from '../../../config/db.js';
 import { AppError } from '../../../common/errors/AppError.js';
 import { Producto, ProductoPublic, ProductoListPublic } from '../entity/Producto.js';
+import { FotoProducto } from '../entity/FotoProducto.js';
 import { TipoProducto } from '../../../modules/tipos-producto/entity/TipoProducto.js';
 import { Marca } from '../../../modules/marcas/entity/Marca.js';
 import { Proveedor } from '../../../modules/proveedores/entity/Proveedor.js';
@@ -29,6 +30,17 @@ export class ProductoService {
 
   private get em(): EntityManager {
     return getEm();
+  }
+
+  private async findPrimaryImages(
+    productIds: number[],
+  ): Promise<Map<number, ReturnType<FotoProducto['toPrincipal']>>> {
+    if (productIds.length === 0) return new Map();
+    const images = await this.em.find(FotoProducto, {
+      producto: { id: { $in: productIds } },
+      esPrincipal: true,
+    });
+    return new Map(images.map((image) => [image.producto.id, image.toPrincipal()]));
   }
 
   async assertExists(id: number): Promise<Producto> {
@@ -124,7 +136,8 @@ export class ProductoService {
     }
     producto.updatedAt = new Date();
     await this.em.flush();
-    return producto.toPublic();
+    const images = await this.findPrimaryImages([producto.id]);
+    return producto.toPublic(images.get(producto.id) ?? null);
   }
 
   async softDelete(id: number): Promise<void> {
@@ -154,8 +167,9 @@ export class ProductoService {
       }),
       this.em.count(Producto, where),
     ]);
+    const images = await this.findPrimaryImages(data.map((producto) => producto.id));
     return {
-      data: data.map((p) => p.toPublic()),
+      data: data.map((p) => p.toPublic(images.get(p.id) ?? null)),
       total,
       page,
       size,
@@ -234,7 +248,13 @@ export class ProductoService {
       }),
       this.em.count(Producto, where),
     ]);
-    return { data: data.map((p) => p.toListPublic()), total, page, size };
+    const images = await this.findPrimaryImages(data.map((producto) => producto.id));
+    return {
+      data: data.map((p) => p.toListPublic(images.get(p.id) ?? null)),
+      total,
+      page,
+      size,
+    };
   }
 
   async getByIdAdmin(id: number): Promise<ProductoPublic> {
@@ -245,7 +265,8 @@ export class ProductoService {
       { populate: ['marca', 'tipoProducto', 'proveedor'] },
     );
     if (!producto) throw new AppError(404, 'Producto no encontrado');
-    return producto.toPublic();
+    const images = await this.findPrimaryImages([producto.id]);
+    return producto.toPublic(images.get(producto.id) ?? null);
   }
 
   async getByIdPublic(id: number): Promise<ProductoDetallePublic> {
@@ -257,8 +278,9 @@ export class ProductoService {
     );
     if (!producto) throw new AppError(404, 'Producto no encontrado');
     const descuentosVigentes = await this.descuentosService.findVigentes(id, new Date());
+    const images = await this.findPrimaryImages([producto.id]);
     return {
-      ...producto.toPublic(),
+      ...producto.toPublic(images.get(producto.id) ?? null),
       disponible: producto.stock > 0,
       descuentosVigentes,
     };

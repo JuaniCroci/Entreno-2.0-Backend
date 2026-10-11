@@ -11,6 +11,7 @@ export interface Env {
   jwtSecret: string;
   bcryptRounds: number;
   corsOrigin: string;
+  productImagesDir: string;
   adminEmail: string;
   adminPassword: string;
   passwordMinLength: number;
@@ -59,6 +60,7 @@ export function loadEnv(): Env {
     jwtSecret: jwtSecret(),
     bcryptRounds: int('BCRYPT_ROUNDS', 12),
     corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+    productImagesDir: process.env.PRODUCT_IMAGES_DIR ?? 'uploads/productos',
     adminEmail: process.env.ADMIN_EMAIL ?? 'admin@entreno.com',
     adminPassword:
       rawNodeEnv === 'production'
