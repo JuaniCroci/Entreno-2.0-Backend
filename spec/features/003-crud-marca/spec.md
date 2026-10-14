@@ -8,7 +8,7 @@ Permite al administrador gestionar las marcas de productos (Star Nutrition, ENA,
 
 Endpoints:
 
-- `GET /api/marcas` — listado (público; opcional `?q=` por nombre)
+- `GET /api/marcas` — listado (público; `?includeInactive=true` incluye inactivos, lo usa el panel admin)
 - `GET /api/marcas/:id` — detalle (público)
 - `POST /api/marcas` — alta (admin)
 - `PUT /api/marcas/:id` — edición (admin)
