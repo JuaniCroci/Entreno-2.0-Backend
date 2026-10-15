@@ -330,6 +330,7 @@ describe('Gestión de pedido admin (012)', () => {
     expect(res.status).toBe(200);
     expect(res.body.estado).toBe('CANCELADO');
     expect(res.body.importeTotal).toBe(pedido.importeTotal);
+    expect(res.body.fechaEntrega).toBeNull();
     expect(res.body.items).toEqual(pedido.items);
     expect(await stockDe(productoId)).toBe(STOCK_INICIAL);
 

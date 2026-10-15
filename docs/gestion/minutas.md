@@ -193,6 +193,26 @@
 
 ---
 
+## 2026-09-24 · Avance: features 003–006 (CRUDs maestros)
+
+**Formato:** asíncrono.
+**Participantes:** Mariano (con OpenCode).
+
+### Realizado
+
+- **003 · CRUD Marca** (v0.2.0), **004 · CRUD Tipo de producto** (v0.2.1), **005 · CRUD Proveedor** (v0.2.2) y **006 · CRUD Cliente** (v0.2.3): alta/baja/edición/listado de los cuatro recursos maestros; cliente con gestión de usuarios `CLIENTE` (q/activo, activar/desactivar).
+- **Nota de reconstrucción**: no hay commits fechados el 09-24 en `git log` — la implementación de 003–006 quedó acumulada y se registró en los cierres `080a714` ("007 done") y el changelog (entradas v0.2.0–v0.2.3, 2026-09-24).
+
+### Acuerdos
+
+1. Patrón de módulo fijo para los CRUDs (router + service + entity + DTO con `class-validator`), replicado en 004–008.
+
+### Pendientes para la próxima
+
+- 007 (producto) y 008 (descuento).
+
+---
+
 ## 2026-09-23 · Avance: refresh token y CI
 
 **Formato:** asíncrono.

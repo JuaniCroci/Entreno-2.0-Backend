@@ -107,6 +107,7 @@ POST /api/carrito/confirmar → 200 OK
   "fecha": "2026-09-21T22:10:00.000Z",
   "estado": "REALIZADO",
   "importeTotal": "3450.00",
+  "fechaEntrega": null,
   "usuario": { "id": 5, "nombre": "Juan Croci", "email": "juan@example.com" },
   "items": [
     {

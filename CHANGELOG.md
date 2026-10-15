@@ -19,7 +19,7 @@
 ### Tests
 
 - `tests/unit/pedido-service.unit.test.ts`: +5 (detalle admin/propio con `fechaEntrega`, entregado vs no entregado, `entregar` vs historial, `confirmar` → `null`) → 40 en el archivo
-- `tests/integration/pedido-listado.int.test.ts`: +2 (detalle admin `fechaEntrega` string / `REALIZADO` → `null`, detalle propio entregado/cancelado); `pedido-admin.int.test.ts`: `entregar` compara `fechaEntrega` con la fila del historial (tolerancia < 1 s por precisión de la columna `datetime`)
+- `tests/integration/pedido-listado.int.test.ts`: +2 (detalle admin `fechaEntrega` string / `REALIZADO` → `null`, detalle propio entregado/cancelado); `pedido-admin.int.test.ts`: `entregar` compara `fechaEntrega` con la fila del historial (tolerancia < 1 s por precisión de la columna `datetime`) y `cancelar` asegura `fechaEntrega: null`
 - `tests/unit/producto-service.unit.test.ts` + `tests/integration/producto.int.test.ts` (de `958945a`): storage y endpoints de imágenes
 
 ### Suite total: 413 tests (30 files) — 223 unit + 190 integración
