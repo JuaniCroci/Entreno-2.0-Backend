@@ -18,6 +18,7 @@ export interface PedidoPublic {
 
 export interface PedidoDetallePublic extends PedidoPublic {
   items: PedidoItemPublic[];
+  fechaEntrega: Date | null;
 }
 
 export interface PedidoListPublic extends PedidoPublic {
@@ -74,17 +75,17 @@ export class Pedido {
     };
   }
 
-  toDetalle(items: PedidoItemPublic[]): PedidoDetallePublic {
-    return { ...this.toPublic(), items };
+  toDetalle(items: PedidoItemPublic[], fechaEntrega: Date | null): PedidoDetallePublic {
+    return { ...this.toPublic(), items, fechaEntrega };
   }
 
   toListPublic(fechaEntrega: Date | null): PedidoListPublic {
     return { ...this.toPublic(), fechaEntrega };
   }
 
-  toDetalleAdmin(items: PedidoItemPublic[]): PedidoDetalleAdminPublic {
+  toDetalleAdmin(items: PedidoItemPublic[], fechaEntrega: Date | null): PedidoDetalleAdminPublic {
     return {
-      ...this.toPublic(),
+      ...this.toDetalle(items, fechaEntrega),
       usuario: {
         id: this.usuario.id,
         nombre: this.usuario.nombre,
@@ -92,7 +93,6 @@ export class Pedido {
         telefono: this.usuario.telefono,
         direccion: this.usuario.direccion,
       },
-      items,
     };
   }
 }

@@ -503,7 +503,18 @@ describe('Listado y detalle de pedidos (013)', () => {
           descuentoAplicado: null,
         }),
       );
+      expect(res.body.fechaEntrega).toEqual(expect.any(String));
       expect(res.text).not.toContain('passwordHash');
+    });
+
+    it('pedido no entregado expone fechaEntrega null en el detalle', async () => {
+      const res = await request(app)
+        .get(`/api/pedidos/${ped3}`)
+        .set('Authorization', `Bearer ${adminToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('REALIZADO');
+      expect(res.body.fechaEntrega).toBeNull();
     });
 
     it('inexistente responde 404 y no numérico 400', async () => {
@@ -572,10 +583,21 @@ describe('Listado y detalle de pedidos (013)', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(expect.objectContaining({ id: ped2, estado: 'CANCELADO' }));
+      expect(res.body.fechaEntrega).toBeNull();
       expect(res.body.items).toHaveLength(1);
       expect(res.body.items[0]).toEqual(
         expect.objectContaining({ cantidad: 1, precioUnitario: '25.50' }),
       );
+    });
+
+    it('pedido propio ENTREGADO expone fechaEntrega con la fecha del historial', async () => {
+      const res = await request(app)
+        .get(`/api/mis-pedidos/${ped1}`)
+        .set('Authorization', `Bearer ${makeToken('CLIENTE', clienteAId)}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.estado).toBe('ENTREGADO');
+      expect(res.body.fechaEntrega).toEqual(expect.any(String));
     });
 
     it('pedido ajeno responde 404 para no filtrar existencia', async () => {

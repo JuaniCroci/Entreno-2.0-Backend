@@ -124,7 +124,10 @@ export class PedidoService {
       carrito.usuarioActivoSlot = null;
 
       await em.flush();
-      return pedido.toDetalle(detalleItems.map((item) => item.toPublic()));
+      return pedido.toDetalle(
+        detalleItems.map((item) => item.toPublic()),
+        null,
+      );
     });
   }
 
@@ -211,7 +214,11 @@ export class PedidoService {
   async getByIdAdmin(id: number): Promise<PedidoDetalleAdminPublic> {
     const pedido = await this.findById(id);
     const items = pedido.items.getItems();
-    return pedido.toDetalleAdmin(items.map((item) => item.toPublic()));
+    const fechas = await this.calcularFechaEntrega([pedido.id]);
+    return pedido.toDetalleAdmin(
+      items.map((item) => item.toPublic()),
+      fechas.get(pedido.id) ?? null,
+    );
   }
 
   async getByIdOwn(id: number, usuarioId: number): Promise<PedidoDetallePublic> {
@@ -225,7 +232,11 @@ export class PedidoService {
       throw new AppError(404, 'Pedido no encontrado');
     }
     const items = pedido.items.getItems();
-    return pedido.toDetalle(items.map((item) => item.toPublic()));
+    const fechas = await this.calcularFechaEntrega([pedido.id]);
+    return pedido.toDetalle(
+      items.map((item) => item.toPublic()),
+      fechas.get(pedido.id) ?? null,
+    );
   }
 
   async entregar(id: number): Promise<PedidoDetallePublic> {
@@ -301,7 +312,11 @@ export class PedidoService {
       pedido.estado = destino;
       em.create(HistorialEstado, { pedido, estado: destino, fecha: now });
       await em.flush();
-      return pedido.toDetalle(items.map((item) => item.toPublic()));
+      const fechaEntrega = destino === 'ENTREGADO' ? now : null;
+      return pedido.toDetalle(
+        items.map((item) => item.toPublic()),
+        fechaEntrega,
+      );
     });
   }
 }

@@ -600,6 +600,7 @@ describe('PedidoService', () => {
     it('getByIdAdmin devuelve items y datos completos del cliente', async () => {
       const pedido = makePedidoDetalle({ items: { getItems: () => [makeItemDetalle(2)] } });
       vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
 
       const result = await service.getByIdAdmin(42);
 
@@ -648,6 +649,7 @@ describe('PedidoService', () => {
     it('getByIdOwn propio devuelve el detalle con items', async () => {
       const pedido = makePedidoDetalle({ items: { getItems: () => [makeItemDetalle(2)] } });
       vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
 
       const result = await service.getByIdOwn(42, 5);
 
@@ -661,6 +663,85 @@ describe('PedidoService', () => {
         statusCode: 400,
       });
       expect(em.findOne).not.toHaveBeenCalled();
+    });
+
+    it('getByIdAdmin de pedido ENTREGADO deriva fechaEntrega del historial', async () => {
+      const fecha = new Date('2026-10-05T15:00:00.000Z');
+      const pedido = makePedidoDetalle({ estado: 'ENTREGADO' });
+      vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+      vi.spyOn(em, 'find').mockResolvedValue([
+        Object.assign(Object.create(HistorialEstado.prototype), {
+          id: 3,
+          estado: 'ENTREGADO',
+          fecha,
+          pedido: { id: 42 },
+        }),
+      ] as never);
+
+      const result = await service.getByIdAdmin(42);
+
+      expect(em.find).toHaveBeenCalledWith(
+        HistorialEstado,
+        { pedido: { $in: [42] }, estado: 'ENTREGADO' },
+        { orderBy: { fecha: 'asc', id: 'asc' } },
+      );
+      expect(result.fechaEntrega).toEqual(fecha);
+    });
+
+    it('getByIdAdmin de pedido no entregado devuelve fechaEntrega null', async () => {
+      const pedido = makePedidoDetalle({ estado: 'REALIZADO' });
+      vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+      vi.spyOn(em, 'find').mockResolvedValue([] as never);
+
+      const result = await service.getByIdAdmin(42);
+
+      expect(result.fechaEntrega).toBeNull();
+    });
+
+    it('getByIdOwn de pedido ENTREGADO propio expone fechaEntrega', async () => {
+      const fecha = new Date('2026-10-06T10:30:00.000Z');
+      const pedido = makePedidoDetalle({ estado: 'ENTREGADO' });
+      vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+      vi.spyOn(em, 'find').mockResolvedValue([
+        Object.assign(Object.create(HistorialEstado.prototype), {
+          id: 9,
+          estado: 'ENTREGADO',
+          fecha,
+          pedido: { id: 42 },
+        }),
+      ] as never);
+
+      const result = await service.getByIdOwn(42, 5);
+
+      expect(result.fechaEntrega).toEqual(fecha);
+    });
+
+    it('entregar devuelve el detalle con la fechaEntrega del registro recién creado', async () => {
+      const pedido = makePedidoDetalle();
+      vi.spyOn(em, 'findOne').mockResolvedValue(pedido as never);
+
+      const result = await service.entregar(42);
+
+      const filaEntrega = vi
+        .mocked(em.create)
+        .mock.calls.find(
+          (call) =>
+            call[0] === HistorialEstado && (call[1] as { estado: string }).estado === 'ENTREGADO',
+        )?.[1] as { fecha: Date };
+      expect(result.estado).toBe('ENTREGADO');
+      expect(result.fechaEntrega).toEqual(filaEntrega.fecha);
+    });
+
+    it('confirmarDesdeCarrito devuelve fechaEntrega null (pedido recién creado)', async () => {
+      const linea = makeLinea(10, 'Barra', 100, '10.00', 1);
+      vi.spyOn(em, 'findOne').mockResolvedValue(
+        makeCarrito({ items: { getItems: () => [linea] } }) as never,
+      );
+      vi.spyOn(DescuentoService.prototype, 'mejorElegible').mockResolvedValue(null);
+
+      const result = await service.confirmarDesdeCarrito(5);
+
+      expect(result.fechaEntrega).toBeNull();
     });
   });
 });

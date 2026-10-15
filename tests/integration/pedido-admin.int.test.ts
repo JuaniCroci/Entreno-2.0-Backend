@@ -261,6 +261,11 @@ describe('Gestión de pedido admin (012)', () => {
       'REALIZADO',
       'ENTREGADO',
     ]);
+    const filaEntrega = historial.body.data.find(
+      (fila: { estado: string }) => fila.estado === 'ENTREGADO',
+    );
+    const difMs = Math.abs(Date.parse(res.body.fechaEntrega) - Date.parse(filaEntrega.fecha));
+    expect(difMs).toBeLessThan(1000);
   });
 
   it('entregar dos veces responde 409', async () => {
