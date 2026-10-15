@@ -12,5 +12,6 @@
 - [x] Test integración: detalle admin completo (items + cliente)
 - [x] Test integración: `mis-pedidos` solo propios; detalle ajeno → 404
 - [x] Test integración: 401/403 en rutas admin
-- [x] Validar contra los criterios de aceptación de `spec.md` (11/11 en `[x]`)
+- [x] `fechaEntrega` en los detalles (`GET /api/pedidos/:id`, `GET /api/mis-pedidos/:id`, `entregar`) — decisión invertida del D4 del análisis de concordancia con el front (2026-10-15); TDD: 5 tests unit + 3 de integración
+- [x] Validar contra los criterios de aceptación de `spec.md` (12/12 en `[x]`)
 - [x] Mover la feature a "Hecho" en `../../constitution/roadmap.md`

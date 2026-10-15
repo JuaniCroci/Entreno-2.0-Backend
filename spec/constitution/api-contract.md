@@ -216,6 +216,18 @@ POST /api/marcas con body inválido → 400 Bad Request
   `descuentoAplicado`). El backend vuelve a validar stock, aplica descuentos y descuenta
   existencias. El estado inicial del pedido es `REALIZADO`; esta operación no procesa pagos.
 
+## Pedidos: detalle y fechaEntrega
+
+- `GET /api/pedidos/:id` (ADMIN) y `GET /api/mis-pedidos/:id` (dueño; `404` si es ajeno) devuelven
+  el detalle del pedido con items, datos del cliente y **`fechaEntrega`**: fecha del cambio a
+  `ENTREGADO` tomada del `HistorialEstado`, o `null` si aún no se entregó.
+- `POST /api/pedidos/:id/entregar` (ADMIN) responde el detalle con `fechaEntrega` igual a la fecha
+  del registro de entrega recién creado; `POST /api/pedidos/:id/cancelar` responde con
+  `fechaEntrega: null`.
+- El item del listado (`GET /api/pedidos`, ver sección de paginación) incluye el mismo campo con
+  la misma semántica; `POST /api/carrito/confirmar` devuelve el detalle recién creado con
+  `fechaEntrega: null`.
+
 ---
 
 ## Campos de respuesta a excluir siempre
