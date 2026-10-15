@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.2.12 — Imágenes de producto, contrato completo, fechaEntrega en detalle y gestión (2026-10-15)
+
+### Feature
+
+- **Imágenes de producto** (`958945a`, CarlosUBruno, 2026-10-11): entidad `FotoProducto` + storage en `PRODUCT_IMAGES_DIR` con nombre UUID; `POST/GET /api/productos/admin/:id/imagenes` (ADMIN, multipart `imagen`/`altText`/`fuente`/`licencia`/`atribucion`, PNG/JPEG/WebP hasta 5 MiB → `413`); `GET /api/productos/imagenes/:uid` público; `imagenPrincipal { id, url, altText }` en listados y detalles de producto (inactivo `ProductoService` + `ProductoController` + `productos.routes.ts` + DTO `UploadFotoProductoDto`); migración `Migration20261011190000`
+- **`fechaEntrega` en detalles de pedido** (`61bf7c5`): `PedidoDetallePublic` suma `fechaEntrega: Date | null`; `GET /api/pedidos/:id` y `GET /api/mis-pedidos/:id` la derivan del `HistorialEstado` (`ENTREGADO`) vía `calcularFechaEntrega([id])`; `POST /api/pedidos/:id/entregar` la devuelve con la fecha del registro recién creado; `cancelar` y `POST /api/carrito/confirmar` → `null` (cierra la divergencia D4 del análisis de concordancia con el front)
+
+### Comportamiento
+
+- Los detalles de pedido ahora incluyen `fechaEntrega` — era `null` implícito/ausente antes; el front puede restaurar el bloque "Fecha de entrega" en el panel de detalle
+- `cambiarEstado` deriva el valor de la transición (`ENTREGADO` → `now` de la fila creada; si no → `null`) en vez de re-consultar dentro de la transacción con lock
+- `api-contract.md`: sección nueva "Pedidos: detalle y fechaEntrega"; completadas las secciones de Imágenes, Descuentos, Carrito y `413` (`d636d58`, 2026-10-14 — sincroniza el contrato con el código desde la divergencia D1)
+- Specs alineadas al código: marcas `includeInactive` (003) y descuentos `GET` públicos (008) (`d636d58`)
+- **Gestión (enunciado §4)**: nueva carpeta `docs/gestion/` con metodología (Scrum liviano + Kanban, DoD, convenciones de cierre y de issues, regla de resync con el front) y minutas reconstruidas desde `git log`; sección "Gestión del proyecto" en `AGENTS.md`; pendiente "Evidencia ágil" tachado en `roadmap.md`
+- Contenedor compose renombrado a `entreno-2-mysql` para distinguirlo del MySQL del backend viejo (`5d4a586`)
+
+### Tests
+
+- `tests/unit/pedido-service.unit.test.ts`: +5 (detalle admin/propio con `fechaEntrega`, entregado vs no entregado, `entregar` vs historial, `confirmar` → `null`) → 40 en el archivo
+- `tests/integration/pedido-listado.int.test.ts`: +2 (detalle admin `fechaEntrega` string / `REALIZADO` → `null`, detalle propio entregado/cancelado); `pedido-admin.int.test.ts`: `entregar` compara `fechaEntrega` con la fila del historial (tolerancia < 1 s por precisión de la columna `datetime`)
+- `tests/unit/producto-service.unit.test.ts` + `tests/integration/producto.int.test.ts` (de `958945a`): storage y endpoints de imágenes
+
+### Suite total: 413 tests (30 files) — 223 unit + 190 integración
+
+### Gates: `lint` + `typecheck` + `format:check` + `test` — pasa limpio
+
+---
+
 ## v0.2.11 — Feature 013: Listado de pedidos (2026-10-04)
 
 ### Feature

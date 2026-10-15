@@ -29,6 +29,15 @@ API REST para e-commerce de artículos de gimnasio. **TypeScript + Express 5 + M
 
 Verificación mínima tras cambios: `pnpm lint`, `pnpm typecheck` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
 
+## Gestión del proyecto
+
+Evidencia del enunciado §4 en [`docs/gestion/`](./docs/gestion/README.md) (metodología + minutas + trackeo).
+
+- **Backlog**: [`analisis-proyecto.md`](./analisis-proyecto.md) (hallazgos/mejoras priorizados) + [`spec/constitution/roadmap.md`](./spec/constitution/roadmap.md) (features). Antes de arrancar tarea nueva, revisar ambos.
+- **Al cerrar una feature o lote** (DoD): gates verdes (`lint` → `typecheck` → `format:check` → `build` → `test`) → actualizar `spec/` si corresponde → entrada en [`CHANGELOG.md`](./CHANGELOG.md) → commit → entrada en [`docs/gestion/minutas.md`](./docs/gestion/minutas.md) cuando el avance lo amerite.
+- **Hallazgos nuevos**: registrarse en `analisis-proyecto.md` o en la minuta **antes** de arreglarlos por cuenta propia.
+- **Resync con el front**: el front copia `spec/constitution/api-contract.md` como snapshot; al cambiarlo (o agregar endpoints/filtros) **avisar al equipo del front** para que resincronice — regla nacida de la divergencia D1.
+
 ## Entorno: base de datos (Podman)
 
 La DB se levanta con **Podman** (no Docker) usando el `docker-compose.yml` del repo. Ambos `test:unit` y `test:integration` conectan a MySQL — `tests/setup.ts` arma el schema al arrancar, así que **sin contenedor la suite falla**.
