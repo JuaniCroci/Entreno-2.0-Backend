@@ -9,7 +9,7 @@
 ## 2026-10-15 · Avance: emparejar back ↔ front (minutas, metodología y D4)
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -37,7 +37,7 @@
 ## 2026-10-14 · Avance: concordancia con el front + contrato completo
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (docs) · JuaniCroci (análisis D1–D7 en el front).
+**Participantes:** Juan Ignacio Croci (docs) · JuaniCroci (análisis D1–D7 en el front).
 
 ### Realizado
 
@@ -78,7 +78,7 @@
 ## 2026-10-04 · Avance: 013 listado de pedidos (cierre de regularidad back)
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -98,7 +98,7 @@
 ## 2026-10-02 · Avance: 012 gestión de pedido + entorno Podman documentado
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -118,7 +118,7 @@
 ## 2026-10-01 · Avance: 011 carrito y pedido
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -137,7 +137,7 @@
 ## 2026-09-30 · Avance: 010 listado público de productos
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -156,7 +156,7 @@
 ## 2026-09-29 · Avance: 009 CRUD Ingreso + estabilización de la suite
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -176,7 +176,7 @@
 ## 2026-09-26 · Avance: 007 y 008 (producto y descuento)
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -196,7 +196,7 @@
 ## 2026-09-24 · Avance: features 003–006 (CRUDs maestros)
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -216,7 +216,7 @@
 ## 2026-09-23 · Avance: refresh token y CI
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
@@ -236,7 +236,7 @@
 ## 2026-09-22 · Avance: setup, análisis por skills y plan de mejora (Niveles 0–4)
 
 **Formato:** asíncrono.
-**Participantes:** Mariano (con OpenCode).
+**Participantes:** Juan Ignacio Croci (con OpenCode).
 
 ### Realizado
 
