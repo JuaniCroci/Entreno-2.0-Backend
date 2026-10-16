@@ -58,7 +58,7 @@ _Features de **aprobación** (se crean sus carpetas al iniciar la fase) y **volu
 
 ### Gestión / evidencia
 
-- ~~**Evidencia ágil**: GitHub Projects (issues/PRs) + minutas de reuniones (README de la cátedra la exige).~~ ✅ 2026-10-15 — metodología, DoD y [minutas](../../docs/gestion/minutas.md) en [`docs/gestion/`](../../docs/gestion/README.md); board del back **pendiente de crear** (URL a agregar en el README de gestión).
+- ~~**Evidencia ágil**: GitHub Projects (issues/PRs) + minutas de reuniones (README de la cátedra la exige).~~ ✅ 2026-10-15 — metodología, DoD y [minutas](../../docs/gestion/minutas.md) en [`docs/gestion/`](../../docs/gestion/README.md); PR de entrega de regularidad: [#1](https://github.com/JuaniCroci/Entreno-2.0-Backend/pull/1) (rama `entrega-regularidad`, base `regularidad-base`); board del back **pendiente de crear** (URL a agregar en el README de gestión).
 - Checklist de arranque del `implementation-plan.md` completo antes de invocar cualquier agente de implementación.
 
 > Cada feature nueva se crea como `features/NNN-nombre/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.
