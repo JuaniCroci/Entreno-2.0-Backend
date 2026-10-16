@@ -103,27 +103,21 @@
       "name": "carrito",
       "indexes": [
         {
-          "columnNames": [
-            "usuario_activo_slot"
-          ],
+          "columnNames": ["usuario_activo_slot"],
           "keyName": "carrito_usuario_activo_slot_unique",
           "unique": true,
           "primary": false,
           "constraint": true
         },
         {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "keyName": "carrito_usuario_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -133,15 +127,11 @@
       "checks": [],
       "foreignKeys": {
         "carrito_usuario_id_foreign": {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "constraintName": "carrito_usuario_id_foreign",
           "localTableName": "carrito",
           "referencedTableName": "usuario",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -219,19 +209,14 @@
       "name": "carrito_item",
       "indexes": [
         {
-          "columnNames": [
-            "carrito_id"
-          ],
+          "columnNames": ["carrito_id"],
           "keyName": "carrito_item_carrito_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "carrito_id",
-            "producto_id"
-          ],
+          "columnNames": ["carrito_id", "producto_id"],
           "keyName": "carrito_item_carrito_id_producto_id_unique",
           "unique": true,
           "primary": false,
@@ -239,18 +224,14 @@
           "composite": true
         },
         {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "keyName": "carrito_item_producto_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -260,28 +241,20 @@
       "checks": [],
       "foreignKeys": {
         "carrito_item_carrito_id_foreign": {
-          "columnNames": [
-            "carrito_id"
-          ],
+          "columnNames": ["carrito_id"],
           "constraintName": "carrito_item_carrito_id_foreign",
           "localTableName": "carrito_item",
           "referencedTableName": "carrito",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         },
         "carrito_item_producto_id_foreign": {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "constraintName": "carrito_item_producto_id_foreign",
           "localTableName": "carrito_item",
           "referencedTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -334,14 +307,14 @@
           "length": null,
           "precision": 10,
           "scale": 0,
-          "default": "1",
+          "default": null,
           "comment": null,
           "enumItems": [],
           "mappedType": "integer"
         },
         "porcentaje": {
           "name": "porcentaje",
-          "type": "decimal(10,2)",
+          "type": "int",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
@@ -349,11 +322,11 @@
           "unique": false,
           "length": null,
           "precision": 10,
-          "scale": 2,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
-          "mappedType": "decimal"
+          "mappedType": "integer"
         },
         "activo": {
           "name": "activo",
@@ -407,9 +380,7 @@
       "name": "descuento",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -507,27 +478,21 @@
       "name": "descuento_producto",
       "indexes": [
         {
-          "columnNames": [
-            "descuento_id"
-          ],
+          "columnNames": ["descuento_id"],
           "keyName": "descuento_producto_descuento_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "keyName": "descuento_producto_producto_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -537,28 +502,20 @@
       "checks": [],
       "foreignKeys": {
         "descuento_producto_descuento_id_foreign": {
-          "columnNames": [
-            "descuento_id"
-          ],
+          "columnNames": ["descuento_id"],
           "constraintName": "descuento_producto_descuento_id_foreign",
           "localTableName": "descuento_producto",
           "referencedTableName": "descuento",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         },
         "descuento_producto_producto_id_foreign": {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "constraintName": "descuento_producto_producto_id_foreign",
           "localTableName": "descuento_producto",
           "referencedTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -748,10 +705,7 @@
       "name": "foto_producto",
       "indexes": [
         {
-          "columnNames": [
-            "producto_id",
-            "es_principal"
-          ],
+          "columnNames": ["producto_id", "es_principal"],
           "keyName": "foto_producto_producto_principal_idx",
           "unique": false,
           "primary": false,
@@ -759,9 +713,7 @@
           "composite": true
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -771,15 +723,11 @@
       "checks": [],
       "foreignKeys": {
         "foto_producto_producto_id_foreign": {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "constraintName": "foto_producto_producto_id_foreign",
           "localTableName": "foto_producto",
           "referencedTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "cascade"
         }
@@ -857,10 +805,7 @@
       "name": "historial_estado",
       "indexes": [
         {
-          "columnNames": [
-            "pedido_id",
-            "estado"
-          ],
+          "columnNames": ["pedido_id", "estado"],
           "keyName": "historial_estado_pedido_id_estado_index",
           "unique": false,
           "primary": false,
@@ -868,18 +813,14 @@
           "composite": true
         },
         {
-          "columnNames": [
-            "pedido_id"
-          ],
+          "columnNames": ["pedido_id"],
           "keyName": "historial_estado_pedido_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -889,15 +830,11 @@
       "checks": [],
       "foreignKeys": {
         "historial_estado_pedido_id_foreign": {
-          "columnNames": [
-            "pedido_id"
-          ],
+          "columnNames": ["pedido_id"],
           "constraintName": "historial_estado_pedido_id_foreign",
           "localTableName": "historial_estado",
           "referencedTableName": "pedido",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -1039,27 +976,21 @@
       "name": "ingreso",
       "indexes": [
         {
-          "columnNames": [
-            "nro_ingreso"
-          ],
+          "columnNames": ["nro_ingreso"],
           "keyName": "ingreso_nro_ingreso_unique",
           "unique": true,
           "primary": false,
           "constraint": true
         },
         {
-          "columnNames": [
-            "proveedor_id"
-          ],
+          "columnNames": ["proveedor_id"],
           "keyName": "ingreso_proveedor_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -1069,15 +1000,11 @@
       "checks": [],
       "foreignKeys": {
         "ingreso_proveedor_id_foreign": {
-          "columnNames": [
-            "proveedor_id"
-          ],
+          "columnNames": ["proveedor_id"],
           "constraintName": "ingreso_proveedor_id_foreign",
           "localTableName": "ingreso",
           "referencedTableName": "proveedor",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -1171,19 +1098,14 @@
       "name": "ingreso_item",
       "indexes": [
         {
-          "columnNames": [
-            "ingreso_id"
-          ],
+          "columnNames": ["ingreso_id"],
           "keyName": "ingreso_item_ingreso_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "ingreso_id",
-            "producto_id"
-          ],
+          "columnNames": ["ingreso_id", "producto_id"],
           "keyName": "ingreso_item_ingreso_id_producto_id_unique",
           "unique": true,
           "primary": false,
@@ -1191,18 +1113,14 @@
           "composite": true
         },
         {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "keyName": "ingreso_item_producto_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -1212,28 +1130,20 @@
       "checks": [],
       "foreignKeys": {
         "ingreso_item_ingreso_id_foreign": {
-          "columnNames": [
-            "ingreso_id"
-          ],
+          "columnNames": ["ingreso_id"],
           "constraintName": "ingreso_item_ingreso_id_foreign",
           "localTableName": "ingreso_item",
           "referencedTableName": "ingreso",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         },
         "ingreso_item_producto_id_foreign": {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "constraintName": "ingreso_item_producto_id_foreign",
           "localTableName": "ingreso_item",
           "referencedTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -1327,18 +1237,14 @@
       "name": "marca",
       "indexes": [
         {
-          "columnNames": [
-            "nombre"
-          ],
+          "columnNames": ["nombre"],
           "keyName": "marca_nombre_unique",
           "unique": true,
           "primary": false,
           "constraint": true
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -1468,18 +1374,14 @@
       "name": "pedido",
       "indexes": [
         {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "keyName": "pedido_usuario_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -1489,15 +1391,11 @@
       "checks": [],
       "foreignKeys": {
         "pedido_usuario_id_foreign": {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "constraintName": "pedido_usuario_id_foreign",
           "localTableName": "pedido",
           "referencedTableName": "usuario",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -1623,19 +1521,14 @@
       "name": "pedido_item",
       "indexes": [
         {
-          "columnNames": [
-            "pedido_id"
-          ],
+          "columnNames": ["pedido_id"],
           "keyName": "pedido_item_pedido_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "pedido_id",
-            "producto_id"
-          ],
+          "columnNames": ["pedido_id", "producto_id"],
           "keyName": "pedido_item_pedido_id_producto_id_unique",
           "unique": true,
           "primary": false,
@@ -1643,18 +1536,14 @@
           "composite": true
         },
         {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "keyName": "pedido_item_producto_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
@@ -1664,28 +1553,20 @@
       "checks": [],
       "foreignKeys": {
         "pedido_item_pedido_id_foreign": {
-          "columnNames": [
-            "pedido_id"
-          ],
+          "columnNames": ["pedido_id"],
           "constraintName": "pedido_item_pedido_id_foreign",
           "localTableName": "pedido_item",
           "referencedTableName": "pedido",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         },
         "pedido_item_producto_id_foreign": {
-          "columnNames": [
-            "producto_id"
-          ],
+          "columnNames": ["producto_id"],
           "constraintName": "pedido_item_producto_id_foreign",
           "localTableName": "pedido_item",
           "referencedTableName": "producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -1875,36 +1756,28 @@
       "name": "producto",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
           "constraint": true
         },
         {
-          "columnNames": [
-            "marca_id"
-          ],
+          "columnNames": ["marca_id"],
           "keyName": "producto_marca_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "proveedor_id"
-          ],
+          "columnNames": ["proveedor_id"],
           "keyName": "producto_proveedor_id_index",
           "unique": false,
           "primary": false,
           "constraint": false
         },
         {
-          "columnNames": [
-            "tipo_producto_id"
-          ],
+          "columnNames": ["tipo_producto_id"],
           "keyName": "producto_tipo_producto_id_index",
           "unique": false,
           "primary": false,
@@ -1914,41 +1787,29 @@
       "checks": [],
       "foreignKeys": {
         "producto_marca_id_foreign": {
-          "columnNames": [
-            "marca_id"
-          ],
+          "columnNames": ["marca_id"],
           "constraintName": "producto_marca_id_foreign",
           "localTableName": "producto",
           "referencedTableName": "marca",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         },
         "producto_proveedor_id_foreign": {
-          "columnNames": [
-            "proveedor_id"
-          ],
+          "columnNames": ["proveedor_id"],
           "constraintName": "producto_proveedor_id_foreign",
           "localTableName": "producto",
           "referencedTableName": "proveedor",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "set null"
         },
         "producto_tipo_producto_id_foreign": {
-          "columnNames": [
-            "tipo_producto_id"
-          ],
+          "columnNames": ["tipo_producto_id"],
           "constraintName": "producto_tipo_producto_id_foreign",
           "localTableName": "producto",
           "referencedTableName": "tipo_producto",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "updateRule": "cascade",
           "deleteRule": "no action"
         }
@@ -2106,18 +1967,14 @@
       "name": "proveedor",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
           "constraint": true
         },
         {
-          "columnNames": [
-            "cuit"
-          ],
+          "columnNames": ["cuit"],
           "keyName": "proveedor_cuit_unique",
           "unique": true,
           "primary": false,
@@ -2231,18 +2088,14 @@
       "name": "refresh_token",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
           "constraint": true
         },
         {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "keyName": "refresh_token_usuario_id_index",
           "unique": false,
           "primary": false,
@@ -2252,16 +2105,12 @@
       "checks": [],
       "foreignKeys": {
         "refresh_token_usuario_id_foreign": {
-          "columnNames": [
-            "usuario_id"
-          ],
+          "columnNames": ["usuario_id"],
           "constraintName": "refresh_token_usuario_id_foreign",
           "localTableName": "refresh_token",
           "referencedTableName": "usuario",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "updateRule": "no action",
+          "referencedColumnNames": ["id"],
+          "updateRule": "cascade",
           "deleteRule": "no action"
         }
       },
@@ -2370,18 +2219,14 @@
       "name": "tipo_producto",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
           "constraint": true
         },
         {
-          "columnNames": [
-            "nombre"
-          ],
+          "columnNames": ["nombre"],
           "keyName": "tipo_producto_nombre_unique",
           "unique": true,
           "primary": false,
@@ -2504,10 +2349,7 @@
           "scale": null,
           "default": "'CLIENTE'",
           "comment": null,
-          "enumItems": [
-            "ADMIN",
-            "CLIENTE"
-          ],
+          "enumItems": ["ADMIN", "CLIENTE"],
           "mappedType": "enum"
         },
         "activo": {
@@ -2562,18 +2404,14 @@
       "name": "usuario",
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "keyName": "PRIMARY",
           "unique": true,
           "primary": true,
           "constraint": true
         },
         {
-          "columnNames": [
-            "email"
-          ],
+          "columnNames": ["email"],
           "keyName": "usuario_email_unique",
           "unique": true,
           "primary": false,
