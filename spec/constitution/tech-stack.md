@@ -75,7 +75,7 @@
 ### Reglas de negocio (invariantes)
 
 1. **Stock**: `+= stock inicial` al crear producto; `+= cantidad` al registrar ingreso; `-= cantidad` al confirmar pedido; `+= cantidad` al cancelar pedido (restitución). Al anular un ingreso, se restan sus líneas. El stock nunca queda negativo (validar antes de descontar).
-2. **Descuento en pedido**: por línea, si `cantidad ≥ cantidadMinima` de un `DescuentoProducto` vigente (`fechaDesde ≤ hoy ≤ fechaHasta`) y descuento activo, se aplica el mayor `porcentaje` elegible (si varios, el de mayor %; empate → el de `fechaDesde` más reciente). Queda en `descuentoAplicado` y en el cálculo de `subtotal`/`importeTotal`. Cálculos con `decimal.js` (nunca float de JS).
+2. **Descuento en pedido**: por línea se aplica **un solo descuento (los descuentos no se acumulan)**; son los elegibles los `DescuentoProducto` **vigentes** (`fechaDesde ≤ hoy ≤ fechaHasta`) cuyo `Descuento` está activo y con `cantidad ≥ cantidadMinima`. Entre varios elegibles gana el mayor `porcentaje` (empate → el de `fechaDesde` más reciente). Pueden coexistir varios descuentos distintos vigentes para el mismo producto (escalones por cantidad); la selección vive en `DescuentoService.mejorElegible`. Queda en `descuentoAplicado` y en el cálculo de `subtotal`/`importeTotal`. Cálculos con `decimal.js` (nunca float de JS).
 3. **Snapshot**: `PedidoItem.precioUnitario` copia el precio del producto al confirmar; cambios posteriores del producto no alteran pedidos existentes.
 4. **Transiciones de estado** (cada cambio genera fila en `HistorialEstado`):
    - Fase 1: `REALIZADO → ENTREGADO` (admin) · `REALIZADO → CANCELADO` (admin, restituye stock)

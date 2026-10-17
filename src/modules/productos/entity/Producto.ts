@@ -1,0 +1,99 @@
+import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
+import { Marca } from '../../marcas/entity/Marca.js';
+import { TipoProducto } from '../../tipos-producto/entity/TipoProducto.js';
+import { Proveedor } from '../../proveedores/entity/Proveedor.js';
+import type { ImagenPrincipalProducto } from './FotoProducto.js';
+
+export interface ProductoPublic {
+  id: number;
+  nombre: string;
+  descripcion: string | null;
+  precioUnitario: string;
+  stock: number;
+  activo: boolean;
+  tipoProducto: { id: number; nombre: string };
+  marca: { id: number; nombre: string };
+  proveedor: { id: number; razonSocial: string; activo: boolean } | null;
+  imagenPrincipal: ImagenPrincipalProducto | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProductoListPublic {
+  id: number;
+  nombre: string;
+  marca: { id: number; nombre: string };
+  precioUnitario: string;
+  disponible: boolean;
+  imagenPrincipal: ImagenPrincipalProducto | null;
+}
+
+@Entity()
+export class Producto {
+  @PrimaryKey({ type: 'number' })
+  id!: number;
+
+  @Property({ type: 'string' })
+  nombre!: string;
+
+  @Property({ type: 'string', nullable: true })
+  descripcion: string | null = null;
+
+  @Property({ type: 'string', columnType: 'decimal(10,2)' })
+  precioUnitario!: string;
+
+  @Property({ type: 'integer', default: 0 })
+  stock!: number;
+
+  @Property({ type: 'boolean', default: true })
+  activo = true;
+
+  @ManyToOne(() => TipoProducto)
+  tipoProducto!: TipoProducto;
+
+  @ManyToOne(() => Marca)
+  marca!: Marca;
+
+  @ManyToOne(() => Proveedor, { nullable: true })
+  proveedor: Proveedor | null = null;
+
+  @Property({ type: 'datetime', onCreate: () => new Date() })
+  createdAt!: Date;
+
+  @Property({ type: 'datetime', onCreate: () => new Date(), onUpdate: () => new Date() })
+  updatedAt!: Date;
+
+  toListPublic(imagenPrincipal: ImagenPrincipalProducto | null = null): ProductoListPublic {
+    return {
+      id: this.id,
+      nombre: this.nombre,
+      marca: { id: this.marca.id, nombre: this.marca.nombre },
+      precioUnitario: this.precioUnitario,
+      disponible: this.stock > 0,
+      imagenPrincipal,
+    };
+  }
+
+  toPublic(imagenPrincipal: ImagenPrincipalProducto | null = null): ProductoPublic {
+    return {
+      id: this.id,
+      nombre: this.nombre,
+      descripcion: this.descripcion,
+      precioUnitario: this.precioUnitario,
+      stock: this.stock,
+      activo: this.activo,
+      tipoProducto: { id: this.tipoProducto.id, nombre: this.tipoProducto.nombre },
+      marca: { id: this.marca.id, nombre: this.marca.nombre },
+      proveedor: this.proveedor
+        ? {
+            id: this.proveedor.id,
+            razonSocial: this.proveedor.razonSocial,
+            activo: this.proveedor.activo,
+          }
+        : null,
+      imagenPrincipal,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
+}

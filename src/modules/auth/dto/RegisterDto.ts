@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { env } from '../../../config/env.js';
 
 export class RegisterDto {
   @IsString({ message: 'nombre debe ser una cadena de texto' })
@@ -9,7 +10,7 @@ export class RegisterDto {
   email!: string;
 
   @IsString({ message: 'password debe ser una cadena de texto' })
-  @MinLength(6, { message: 'password debe tener al menos 6 caracteres' })
+  @MinLength(env.passwordMinLength, { message: 'password debe tener al menos 8 caracteres' })
   password!: string;
 
   @IsOptional()

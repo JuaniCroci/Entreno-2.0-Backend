@@ -38,3 +38,13 @@ findById(id: number): Promise<Pedido>
 // (decisión al implementar; documentar en "Desvíos de implementación" si se elige service nuevo).
 // Shape de respuesta: { data: PedidoResumen[], total, page, size } (api-contract.md)
 ```
+
+## Desvíos de implementación
+
+- **Índice `(idPedido, estado)` ya existía** desde 011 (`HistorialEstado` lo declara con `@Index` y está en `Migration20261001203952.ts`) → no se creó migración nueva.
+- **`GET /api/mis-pedidos` no requirió cambios**: `listByUsuario` ya devolvía `fecha`, `estado` e `importeTotal` vía `toPublic()` desde 011; solo se agregó el test de integración que lo asegura.
+- **Validación de query en el service**, no en el middleware `validate` (que solo aplica a `req.body`): mismo criterio que `IngresoService.findAll` (009) y `ProductoService.findAll` (010). El `FilterPedidoAdminDto` documenta el contrato con decoradores `class-validator`.
+- **`fechaEntrega` con una segunda consulta** (`em.find(HistorialEstado, { pedido: { $in: ids }, estado: 'ENTREGADO' }, …)`) en lugar de un join/MAX: más simple, aprovecha el índice y se omite si la página está vacía.
+- **`fechaEntrega` se expone también en los detalles** (`GET /api/pedidos/:id`, `GET /api/mis-pedidos/:id`, y las respuestas de `entregar`/`cancelar`/`confirmar`): decisión invertida el 2026-10-15 al emparejar back ↔ front (divergencia D4 del análisis del front — el panel de detalle mostraba "Fecha de entrega" que la API no exponía). `getByIdAdmin`/`getByIdOwn` reusan `calcularFechaEntrega([id])`; `cambiarEstado` deriva el valor de la transición (`ENTREGADO` → `now` de la fila creada, si no → `null`) en vez de re-consultar dentro de la transacción con lock; `confirmarDesdeCarrito` devuelve `null`.
+- **Sin service nuevo**: `listAdmin`, `getByIdAdmin` y `getByIdOwn` viven en `PedidoService` (misma decisión implícita del plan).
+- **Ejecución inline con TDD por fase** (red → green → commit) en lugar de subagentes: el flujo SDD completo no era ejecutable en este entorno (skill de ejecución no instalada, Windows sin bash); los rulings quedaron en `.superpowers/sdd/013-listado-pedidos/progress.md`.

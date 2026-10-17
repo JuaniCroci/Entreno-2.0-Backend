@@ -9,13 +9,24 @@ import { notFound } from './common/errors/notFound.js';
 import { errorHandler } from './common/errors/errorHandler.js';
 import healthRoutes from './modules/health/health.routes.js';
 import authRoutes from './modules/auth/auth.routes.js';
+import usuariosRoutes from './modules/usuarios/routes/usuarios.routes.js';
+import marcasRoutes from './modules/marcas/routes/marcas.routes.js';
+import tiposProductoRoutes from './modules/tipos-producto/routes/tipos-producto.routes.js';
+import proveedoresRoutes from './modules/proveedores/routes/proveedores.routes.js';
+import productosRoutes from './modules/productos/routes/productos.routes.js';
+import clientesRoutes from './modules/clientes/routes/clientes.routes.js';
+import descuentosRoutes from './modules/descuentos/routes/descuentos.routes.js';
+import ingresosRoutes from './modules/ingresos/routes/ingresos.routes.js';
+import carritoRoutes from './modules/carritos/routes/carrito.routes.js';
+import misPedidosRoutes from './modules/pedidos/routes/misPedidos.routes.js';
+import pedidosRoutes from './modules/pedidos/routes/pedidos.routes.js';
 
 export function createApp(): express.Express {
   const app = express();
 
   app.use(helmet());
   app.use(cors({ origin: env.corsOrigin, credentials: true }));
-  app.use(express.json());
+  app.use(express.json({ limit: '100kb' }));
 
   if (env.nodeEnv !== 'test') {
     app.use(morgan('dev'));
@@ -25,6 +36,17 @@ export function createApp(): express.Express {
 
   app.use('/api/health', healthRoutes);
   app.use('/api/auth', authRoutes);
+  app.use('/api/usuarios', usuariosRoutes);
+  app.use('/api/marcas', marcasRoutes);
+  app.use('/api/tipos-producto', tiposProductoRoutes);
+  app.use('/api/proveedores', proveedoresRoutes);
+  app.use('/api/clientes', clientesRoutes);
+  app.use('/api/productos', productosRoutes);
+  app.use('/api/descuentos', descuentosRoutes);
+  app.use('/api/ingresos', ingresosRoutes);
+  app.use('/api/carrito', carritoRoutes);
+  app.use('/api/mis-pedidos', misPedidosRoutes);
+  app.use('/api/pedidos', pedidosRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
@@ -32,5 +54,4 @@ export function createApp(): express.Express {
   return app;
 }
 
-const app = createApp();
-export default app;
+export default createApp;

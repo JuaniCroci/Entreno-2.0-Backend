@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: entreno-mysql
+    container_name: entreno-2-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-entreno_root}

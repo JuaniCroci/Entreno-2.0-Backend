@@ -24,7 +24,7 @@ Es el **CRUD Cliente** de la proposal: en el modelo unificada no existe la clase
 - [ ] El listado **solo** devuelve usuarios con `rol=CLIENTE` (nunca admins, aunque se filtre igual).
 - [ ] Ninguna respuesta incluye `passwordHash`.
 - [ ] `POST` con email existente → `409`; con password débil → `400`.
-- [ ] `POST` crea el usuario **siempre** con `rol=CLIENTE` (ignora/reescribe un eventual `rol` en el body).
+- [ ] `POST` crea el usuario **siempre** con `rol=CLIENTE` (ignora/reescribe un eventual `rol` en el body). **Nota**: `CreateUsuarioDto` declara `@IsOptional() rol?: Rol` pero `AuthService.register()` siempre sobreescribe con `Rol.CLIENTE`, por lo que `rol` en el body es siempre ignorado.
 - [ ] No se puede editar el `rol` de un usuario desde estas rutas.
 - [ ] No existe `DELETE` físico; desactivar un cliente deja su historial de pedidos intacto y le impide loguearse (`401` en login / `401` en requests con token de usuario inactivo).
 - [ ] Desactivar/reactivar responde `200` con el usuario actualizado.

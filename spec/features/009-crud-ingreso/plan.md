@@ -11,13 +11,15 @@ Módulo `ingresos` con `Ingreso` + `IngresoItem` (ex-`ING_PTO`). Alta y anulaci�
 3. DTOs:
    - `CreateIngresoDto` — `nroIngreso`, `idProveedor`, `fecha?`, `lineas: CreateIngresoItemDto[]` (`@ArrayMinSize(1)`, `@ValidateNested({ each: true })`)
    - `FilterIngresoDto`
-4. `IngresoService`:
+4. `IngresoService` (vocabulario canónico, playbook §2):
    - `create` — `em.transactional`: valida proveedor/productos, calcula importe, persiste items, suma stock por producto
    - `anular` — `em.transactional`: valida estado, resta stock (chequeando stock ≥ 0 tras la resta **por cada producto**), pone `ANULADO`
-   - `list`, `getById`
-5. Controller + routes `/api/ingresos`.
-6. Tests unit: cálculo de importe, validación de líneas duplicadas, chequeo de stock al anular.
-7. Tests integración: alta con 2 productos → leer stock vía API de productos → anular → stock original.
+   - `findAll(filters)` — filtros `estado` / `desde` / `hasta` (rango de fechas con `parseDateRange` de `src/common/utils/date-range.ts`)
+   - `findById(id)` — detalle con líneas
+5. Controller + routes `/api/ingresos`: los 4 endpoints con `authenticate` + `authorize('ADMIN')`; `POST /:id/anular` responde **200** con el ingreso actualizado (regla "POST de acción de negocio" de `api-contract.md`).
+6. Registrar `app.use('/api/ingresos', ingresosRoutes)` en `src/app.ts` — **archivo autorizado para esta feature** pese a estar fuera del allowlist habitual del loop.
+7. Tests unit: cálculo de importe, validación de líneas duplicadas, chequeo de stock al anular.
+8. Tests integración: alta con 2 productos → leer stock vía API de productos → anular → stock original.
 
 ## Decisiones
 
@@ -32,12 +34,14 @@ Módulo `ingresos` con `Ingreso` + `IngresoItem` (ex-`ING_PTO`). Alta y anulaci�
 > Firmas exactas de métodos de otros módulos. Usarlas tal cual; no leer el código fuente de esas features.
 
 ```typescript
-// De ProveedorService (feature 005)
+// De ProveedorService (feature 005) — método creado en el fix previo a 009
 assertExists(id: number): Promise<Proveedor>
+// findOne({ id, activo: true }); si no existe → AppError(404, 'El proveedor seleccionado no existe o está inactivo')
 
-// De ProductoService (feature 007)
+// De ProductoService (feature 007) — método creado en el fix previo a 009
 assertExists(id: number): Promise<Producto>
-// Incremento de stock: mutar producto.stock += cantidad; NO llamar a otro método del service.
+// findOne({ id, activo: true }); si no existe → AppError(404, 'El producto seleccionado no existe o está inactivo')
+// Incremento de stock: mutar producto.stock += cantidad sobre la entidad devuelta; NO llamar a otro método del service.
 // La mutación de stock la hace el IngresoService directamente sobre la entidad.
 ```
 

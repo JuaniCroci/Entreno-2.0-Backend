@@ -1,6 +1,6 @@
 # 012 · Gestión de pedido (CU)
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 
@@ -19,15 +19,15 @@ Segundo **CUU/Epic** de regularidad ("Entregar/cancelar pedido"). Cierra el cicl
 
 ## Criterios de aceptación
 
-- [ ] Ambas rutas exigen rol `ADMIN` (`401`/`403`).
-- [ ] `entregar` sobre pedido `REALIZADO` → `200`, estado `ENTREGADO`, agrega `HistorialEstado`.
-- [ ] `cancelar` sobre pedido `REALIZADO` → `200`, estado `CANCELADO`, agrega historial **y** suma al `stock` de cada producto la `cantidad` del item.
-- [ ] `entregar`/`cancelar` sobre estado inválido → `409` con mensaje que indique el estado actual.
-- [ ] Pedido inexistente → `404`.
-- [ ] Cancelar **no** modifica `importeTotal` ni los items (solo estado, historial y stock).
-- [ ] `GET /:id/historial` devuelve el listado ordenado por `fecha` asc con cada estado.
-- [ ] En fase 1 no existe transición a `ABONADO` (si alguien la intenta → `409`); el enum sí lo contempla para aprobación.
-- [ ] Tests: unit (máquina de transiciones, restitución de stock) + integración (entregar OK, cancelar devuelve stock, 409 en estados inválidos, permisos).
+- [x] Ambas rutas exigen rol `ADMIN` (`401`/`403`).
+- [x] `entregar` sobre pedido `REALIZADO` → `200`, estado `ENTREGADO`, agrega `HistorialEstado`.
+- [x] `cancelar` sobre pedido `REALIZADO` → `200`, estado `CANCELADO`, agrega historial **y** suma al `stock` de cada producto la `cantidad` del item.
+- [x] `entregar`/`cancelar` sobre estado inválido → `409` con mensaje que indique el estado actual.
+- [x] Pedido inexistente → `404`.
+- [x] Cancelar **no** modifica `importeTotal` ni los items (solo estado, historial y stock).
+- [x] `GET /:id/historial` devuelve el listado ordenado por `fecha` asc con cada estado.
+- [x] En fase 1 no existe transición a `ABONADO` (si alguien la intenta → `409`); el enum sí lo contempla para aprobación.
+- [x] Tests: unit (máquina de transiciones, restitución de stock) + integración (entregar OK, cancelar devuelve stock, 409 en estados inválidos, permisos).
 
 ## Fuera de alcance
 

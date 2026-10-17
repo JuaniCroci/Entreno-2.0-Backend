@@ -13,20 +13,46 @@ API REST para e-commerce de artículos de gimnasio. **TypeScript + Express 5 + M
 
 ## Comandos
 
-| Comando | Qué hace |
-| --- | --- |
-| `pnpm dev` | Desarrollo (tsx watch) en http://localhost:3000 |
-| `pnpm build` | Compila TS a `dist/` |
-| `pnpm lint` / `pnpm lint:fix` | ESLint |
-| `pnpm format` / `pnpm format:check` | Prettier |
-| `pnpm test` | Suite completa (Vitest) |
-| `pnpm test:unit` | Solo unitarios (sin DB) |
-| `pnpm test:integration` | Integración (requiere MySQL en Docker) |
-| `pnpm migrate:dev` | Crea + aplica migraciones MikroORM |
-| `pnpm migrate` | Aplica migraciones pendientes |
-| `pnpm seed:admin` | Seed de admin idempotente |
+| Comando                             | Qué hace                                        |
+| ----------------------------------- | ----------------------------------------------- |
+| `pnpm dev`                          | Desarrollo (tsx watch) en http://localhost:3000 |
+| `pnpm build`                        | Compila TS a `dist/`                            |
+| `pnpm typecheck`                    | `tsc --noEmit` (src + tests)                    |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint                                          |
+| `pnpm format` / `pnpm format:check` | Prettier                                        |
+| `pnpm test`                         | Suite completa (Vitest)                         |
+| `pnpm test:unit`                    | Solo unitarios (sin DB)                         |
+| `pnpm test:integration`             | Integración (requiere MySQL, ver Entorno)       |
+| `pnpm migrate:dev`                  | Crea + aplica migraciones MikroORM              |
+| `pnpm migrate`                      | Aplica migraciones pendientes                   |
+| `pnpm seed:admin`                   | Seed de admin idempotente                       |
 
-Verificación mínima tras cambios: `pnpm lint` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
+Verificación mínima tras cambios: `pnpm lint`, `pnpm typecheck` y `pnpm test:unit`. Correr `pnpm test` completo solo si hay cambios que afectan integración/DB.
+
+## Gestión del proyecto
+
+Evidencia del enunciado §4 en [`docs/gestion/`](./docs/gestion/README.md) (metodología + minutas + trackeo).
+
+- **Backlog**: [`analisis-proyecto.md`](./analisis-proyecto.md) (hallazgos/mejoras priorizados) + [`spec/constitution/roadmap.md`](./spec/constitution/roadmap.md) (features). Antes de arrancar tarea nueva, revisar ambos.
+- **Al cerrar una feature o lote** (DoD): gates verdes (`lint` → `typecheck` → `format:check` → `build` → `test`) → actualizar `spec/` si corresponde → entrada en [`CHANGELOG.md`](./CHANGELOG.md) → commit → entrada en [`docs/gestion/minutas.md`](./docs/gestion/minutas.md) cuando el avance lo amerite.
+- **Hallazgos nuevos**: registrarse en `analisis-proyecto.md` o en la minuta **antes** de arreglarlos por cuenta propia.
+- **Resync con el front**: el front copia `spec/constitution/api-contract.md` como snapshot; al cambiarlo (o agregar endpoints/filtros) **avisar al equipo del front** para que resincronice — regla nacida de la divergencia D1.
+
+## Entorno: base de datos (Podman)
+
+La DB se levanta con **Podman** (no Docker) usando el `docker-compose.yml` del repo. Ambos `test:unit` y `test:integration` conectan a MySQL — `tests/setup.ts` arma el schema al arrancar, así que **sin contenedor la suite falla**.
+
+```bash
+podman machine start                      # si "Cannot connect to Podman" (Windows/macOS)
+podman compose up -d mysql                # MySQL 8 en localhost:3307
+pnpm test                                 # unit + integración
+podman compose down                       # para (el volume entreno_mysql_data persiste)
+```
+
+- `.env` ya apunta a `DB_HOST=localhost`, `DB_PORT=3307` (mapeo del compose).
+- DBs: `entreno` (dev) y `entreno_test` (suite; la crea `tests/setup.ts`).
+- Alternativa: un MySQL nativo sirve igual cambiando `DB_PORT` en el entorno del run.
+- En CI no se usa compose: GitHub Actions corre el service `mysql:8` en el puerto 3306.
 
 ## Estructura
 
@@ -45,6 +71,22 @@ tests/unit/        # services (sin DB)
 tests/integration/ # flujos con supertest (con DB)
 spec/              # constitución y features (fuente de verdad)
 ```
+
+## CI/CD Patterns
+
+- **pnpm setup**: Use `corepack` instead of `pnpm/action-setup@v4` to avoid "Multiple versions of pnpm specified" errors when `package.json` declares `"packageManager": "pnpm@<version>"`. In `.github/workflows/ci.yml`:
+  ```yaml
+  - run: |
+      corepack enable
+      corepack prepare pnpm@10 --activate
+  - uses: actions/setup-node@v4
+    with:
+      node-version: '24'
+      cache: 'pnpm'
+      cache-dependency-path: pnpm-lock.yaml
+  ```
+- **Unit test env vars**: `src/config/env.ts` calls `loadEnv()` at module load time, so `pnpm test:unit` requires all env vars (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `NODE_ENV`) even without a database connection.
+- **Install**: Always use `pnpm install --frozen-lockfile` in CI for reproducible installs.
 
 ## Convenciones
 
@@ -70,14 +112,14 @@ spec/              # constitución y features (fuente de verdad)
     - Aparece un error o bug → `systematic-debugging`: seguir su método de diagnóstico antes de proponer cualquier fix.
     - Hay que decidir entre enfoques de diseño/implementación (caso no trivial) → `brainstorming`: descomponer el problema y evaluar opciones antes de elegir. En decisiones triviales no hace falta.
     - Implementar algo nuevo no trivial (feature, módulo, refactor multi-archivo) → `writing-plans` para armar el plan por fases (con verificación por fase) y `executing-plans` para ejecutarlo paso a paso sin desviarse. Cambios pequeños/obvios (1–2 archivos) no requieren el ciclo.
-    - Antes de dar cualquier tarea por terminada → `verification-before-completion`: correr la verificación mínima (`pnpm lint` + `pnpm test:unit`; `pnpm test` completo si el cambio toca integración/DB) y solo entonces marcar done.
+    - Antes de dar cualquier tarea por terminada → `verification-before-completion`: correr la verificación mínima (`pnpm lint` + `pnpm typecheck` + `pnpm test:unit`; `pnpm test` completo si el cambio toca integración/DB) y solo entonces marcar done.
     - Escribir tests o arreglar bugs → `test-driven-development` (red-green-refactor).
     - Evaluar un cambio antes de darlo por bueno → `code-review-and-quality` (5 ejes: correctness, readability, architecture, security, performance).
     - Diseñar nuevos endpoints o contratos de módulo → `api-and-interface-design` (el shape final lo define `api-contract.md`).
     - Auth, input de usuario, secretos, pagos, integraciones externas → `security-and-hardening`.
     - Búsqueda de skills nuevas → `find-skills`.
   - **Casos específicos** (se cargan solo cuando se piden o aplica el caso; no entran en el flujo automático):
-    - `requesting-code-review` → solo cuando se pida pedir una review explícita del cambio (o antes de considerarlo mergeable): despacha un subagente revisor con el diff entre SHAs. **Requiere repo git** (hoy no lo hay: se habilita tras `git init`). El rol de *revisar* lo cubre `code-review-and-quality`.
+    - `requesting-code-review` → solo cuando se pida pedir una review explícita del cambio (o antes de considerarlo mergeable): despacha un subagente revisor con el diff entre SHAs. **Requiere repo git** (hoy no lo hay: se habilita tras `git init`). El rol de _revisar_ lo cubre `code-review-and-quality`.
     - `ucp` (si se instala) → trabajo en checkout / pagos / órdenes / carrito; su workflow es `init → consult → plan → scaffold → profile → test → validate`; templates Next.js → **adaptar a Express** (`src/modules/`, route handlers), conservando los conceptos UCP.
     - `supabase-postgres-best-practices` (si se instala) → consultas y rendimiento de esquemas Postgres.
 - Para instalar una skill nueva en el proyecto: ver [.agents/skills/README.md](./.agents/skills/README.md). Tras instalar, reiniciar la sesión de OpenCode para que la descubra.

@@ -1,12 +1,11 @@
 import type { Request, Response } from 'express';
 import { AuthService } from '../service/AuthService.js';
-import { UsuarioService } from '../../usuarios/service/UsuarioService.js';
-import type { RegisterDto } from '../dto/RegisterDto.js';
-import type { LoginDto } from '../dto/LoginDto.js';
+import { RegisterDto } from '../dto/RegisterDto.js';
+import { LoginDto } from '../../usuarios/dto/LoginDto.js';
+import type { UsuarioPublic } from '../../usuarios/entity/Usuario.js';
 
 export class AuthController {
   private service = new AuthService();
-  private usuarioService = new UsuarioService();
 
   register = async (req: Request, res: Response): Promise<void> => {
     const usuario = await this.service.register(req.body as RegisterDto);
@@ -19,11 +18,17 @@ export class AuthController {
   };
 
   me = async (req: Request, res: Response): Promise<void> => {
-    if (!req.user) {
-      res.status(401).json({ statusCode: 401, message: 'No autenticado' });
-      return;
-    }
-    const publicUser = this.usuarioService.toPublic(req.user);
-    res.json(this.service.me(publicUser));
+    res.json(req.user as UsuarioPublic);
+  };
+
+  logout = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req.user as UsuarioPublic).id;
+    await this.service.logout(userId);
+    res.status(204).send();
+  };
+
+  refresh = async (req: Request, res: Response): Promise<void> => {
+    const result = await this.service.refresh((req.body as { refreshToken: string }).refreshToken);
+    res.status(200).json(result);
   };
 }

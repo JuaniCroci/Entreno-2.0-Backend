@@ -1,6 +1,6 @@
 # 007 · CRUD Producto
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 
@@ -23,16 +23,16 @@ CRUD **dependiente** de regularidad: es la pieza central del catálogo y prerequ
 
 ## Criterios de aceptación
 
-- [ ] Escrituras requieren `ADMIN` (`401`/`403`).
-- [ ] `POST` valida que `idTipoProducto`, `idMarca` existan y estén `activo=true`; si no → `400`/`404` con mensaje claro.
-- [ ] `idProveedor` es opcional; si viene, debe existir y estar activo.
-- [ ] `precioUnitario > 0` y `stockInicial ≥ 0`; errores `400` con `details`.
-- [ ] El alta persiste `stock = stockInicial` y responde `201` con el producto.
-- [ ] La edición **no** permite setear `stock` directamente (el campo no está en el DTO de edición); el stock solo cambia por ingreso/pedido (constitución).
-- [ ] `DELETE` es lógico (`204` sin body); un producto inactivo no aparece en el detalle público ni puede entrar a carritos nuevos (control en 011).
-- [ ] El detalle público (`GET /api/productos/:id`) expone solo campos seguros (sin datos internos de proveedor salvo razón social si se decide exponer).
-- [ ] Listado admin respeta filtros básicos `?nombre=` y `?inactivos=true`.
-- [ ] Tests: unit (FK inválidas, precio inválido, stock inicial) + integración (CRUD completo con IDs reales de marca/tipo/proveedor creados en el test).
+- [x] Escrituras requieren `ADMIN` (`401`/`403`).
+- [x] `POST` valida que `idTipoProducto`, `idMarca` existan y estén `activo=true`; si no → `400`/`404` con mensaje claro.
+- [x] `idProveedor` es opcional; si viene, debe existir y estar activo.
+- [x] `precioUnitario > 0` y `stockInicial ≥ 0`; errores `400` con `details`.
+- [x] El alta persiste `stock = stockInicial` y responde `201` con el producto.
+- [x] La edición **no** permite setear `stock` directamente (el campo no está en el DTO de edición); el stock solo cambia por ingreso/pedido (constitución).
+- [x] `DELETE` es lógico (`204` sin body); un producto inactivo no aparece en el detalle público ni puede entrar a carritos nuevos (control en 011).
+- [x] El detalle público (`GET /api/productos/:id`) expone solo campos seguros (sin datos internos de proveedor salvo razón social si se decide exponer).
+- [x] Listado admin respeta filtros básicos `?nombre=` y `?inactivos=true`.
+- [x] Tests: unit (FK inválidas, precio inválido, stock inicial) + integración (CRUD completo con IDs reales de marca/tipo/proveedor creados en el test).
 
 ## Fuera de alcance
 

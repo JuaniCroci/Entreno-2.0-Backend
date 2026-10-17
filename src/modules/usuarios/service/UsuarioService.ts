@@ -3,19 +3,14 @@ import { hash, compare } from 'bcryptjs';
 import { getEm } from '../../../config/db.js';
 import { env } from '../../../config/env.js';
 import { AppError } from '../../../common/errors/AppError.js';
-import { Usuario, Rol } from '../entity/Usuario.js';
+import { Usuario, Rol, type UsuarioPublic } from '../entity/Usuario.js';
 import type { CreateUsuarioDto } from '../dto/index.js';
 
-export interface UsuarioPublic {
-  id: number;
-  nombre: string;
-  email: string;
-  telefono: string | null;
-  direccion: string | null;
-  rol: Rol;
-  activo: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+export { UsuarioPublic };
+
+export interface FindAllResult {
+  data: UsuarioPublic[];
+  total: number;
 }
 
 export class UsuarioService {
@@ -59,17 +54,20 @@ export class UsuarioService {
     return compare(password, usuario.passwordHash);
   }
 
+  async findAll(filters: { q?: string; activo?: boolean } = {}): Promise<FindAllResult> {
+    const where: Record<string, unknown> = {};
+    if (filters.activo !== undefined) where.activo = filters.activo;
+    if (filters.q) {
+      where.$or = [{ nombre: { $like: `%${filters.q}%` } }, { email: { $like: `%${filters.q}%` } }];
+    }
+    const [data, total] = await Promise.all([
+      this.em.find(Usuario, where, { orderBy: { nombre: 'ASC' } }),
+      this.em.count(Usuario, where),
+    ]);
+    return { data: data.map((u) => this.toPublic(u)), total };
+  }
+
   toPublic(usuario: Usuario): UsuarioPublic {
-    return {
-      id: usuario.id,
-      nombre: usuario.nombre,
-      email: usuario.email,
-      telefono: usuario.telefono,
-      direccion: usuario.direccion,
-      rol: usuario.rol,
-      activo: usuario.activo,
-      createdAt: usuario.createdAt,
-      updatedAt: usuario.updatedAt,
-    };
+    return usuario.toPublic();
   }
 }

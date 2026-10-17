@@ -5,6 +5,7 @@ node_modules/
 # Build
 dist/
 *.tsbuildinfo
+/uploads/
 
 # Environment (nunca commitear secretos)
 .env
@@ -22,3 +23,6 @@ coverage/
 
 # MikroORM temporales
 .mikro-orm/
+
+# Workspace de skills SDD
+.superpowers/

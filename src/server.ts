@@ -2,7 +2,9 @@ import 'dotenv/config';
 import 'reflect-metadata';
 import { env } from './config/env.js';
 import { initDb, closeDb } from './config/db.js';
-import app from './app.js';
+import { createApp } from './app.js';
+
+const app = createApp();
 
 async function bootstrap(): Promise<void> {
   try {

@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import { ValidationError } from 'class-validator';
 import { AppError } from './AppError.js';
+import { env } from '../../config/env.js';
 
 interface ErrorBody {
   statusCode: number;
@@ -21,17 +21,9 @@ export function errorHandler(
     return;
   }
 
-  if (err instanceof ValidationError) {
-    const details = err.constraints
-      ? Object.values(err.constraints).map((message) => ({ field: err.property, message }))
-      : [];
-    res.status(400).json({ statusCode: 400, message: 'Error de validación', details });
-    return;
-  }
-
   console.error(err);
 
-  const isDev = process.env.NODE_ENV !== 'production';
+  const isDev = env.nodeEnv !== 'production';
   const message = err instanceof Error && isDev ? err.message : 'Error interno del servidor';
   res.status(500).json({ statusCode: 500, message });
 }

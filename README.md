@@ -49,7 +49,7 @@ curl http://localhost:3000/api/health   # → { "status": "ok", "database": "up"
 | `pnpm test:integration` | Solo tests de integración (requiere MySQL) |
 | `pnpm migrate:dev`      | Crea + aplica migraciones                  |
 | `pnpm migrate`          | Aplica migraciones pendientes              |
-| `pnpm seed:admin`       | Crea el admin inicial (idempotente)       |
+| `pnpm seed:admin`       | Crea el admin inicial (idempotente)        |
 
 ## Tests
 

@@ -11,14 +11,24 @@ export interface Env {
   jwtSecret: string;
   bcryptRounds: number;
   corsOrigin: string;
+  productImagesDir: string;
   adminEmail: string;
   adminPassword: string;
+  passwordMinLength: number;
 }
 
 function required(name: string): string {
   const value = process.env[name];
   if (value === undefined || value === '') {
     throw new Error(`Falta la variable de entorno obligatoria: ${name}`);
+  }
+  return value;
+}
+
+function jwtSecret(): string {
+  const value = required('JWT_SECRET');
+  if (value.length < 32) {
+    throw new Error('JWT_SECRET debe tener al menos 32 caracteres');
   }
   return value;
 }
@@ -33,7 +43,7 @@ function int(name: string, fallback: number): number {
   return parsed;
 }
 
-function loadEnv(): Env {
+export function loadEnv(): Env {
   const rawNodeEnv = process.env.NODE_ENV ?? 'development';
   if (!['development', 'test', 'production'].includes(rawNodeEnv)) {
     throw new Error(`NODE_ENV inválido: ${rawNodeEnv}`);
@@ -47,11 +57,16 @@ function loadEnv(): Env {
     dbUser: required('DB_USER'),
     dbPassword: required('DB_PASSWORD'),
     dbName: required('DB_NAME'),
-    jwtSecret: required('JWT_SECRET'),
-    bcryptRounds: int('BCRYPT_ROUNDS', 10),
+    jwtSecret: jwtSecret(),
+    bcryptRounds: int('BCRYPT_ROUNDS', 12),
     corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+    productImagesDir: process.env.PRODUCT_IMAGES_DIR ?? 'uploads/productos',
     adminEmail: process.env.ADMIN_EMAIL ?? 'admin@entreno.com',
-    adminPassword: process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion',
+    adminPassword:
+      rawNodeEnv === 'production'
+        ? required('ADMIN_PASSWORD')
+        : (process.env.ADMIN_PASSWORD ?? 'changeme_en_produccion'),
+    passwordMinLength: int('PASSWORD_MIN_LENGTH', 8),
   };
 }
 

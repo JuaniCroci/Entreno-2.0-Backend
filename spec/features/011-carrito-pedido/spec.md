@@ -1,6 +1,6 @@
 # 011 · Carrito y pedido (CU)
 
-**Estado:** propuesta
+**Estado:** implementada
 
 ## Qué hace
 
@@ -29,24 +29,24 @@ Primer **CUU/Epic** de regularidad con valor para el negocio ("Hacer pedido (car
 
 ## Criterios de aceptación
 
-- [ ] Todas las rutas requieren token; un `CLIENTE` solo opera **su** carrito (`403` si intenta operar el de otro — no hay path con id ajeno).
-- [ ] `POST /api/carrito` es idempotente: crea el carrito `ACTIVO` si no existe (`201`) o devuelve el existente (`200`).
-- [ ] `GET /api/carrito` **no** crea carrito: si no hay activo responde `404` (GET sin side-effects de creación).
-- [ ] Agregar un producto **inactivo** o con `stock = 0` responde `400`/`409` con mensaje claro.
-- [ ] La cantidad en carrito de un producto nunca puede superar su `stock` actual (`409` con mensaje).
-- [ ] Agregar dos veces el mismo producto incrementa la cantidad (no duplica línea; unique carrito+producto).
-- [ ] `POST /api/carrito/confirmar` con carrito vacío → `400`.
-- [ ] `POST /api/carrito/confirmar` es **transaccional**:
+- [x] Todas las rutas requieren token; un `CLIENTE` solo opera **su** carrito (`403` si intenta operar el de otro — no hay path con id ajeno).
+- [x] `POST /api/carrito` es idempotente: crea el carrito `ACTIVO` si no existe (`201`) o devuelve el existente (`200`).
+- [x] `GET /api/carrito` **no** crea carrito: si no hay activo responde `404` (GET sin side-effects de creación).
+- [x] Agregar un producto **inactivo** o con `stock = 0` responde `400`/`409` con mensaje claro.
+- [x] La cantidad en carrito de un producto nunca puede superar su `stock` actual (`409` con mensaje).
+- [x] Agregar dos veces el mismo producto incrementa la cantidad (no duplica línea; unique carrito+producto).
+- [x] `POST /api/carrito/confirmar` con carrito vacío → `400`.
+- [x] `POST /api/carrito/confirmar` es **transaccional**:
   - valida stock suficiente de **todas** las líneas (si alguna falta → `409` y no se crea nada);
   - aplica el mejor descuento elegible por línea (regla 2 de la constitución);
   - snapshot `precioUnitario` del producto;
   - descuenta stock;
   - crea Pedido (`REALIZADO`, `importeTotal` con descuentos), items e historial;
   - carrito → `CONCLUIDO`.
-- [ ] El `importeTotal` del pedido = Σ subtotales ya con `descuentoAplicado` (cálculo con `decimal.js`; serializado como string de 2 decimales).
-- [ ] Tras confirmar, el carrito viejo queda `CONCLUIDO`; no hay carrito `ACTIVO` hasta el próximo `POST /api/carrito` (el `GET` intermedio devuelve `404`).
-- [ ] Confirmar el mismo carrito dos veces de forma concurrente no duplica pedidos (unique de carrito `ACTIVO` por usuario + transacción + re-check de estado; segundo request → `409` o carrito nuevo vacío según flujo).
-- [ ] Tests: unit (descuento elegible, cálculo de totales, validación de stock) + integración (flujo completo: login → agregar → confirmar → verificar stock y pedido).
+- [x] El `importeTotal` del pedido = Σ subtotales ya con `descuentoAplicado` (cálculo con `decimal.js`; serializado como string de 2 decimales).
+- [x] Tras confirmar, el carrito viejo queda `CONCLUIDO`; no hay carrito `ACTIVO` hasta el próximo `POST /api/carrito` (el `GET` intermedio devuelve `404`).
+- [x] Confirmar el mismo carrito dos veces de forma concurrente no duplica pedidos (unique de carrito `ACTIVO` por usuario + transacción + re-check de estado; segundo request → `409` o carrito nuevo vacío según flujo).
+- [x] Tests: unit (descuento elegible, cálculo de totales, validación de stock) + integración (flujo completo: login → agregar → confirmar → verificar stock y pedido).
 
 ## Fuera de alcance
 

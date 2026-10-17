@@ -107,6 +107,7 @@ POST /api/carrito/confirmar → 200 OK
   "fecha": "2026-09-21T22:10:00.000Z",
   "estado": "REALIZADO",
   "importeTotal": "3450.00",
+  "fechaEntrega": null,
   "usuario": { "id": 5, "nombre": "Juan Croci", "email": "juan@example.com" },
   "items": [
     {
@@ -163,7 +164,70 @@ POST /api/marcas con body inválido → 400 Bad Request
 | `403`  | Token válido pero rol insuficiente                                            |
 | `404`  | Recurso no encontrado (activo)                                                |
 | `409`  | Conflicto: duplicado único, transición de estado inválida, stock insuficiente |
+| `413`  | Archivo de imagen supera el máximo permitido                                  |
 | `500`  | Error interno no manejado (solo en desarrollo; producción no expone detalles) |
+
+---
+
+## Imágenes de productos
+
+- `POST /api/productos/admin/:id/imagenes` (ADMIN) recibe multipart con `imagen`, `altText`,
+  `fuente`, `licencia` y `atribucion` opcional; acepta PNG/JPEG/WebP de hasta 5 MiB y responde
+  `201` con el registro creado.
+- `GET /api/productos/admin/:id/imagenes` (ADMIN) devuelve `{ "data": [...] }` con los metadatos
+  del historial. `esPrincipal` identifica la imagen activa; las anteriores no se eliminan.
+- `GET /api/productos/imagenes/:uid` es publico y entrega los bytes de la imagen registrada.
+- Los listados y detalles publicos, asi como las respuestas administrativas de producto, incluyen
+  `imagenPrincipal: null | { id, url, altText }`.
+- El archivo se almacena en `PRODUCT_IMAGES_DIR` con nombre UUID; MySQL guarda solo la ruta
+  relativa, MIME, tamano, texto alternativo, fuente, licencia, atribucion, fecha y estado.
+
+## Descuentos por cantidad
+
+- `GET /api/descuentos` devuelve `{ "data": [...], "total": n }`; cada descuento incluye
+  `id`, `descripcion`, `cantidadMinima`, `porcentaje`, `activo`, `createdAt` y `updatedAt`.
+- `GET /api/descuentos/:id` devuelve el descuento directamente y agrega `aplicaciones`; cada
+  aplicación contiene `id`, `idDescuento`, `idProducto`, `fechaDesde`, `fechaHasta` y el resumen
+  del producto.
+- `POST /api/descuentos` y `PUT /api/descuentos/:id` reciben `descripcion`, `cantidadMinima`
+  (entero >= 1), `porcentaje` (> 0 y <= 100) y, opcionalmente, `activo`. `DELETE /api/descuentos/:id`
+  desactiva el descuento; `PUT` puede reactivarlo.
+- `POST /api/descuentos/:id/aplicaciones` recibe `idProducto`, `fechaDesde` y `fechaHasta`.
+  Ambas fechas son inclusivas; el backend requiere producto y descuento activos, y rechaza con
+  `409` dos aplicaciones solapadas del mismo descuento al mismo producto.
+- `DELETE /api/descuentos/:id/aplicaciones/:aplicacionId` quita la asociación.
+- Los endpoints de mutación requieren rol `ADMIN`. El frontend obtiene las aplicaciones y ofrece
+  productos activos, pero no decide el importe descontado. Al confirmar el pedido, el backend
+  aplica por línea el descuento elegible de mayor porcentaje y persiste el porcentaje en
+  `descuentoAplicado`; los descuentos no se acumulan.
+
+## Carrito y confirmación de pedido
+
+- `GET /api/carrito` (autenticado) devuelve la vista del carrito activo o `404` si aún no existe.
+  `POST /api/carrito` crea uno si falta y devuelve la vista; si ya existe, es idempotente.
+- La vista contiene `{ id, estado, items, total }`; cada item contiene su `id`, resumen del
+  producto (`id`, `nombre`, `precioUnitario`), `cantidad` y `subtotal`. Los importes son strings
+  decimales calculados por el backend.
+- `POST /api/carrito/items` recibe `{ idProducto, cantidad }`, agrega a la línea existente o crea
+  una y responde la vista completa. `PUT /api/carrito/items/:id` recibe `{ cantidad }` y también
+  responde la vista completa. Cantidad debe ser un entero >= 1 y el backend valida stock (`409`).
+- `DELETE /api/carrito/items/:id` quita la línea y responde `204`.
+- `POST /api/carrito/confirmar` confirma un carrito no vacío y devuelve el detalle del pedido
+  creado, incluyendo `importeTotal` y sus items (`cantidad`, `precioUnitario`, `subtotal`,
+  `descuentoAplicado`). El backend vuelve a validar stock, aplica descuentos y descuenta
+  existencias. El estado inicial del pedido es `REALIZADO`; esta operación no procesa pagos.
+
+## Pedidos: detalle y fechaEntrega
+
+- `GET /api/pedidos/:id` (ADMIN) y `GET /api/mis-pedidos/:id` (dueño; `404` si es ajeno) devuelven
+  el detalle del pedido con items, datos del cliente y **`fechaEntrega`**: fecha del cambio a
+  `ENTREGADO` tomada del `HistorialEstado`, o `null` si aún no se entregó.
+- `POST /api/pedidos/:id/entregar` (ADMIN) responde el detalle con `fechaEntrega` igual a la fecha
+  del registro de entrega recién creado; `POST /api/pedidos/:id/cancelar` responde con
+  `fechaEntrega: null`.
+- El item del listado (`GET /api/pedidos`, ver sección de paginación) incluye el mismo campo con
+  la misma semántica; `POST /api/carrito/confirmar` devuelve el detalle recién creado con
+  `fechaEntrega: null`.
 
 ---
 

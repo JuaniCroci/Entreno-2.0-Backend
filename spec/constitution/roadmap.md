@@ -6,15 +6,6 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 
 1. **[001 · Setup](../features/001-setup/)** — esqueleto del proyecto: Docker + MySQL, Express 5, MikroORM, env, lint, harness de tests, health-check.
 2. **[002 · Auth y usuarios](../features/002-auth-usuarios/)** — Usuario, register/login JWT, roles, middleware, seed de admin.
-
-## Siguiente 🔜
-
-1. **[003 · CRUD Marca](../features/003-crud-marca/)** — alta/baja/edición/listado de marcas (admin).
-
-## En orden (regularidad)
-
-1. ~~[001 · Setup](../features/001-setup/)~~ — ✅
-2. ~~[002 · Auth y usuarios](../features/002-auth-usuarios/)~~ — ✅
 3. **[003 · CRUD Marca](../features/003-crud-marca/)** — alta/baja/edición/listado de marcas (admin).
 4. **[004 · CRUD Tipo de producto](../features/004-crud-tipo-producto/)** — CRUD de tipos de producto (admin).
 5. **[005 · CRUD Proveedor](../features/005-crud-proveedor/)** — CRUD de proveedores (admin).
@@ -26,6 +17,22 @@ Orden y estado de las features. Cada entrada apunta a su carpeta en `features/`.
 11. **[011 · Carrito y pedido](../features/011-carrito-pedido/)** — CU: carrito persistente y confirmación de pedido con stock y descuentos.
 12. **[012 · Gestión de pedido](../features/012-gestion-pedido/)** — CU: admin entrega/cancela pedido con historial de estados y restitución de stock.
 13. **[013 · Listado de pedidos](../features/013-listado-pedidos/)** — listado admin con filtros (fecha, estado, cliente) + detalle; el cliente ve los suyos.
+
+## En orden (regularidad)
+
+1. ~~[001 · Setup](../features/001-setup/)~~ — ✅
+2. ~~[002 · Auth y usuarios](../features/002-auth-usuarios/)~~ — ✅
+3. ~~[003 · CRUD Marca](../features/003-crud-marca/)~~ — ✅
+4. ~~[004 · CRUD Tipo de producto](../features/004-crud-tipo-producto/)~~ — ✅
+5. ~~[005 · CRUD Proveedor](../features/005-crud-proveedor/)~~ — ✅
+6. ~~[006 · CRUD Cliente](../features/006-crud-cliente/)~~ — ✅
+7. ~~[007 · CRUD Producto](../features/007-crud-producto/)~~ — ✅
+8. ~~[008 · CRUD Descuento](../features/008-crud-descuento/)~~ — ✅
+9. ~~[009 · CRUD Ingreso](../features/009-crud-ingreso/)~~ — ✅
+10. ~~[010 · Listado de productos](../features/010-listado-productos/)~~ — ✅
+11. ~~[011 · Carrito y pedido](../features/011-carrito-pedido/)~~ — ✅
+12. ~~[012 · Gestión de pedido](../features/012-gestion-pedido/)~~ — ✅
+13. ~~[013 · Listado de pedidos](../features/013-listado-pedidos/)~~ — ✅
 
 ## Backlog / ideas 💡
 
@@ -46,13 +53,12 @@ _Features de **aprobación** (se crean sus carpetas al iniciar la fase) y **volu
 ### Bloqueadores humanos ✍️ (antes del primer código)
 
 - ~~Confirmar con la cátedra que **TypeScript** cumple "Desarrollarse en JavaScript".~~ ✅ confirmado por el equipo (21/09/2026).
-- Validar con el docente que **Ingreso (009)** cuenta como CRUD y que **Descuento N:M** cumple "CRUD dependiente" (la proposal decía N:1). _(009 es alta+listado+detalle+anular, sin PUT clásico.)_
-- ~~Alinear `datos_pre_inicio/proposal.md` con el modelo final si la cátedra lo requiere (Ingreso, Descuento M:N, TS).~~ — pendiente solo si la cátedra lo pide.
+- **Aviso a la cátedra sobre 009 y Descuento N:M** — borrador en [`spec/facts/009-crud-ingreso/consulta-catedra.md`](../facts/009-crud-ingreso/consulta-catedra.md) (aviso no bloqueante; `proposal.md` ya quedó alineado: Descuento N:M con vigencia en alcance mínimo, Ingreso como CRUD de aprobación). Posición del equipo: los cupos de regularidad se cubren con 003–008 (4 CRUDs simples + 2 dependientes); 009 es clase de negocio necesaria (README §3.2) — alta+listado+detalle+anular, sin PUT porque es un asiento de movimiento. **No bloquea implementar 009.**
+- ~~Alinear `datos_pre_inicio/proposal.md` con el modelo final (Ingreso, Descuento M:N).~~ ✅ alineado (ver aviso de arriba). _TypeScript_: solo se aclara si la cátedra lo pide.
 
 ### Gestión / evidencia
 
-- **Evidencia ágil**: GitHub Projects (issues/PRs) + minutas de reuniones (README de la cátedra la exige).
-- **Distribución de tareas**: asignar 1 CRUD simple por integrante (003–006) con commits a nombre/legajo.
+- ~~**Evidencia ágil**: GitHub Projects (issues/PRs) + minutas de reuniones (README de la cátedra la exige).~~ ✅ 2026-10-15 — metodología, DoD y [minutas](../../docs/gestion/minutas.md) en [`docs/gestion/`](../../docs/gestion/README.md); PR de entrega de regularidad: [#1](https://github.com/JuaniCroci/Entreno-2.0-Backend/pull/1) (rama `entrega-regularidad`, base `regularidad-base`); board del back **pendiente de crear** (URL a agregar en el README de gestión).
 - Checklist de arranque del `implementation-plan.md` completo antes de invocar cualquier agente de implementación.
 
 > Cada feature nueva se crea como `features/NNN-nombre/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.
