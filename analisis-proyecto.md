@@ -67,11 +67,21 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 ### Required
 
-- [ ] **S2 — Vulnerabilidad high alcanzable en runtime: `mysql2` < 3.22.0 / ≤ 3.23.0** (`pnpm audit`): auth plugin downgrade (filtra credenciales en texto plano) + DoS por decompression bomb. **REABIERTO** — el fix anterior solo subió la dependencia **directa**; hay **dos versiones** en el lockfile:
+- [~] **S2 — Vulnerabilidad high en `mysql2` < 3.22.0 / ≤ 3.23.0** (`pnpm audit`): auth plugin downgrade + DoS por decompression bomb. **DEFERIDO (decisión consciente, 2026-10-19)** — no es "resuelto".
+
+  **Diagnóstico**: el fix anterior (1.8) solo subió la dependencia **directa**. Hay **dos versiones** en el lockfile:
   - `mysql2@3.24.4` → la directa (la que se verificó antes en `node_modules/mysql2`).
   - `mysql2@3.20.0` → **la transitiva vía `@mikro-orm/mysql@6.6.16`, que es la que carga el ORM en runtime** (evidencia: `pnpm why mysql2` + `node_modules/.pnpm/@mikro-orm+mysql@6.6.16/node_modules/mysql2/package.json` = `3.20.0`).
-  - Fix propuesto: `pnpm.overrides: { "mysql2": ">=3.23.1" }` → `pnpm install` → verificar **1 sola versión** en `pnpm why` → **suite completa obligatoria** (cambia el driver de BD). Si `@mikro-orm/mysql@6.6.16` no es compatible, documentar deferral con fecha.
-  - _Nota_: condiciona S12 (no se agrega `pnpm audit` como gate dejándolo en rojo).
+
+  **Por qué no se arregla ahora** (todo verificado contra el registry, no supuesto):
+  1. **La línea 6.x de MikroORM es un callejón**: `@mikro-orm/mysql` declara `mysql2: "3.20.0"` como **pin exacto** (dependencia, no rango). Se verificó que **las 1741 versiones 6.x** — incluido el último `6.6.17` — pinnean `3.20.0`. Actualizar dentro de 6.x no aporta nada.
+  2. **La única versión sana es v7**: `@mikro-orm/mysql@7.2.5` trae `mysql2@3.24.5`, pero implica migrar MikroORM **6 → 7** (breaking changes). Riesgo desproporcionado para un TP en verde (425/425).
+  3. **La única vía intermedia sería `pnpm.overrides`**, que pisa un pin exacto elegido por el maintainer contra su combinación probada. Decisión: **no forzar** — la skill de seguridad pide explícitamente _"never apply forced remediation automatically"_ y probar cada upgrade.
+
+  **Por qué el riesgo real es bajo** (threat model de este proyecto): la advisory _high_ exige un **servidor MySQL hostil o un MITM** hacia la DB (_"a rogue MySQL server (or MITM) can force mysql2 to send credentials in plaintext"_). Acá la DB corre en un contenedor Podman local (`localhost:3307`) y en CI como service `mysql:8` en `localhost:3306` — **no hay ruta de red no confiable**. Y si un atacante ya controla el MySQL local, puede leer los `passwordHash` directo de la tabla, que es peor que capturar la password del login: la vulnerabilidad no le aporta nada que ya no tenga.
+
+  **Condiciones de revisión** (para que no se pudra): reevaluar al **(a)** subir MikroORM a v7, **(b)** exponer la DB fuera de localhost / sobre una red no confiable, o **(c)** **2027-03-01** como fecha máxima.
+
 - [x] **S3 — `ADMIN_PASSWORD` con default débil** (`env.ts:54`, igual que R5 de la skill 1): ~~en producción no debe existir default `changeme_en_produccion`. Exigir `required('ADMIN_PASSWORD')` cuando `NODE_ENV=production` (o siempre, y sacar el default del `.env.example` a placeholder obvio distinto).~~ ✅ **Resuelto**: `adminPassword` usa `required('ADMIN_PASSWORD')` cuando `rawNodeEnv === 'production'` (el default débil solo aplica en dev/test) y `.env.example` ya no lo replica. Ver 1.2 (`R5+S3`).
 - [x] **S4 — `JWT_SECRET` sin política de fortaleza** (`env.ts:50`): ~~solo se exige que exista y no esté vacío. El plan de 002 dice "secret fuerte" / longitud mínima; no se valida (p. ej. `length >= 32`). Un secret corto o de ejemplo (`reemplaza_con_un_secret_fuerte` tal cual) firma tokens adivinables.~~ ✅ **Resuelto**: `env.ts` exige `JWT_SECRET` con `length >= 32` y falla al arrancar si no. Ver 1.3.
 - [x] **S5 — Errores 500 pueden exponer `err.message` en dev** (`errorHandler.ts:35`): ~~aceptable en development; verificar que `NODE_ENV` production jamás tome esa rama (hoy depende de `process.env.NODE_ENV` crudo — se refuerza con R1 unificar sobre `env.nodeEnv`).~~ ✅ **Resuelto**: la rama dev se decide con `env.nodeEnv !== 'production'` (`errorHandler.ts:26`, tipado y validado), cerrado por R1. En production jamás se expone `err.message`. No hay stack trace en body ✅.
@@ -84,7 +94,7 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 - [x] **S9 — `passwordMinLength = 6`** (`RegisterDto` / `CreateUsuarioDto`): mínimo bajo (skill sugiere políticas más fuertes; bcrypt ≥12 rounds es la parte hashing). ~~Considerar ≥8 o diccionario de reglas si la cátedra lo permite.~~ ✅ **Resuelto (2026-10-19)**: `passwordMinLength` default 8 en `env.ts`; `RegisterDto` y `CreateClienteDto` ya lo usaban, y `CreateUsuarioDto` — el último DTO hardcodeado en 6 — quedó alineado con mensaje de validación dinámico (`01567a0`). Ver detalle en 4.4.
 - [x] **S10 — `BCRYPT_ROUNDS` default 10** (`env.ts:51`): ~~skill recomienda ≥12. Subir default a 12 (coste de CPU en register/seed, no en hot path).~~ ✅ **Resuelto**: `int('BCRYPT_ROUNDS', 12)` (`env.ts:61`). Ver 4.5.
 - [x] **S11 — Doble cast `req.body as RegisterDto` en controllers** (`AuthController`): el middleware `validateDto` ya reemplaza `req.body` por la instancia validada; el `as` es redundantemente confiado. OK hoy; preferir tipado sin cast si Express lo permite sin `any`. ✅ **Resuelto**: se tipó el `Request` directamente en cada handler (`BodyRequest<B> = Request<Record<string,string>, unknown, B>`), quedando `req.body: RegisterDto | LoginDto | { refreshToken: string }` sin ningún `as`. Sin helper extra ni `any`. Fuera de alcance (por riesgo de romper controllers que esperan `Usuario`): los `req.user as UsuarioPublic` y el tipo global `Request.user?: Usuario` en `src/types/express.d.ts`, que en runtime es realmente `UsuarioPublic` — dejo anotado como deuda aparte.
-- [ ] **S12 — Sin auditoría de lockfile en proceso de release**: hay `pnpm-lock.yaml` ✅ pero el loop de ingeniería no incluye `pnpm audit` como gate ni documenta deferrals. Agregar al engineering-loop o al README de release.
+- [x] **S12 — Sin auditoría de lockfile en proceso de release**: había `pnpm-lock.yaml` ✅ pero el loop de ingeniería no incluía `pnpm audit` ni documentaba deferrals. ✅ **Resuelto (2026-10-19)**: `pnpm audit` entró como gate del DoD en `AGENTS.md` — pero como gate de **triage**, no de "debe salir en verde": exige correr el audit contra el lockfile commiteado, clasificar los hallazgos por reachability y **documentar cada deferral con razón y fecha de revisión**. La primera corrida y su triage quedan en [Triage de `pnpm audit` — 2026-10-19](#triage-de-pnpm-audit--2026-10-19).
 
 ### Nit
 
@@ -93,7 +103,39 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 ### Veredicto skill 2
 
-**No listo para hardening de producción.** Bloqueantes reales: **S1** (rate limit auth) y **S2** (mysql2 high). **S3–S4** van de la mano con R5. El resto es endurecimiento incremental. `passwordHash` y ORM parametrizado están bien.
+**Actualizado al cierre de la lista.** Los dos bloqueantes originales quedaron tratados: **S1** ✅ resuelto (rate limit en auth) y **S2** ⚠️ **deferido con análisis de threat model** (ver arriba — no es "resuelto", es "riesgo aceptado y documentado con fecha de revisión"). **S3–S4** resueltos. De la lista original queda **S12** ✅ cerrado con el audit como gate de triage. `passwordHash` y ORM parametrizado están bien.
+
+**Hardening incremental restante** (Optional/Nit, no bloqueantes): ninguno abierto — S7, S8, S9, S10, S11, S13 y S14 están `[x]`.
+
+---
+
+### Triage de `pnpm audit` — 2026-10-19
+
+Primera corrida del nuevo gate de S12, contra el lockfile commiteado (`pnpm-lock.yaml`).
+
+**Estado**: `10 vulnerabilities found — 2 critical | 3 high | 5 moderate` (exit 1). **Ninguna alcanzable por un atacante externo vía HTTP hacia la API.** Desglose por reachability:
+
+| #   | Severidad | Paquete          | Advisory                                       | Cadena                          | Reachability                                                                         | Veredicto          |
+| --- | --------- | ---------------- | ---------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------ | ------------------ |
+| 1   | critical  | `tinypool`       | Prototype pollution gadget → RCE               | `vitest`                        | **solo tests**                                                                       | deferrado          |
+| 2   | critical  | `tinypool`       | Prototype pollution gadget → RCE (`run()`)     | `vitest`                        | **solo tests**                                                                       | deferrado          |
+| 3   | high      | `mysql2`         | Auth plugin downgrade → credenciales en claro  | `@mikro-orm/mysql`              | **runtime**, requiere servidor MySQL hostil o MITM                                   | deferrado (**S2**) |
+| 4   | high      | `braces`         | Stack exhaustion por patterns de glob anidados | `@mikro-orm/core > globby`      | patterns los pone **nuestro config** (`./src/modules/**/entity/*.js`), no el usuario | deferrado          |
+| 5   | high      | `source-map-js`  | DoS por offsets de source-map indexados        | `vitest > vite > postcss`       | **solo tests/build**                                                                 | deferrado          |
+| 6   | moderate  | `mysql2`         | Decompression bomb en protocolo comprimido     | `@mikro-orm/mysql`              | **runtime**, mismo threat model que la #3                                            | deferrado (**S2**) |
+| 7   | moderate  | `vitest`         | Path traversal / file read via mocker          | `vitest`                        | **solo tests**                                                                       | deferrado          |
+| 8   | moderate  | `@vitest/mocker` | Path traversal / file read via mocker          | `vitest`                        | **solo tests**                                                                       | deferrado          |
+| 9   | moderate  | `ajv`            | ReDoS con la opción `$data`                    | `@mikro-orm/migrations > umzug` | **solo CLI de migraciones**, y solo con `$data` (no lo usamos)                       | deferrado          |
+| 10  | moderate  | `sprintf-js`     | DoS por precision specifiers sin acotar        | `umzug > argparse`              | **solo CLI de migraciones**                                                          | deferrado          |
+
+**Agrupación por decisión**:
+
+- **Tests / build (6 hallazgos: #1, #2, #5, #7, #8, + tooling)** — `vitest@3.x` y su árbol. No entran en `dist/`, no corren en el servidor. Atacarlos exigiría un atacante controlando nuestros propios tests/mocks. _Fix real_: subir `vitest` a `>=4.1.11` = **upgrade major** con riesgo de romper la suite. **Deferrado**.
+- **CLI de migraciones (2 hallazgos: #9, #10)** — `ajv` y `sprintf-js` vía `umzug`. Solo corren en `pnpm migrate`, y solo con opciones que no usamos (`$data`, precision specifiers). **Deferrado**.
+- **`globby`/`braces` (#4)** — los patterns de glob salen de **nuestro** config de MikroORM, no de input de usuario. Sin vector de entrada atacable. **Deferrado**.
+- **`mysql2` (#3, #6)** — el único en la ruta de runtime propiamente dicha. Threat model completo en **S2** arriba. **Deferrado** con fecha de revisión.
+
+**Regla operativa del gate**: no se exige `pnpm audit` en verde. Se exige que **corra**, que cualquier hallazgo nuevo se triage por reachability antes de tocar código, y que **cada deferral tenga razón + fecha**. Si aparece una vulnerabilidad **alcanzable por input HTTP externo**, deja de ser deferrable y pasa a bloqueante.
 
 ---
 
@@ -419,6 +461,11 @@ El proyecto tiene 12 skills instaladas en `.agents/skills/`. Todas las skills qu
 | 4.8  | **BR-7: Elegir patrón de imports en app.ts**         | Patrón mixto que genera confusión              | 5 min       | 0.1        |
 | 4.9  | **O1: Extra side-effect de `createApp()`**           | Tests crean instancias extra                   | 10 min      | 0.8        |
 | 4.10 | **TD-10: Adoptar TDD real para features nuevas**     | Los tests actuales son post-hoc, no TDD        | —           | 0.6        |
+| 4.11 | **S14: Audit trail de logins fallidos**              | Sin trazabilidad de auth fallida (STRIDE)      | 15 min      | —          |
+| 4.12 | **S11: Quitar casts `req.body as X`**                | Cast redundemente confiado en controllers      | 10 min      | —          |
+| 4.13 | **S7: Verificar headers de seguridad**               | Sin regresión que detecte pérdida de headers   | 10 min      | —          |
+| 4.14 | **S12: `pnpm audit` como gate de release**           | Sin triage de vulnerabilidades en el loop      | 20 min      | —          |
+| 4.15 | **S2: Deferral documentado de `mysql2`**             | Vulnerabilidad high sin análisis de riesgo     | 20 min      | —          |
 
 ### 🔒 Nivel 5 — Items que NO se van a arreglar (y por qué)
 
@@ -452,11 +499,18 @@ Ver Section 13 para la justificación completa.
 - **Por qué**: EP-2 dice que falta git. Pero esto es un paso de proceso, no de código. No requiere escribir código.
 - **Decisión**: `git init` + primer commit es un paso previo, no un ítem de código. Se ejecuta antes de Nivel 0.1.
 
-### No se sube `mysql2` a 3.23.1 sin pruebas
+### No se sube `mysql2` a una versión sana (deferido, 2026-10-19)
 
-- **Por qué**: S2 pide subir la versión. Pero `pnpm audit` indica `^3.12.0` y subir a `3.23.1` puede requerir cambios en la forma de conectar o en los queries. Sin un suite de tests pasando primero, es riesgoso.
-- **Cuándo**: Después de que Niveles 0-1 estén completos y el test suite pase.
-- **Decisión**: S2 se ejecuta como parte de Nivel 1.8, con el cambio acompañado de ejecución de `pnpm test`.
+> **Actualizado**: este registro decía que S2 se haría en el 1.8. **Se intentó y el cierre fue incorrecto** — solo se subió la dependencia directa. Reemplazado por el análisis real de abajo.
+
+- **Qué se probó y falló**: `package.json` quedó en `"mysql2": ">=3.23.1"` y `node_modules/mysql2` = `3.24.4`, pero eso **solo cubre la dependencia directa**. `pnpm why mysql2` muestra **dos versiones** y la que el ORM carga en runtime es la transitiva `mysql2@3.20.0` vía `@mikro-orm/mysql@6.6.16` (verificado en `node_modules/.pnpm/@mikro-orm+mysql@6.6.16/node_modules/mysql2/package.json`).
+- **Por qué no se fuerza el fix**:
+  1. `@mikro-orm/mysql` declara `mysql2: "3.20.0"` como **pin exacto**, no como rango. Verificado contra el registry: **las 1741 versiones 6.x** — incluido el último `6.6.17` — pinnean `3.20.0`. Actualizar dentro de la rama 6.x **no aporta nada**.
+  2. La única versión sana es `@mikro-orm/mysql@7.2.5` (`mysql2@3.24.5`), pero implica **migrar MikroORM 6 → 7** — breaking changes, riesgo desproporcionado para un TP en verde.
+  3. La vía intermedia (`pnpm.overrides`) pisaría un pin exacto del maintainer contra su combinación probada. La skill de seguridad pide **no aplicar remediation forzada sin probar**; forzar para dejar un número en verde sería maquillar, no arreglar.
+- **Por qué el riesgo es aceptable**: la advisory _high_ (auth plugin downgrade → credenciales en claro) exige un **servidor MySQL hostil o MITM**. La DB corre en contenedor local (`localhost:3307`) y en CI como service `mysql:8` en `localhost:3306`: **no hay ruta de red no confiable**. Quien ya controla el MySQL local puede leer los `passwordHash` directo de la tabla — peor que la password del login.
+- **Cuándo se reabre**: al **(a)** subir MikroORM a v7, **(b)** exponer la DB fuera de localhost, o **(c)** **2027-03-01** como fecha máxima.
+- **Decisión**: **deferido documentado** con razón y fecha. No se tocan dependencias hasta uno de los tres triggers.
 
 ### No se implementa `POST /api/auth/logout` ni refresh token
 
@@ -714,6 +768,25 @@ Ver Section 13 para la justificación completa.
   - _Commit_: `9536fc9`
 - [ ] **4.7** — `BR-8`: Implementar refresh token (solo si la cátedra lo exige)
 - [ ] **4.8** — `BR-7`: Resolver patrón de imports en `app.ts` (barrel exports ya resueltos)
+- [x] **4.11** — `S14`: Audit trail de logins fallidos ✅
+  - `AuthService.login`: `console.warn` en los dos fallos (usuario inexistente/inactivo, password inválida) con el email, nunca la password
+  - El cliente sigue viendo `401` genérico → sin enumeración de usuarios
+  - _Tests_: bloque "auditoría de logins fallidos" +4 en `auth-service.unit.test.ts` (TDD rojo→verde)
+  - _Commits_: `d714481`
+- [x] **4.12** — `S11`: Quitar casts `req.body as X` en `AuthController` ✅
+  - Alias `BodyRequest<B> = Request<Record<string, string>, unknown, B>` → `req.body` queda tipado sin ningún `as`
+  - Fuera de alcance (riesgo de romper controllers que esperan `Usuario`): `req.user as UsuarioPublic` y el tipo global `Request.user?: Usuario`
+  - _Commit_: `a774f7b`
+- [x] **4.13** — `S7`: Verificar headers de seguridad ✅
+  - Nuevo `tests/integration/security-headers.int.test.ts` (3 tests de regresión)
+  - La medición corrigió el hallazgo: **HSTS ya estaba** (helmet lo manda por defecto); se dejan los defaults para API JSON-only
+  - _Commit_: `7226025`
+- [x] **4.14** — `S12`: `pnpm audit` como gate de release ✅
+  - Gate agregado al DoD en `AGENTS.md` — como gate de **triage**, no de "verde"
+  - Primera corrida + triage por reachability documentados en [Triage de `pnpm audit`](#triage-de-pnpm-audit--2026-10-19)
+- [x] **4.15** — `S2`: Deferral documentado de `mysql2` ✅
+  - Ver análisis completo en S2 (lista de seguridad) y en [Sección 13](#no-se-sube-mysql2-a-una-versión-sana-deferido-2026-10-19)
+  - **No se tocaron dependencias** — decisión de riesgo cero
 - [ ] **4.10** — `TD-10`: Adoptar TDD real para features nuevas
 
 ---

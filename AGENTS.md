@@ -34,7 +34,9 @@ Verificación mínima tras cambios: `pnpm lint`, `pnpm typecheck` y `pnpm test:u
 Evidencia del enunciado §4 en [`docs/gestion/`](./docs/gestion/README.md) (metodología + minutas + trackeo).
 
 - **Backlog**: [`analisis-proyecto.md`](./analisis-proyecto.md) (hallazgos/mejoras priorizados) + [`spec/constitution/roadmap.md`](./spec/constitution/roadmap.md) (features). Antes de arrancar tarea nueva, revisar ambos.
-- **Al cerrar una feature o lote** (DoD): gates verdes (`lint` → `typecheck` → `format:check` → `build` → `test`) → actualizar `spec/` si corresponde → entrada en [`CHANGELOG.md`](./CHANGELOG.md) → commit → entrada en [`docs/gestion/minutas.md`](./docs/gestion/minutas.md) cuando el avance lo amerite.
+- **Al cerrar una feature o lote** (DoD): gates verdes (`lint` → `typecheck` → `format:check` → `build` → `test`) → **`pnpm audit` (gate de _triage_, no de verde)** → actualizar `spec/` si corresponde → entrada en [`CHANGELOG.md`](./CHANGELOG.md) → commit → entrada en [`docs/gestion/minutas.md`](./docs/gestion/minutas.md) cuando el avance lo amerite.
+  - `pnpm audit` **no** exige cero vulnerabilidades: exige **correrlo** contra el lockfile commiteado, **triagear** cualquier hallazgo por reachability (¿es alcanzable por input HTTP externo? ¿solo en tests/dev/build tooling?) y **documentar cada deferral con razón + fecha de revisión**. Un hallazgo **alcanzable por input externo** deja de ser deferrable y pasa a bloqueante.
+  - **Nunca** aplicar remediation forzada (`--force`) automáticamente: preview, leer changelogs y probar el upgrade. Si no hay versión sana sin breaking changes, se **deferre documentado** (ejemplo real: `mysql2` vía `@mikro-orm/mysql` — ver `Triage de pnpm audit` en [`analisis-proyecto.md`](./analisis-proyecto.md)).
 - **Hallazgos nuevos**: registrarse en `analisis-proyecto.md` o en la minuta **antes** de arreglarlos por cuenta propia.
 - **Resync con el front**: el front copia `spec/constitution/api-contract.md` como snapshot; al cambiarlo (o agregar endpoints/filtros) **avisar al equipo del front** para que resincronice — regla nacida de la divergencia D1.
 

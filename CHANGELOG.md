@@ -9,6 +9,31 @@
 
 ---
 
+## v0.2.15 — `pnpm audit` como gate de triage y deferral documentado de `mysql2` (2026-10-19)
+
+> **Sin cambios de código ni de dependencias.** Documentación y proceso únicamente.
+
+### Proceso
+
+- **S12 — `pnpm audit` entra al DoD** (`AGENTS.md`), pero como **gate de triage, no de "verde"**: exige correr el audit contra el lockfile commiteado, clasificar los hallazgos por reachability y **documentar cada deferral con razón + fecha de revisión**. Un hallazgo alcanzable por input HTTP externo deja de ser deferrable y pasa a bloqueante.
+- Queda además explicitado: **nunca** aplicar remediation forzada (`--force`) automáticamente.
+
+### Seguridad
+
+- **S2 — `mysql2` queda DEFERIDO** (no "resuelto") tras analizar el problema de verdad. El fix anterior (1.8) solo subió la dependencia **directa**; la transitiva vía `@mikro-orm/mysql@6.6.16` sigue en `3.20.0` y es la que el ORM carga en runtime.
+  - Verificado contra el registry: **toda la línea 6.x de MikroORM (1741 versiones, incluido `6.6.17`) pinnea `mysql2: "3.20.0"`** como dependencia exacta. Actualizar dentro de 6.x no aporta nada. La única versión sana es `@mikro-orm/mysql@7.2.5` (→ `mysql2@3.24.5`), que exige migrar MikroORM **6 → 7**.
+  - Decisión: **no forzar `pnpm.overrides`** contra el pin del maintainer. La advisory _high_ exige un servidor MySQL hostil o MITM, y la DB corre en contenedor local — sin ruta de red no confiable.
+  - **Condiciones de revisión**: subir MikroORM a v7, exponer la DB fuera de localhost, o **2027-03-01** como fecha máxima.
+- **Triage completo de las 10 vulnerabilidades** por reachability en `analisis-proyecto.md`: 6 solo en tests/vitest, 2 solo en CLI de migraciones, 1 en glob patterns de nuestro propio config, 2 (`mysql2`) en runtime pero con threat model acotado. **Ninguna alcanzable por un atacante externo vía HTTP.**
+
+### Backlog
+
+- `analisis-proyecto.md`: S2 pasa a `[~]` (deferido) con el análisis completo; S12 a `[x]`; se agrega sección **Triage de `pnpm audit` — 2026-10-19**; se reemplaza el registro de decisión obsoleto de la Sección 13; trackeo 4.11–4.15.
+
+### Gates: `lint` + `typecheck` + `test` — sin cambios de código (solo `.md`)
+
+---
+
 ## v0.2.14 — Hardening de auth (S14, S11) y verificación de headers de seguridad (S7) (2026-10-19)
 
 ### Comportamiento
