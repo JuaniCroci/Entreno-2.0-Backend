@@ -84,7 +84,7 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 ### Nit
 
-- [ ] **S13 — `.env.example` usa el mismo placeholder `changeme_en_produccion`** que el default de código: alguien puede copiar example → `.env` sin cambiar. Cambiar placeholder a valor obviamente inválido (`REEMPLAZAR_SECRETO`).
+- [x] **S13 — `.env.example` usa el mismo placeholder `changeme_en_produccion`** que el default de código: ~~alguien puede copiar example → `.env` sin cambiar. Cambiar placeholder a valor obviamente inválido (`REEMPLAZAR_SECRETO`).~~ ✅ **Resuelto (verificado 2026-10-19)**: ya no replica el default de código — `ADMIN_PASSWORD` figura vacío con nota de "requerido en producción". Además, copiar el example sin cambiar `JWT_SECRET` **no** arranca en silencio: `reemplaza_con_un_secret_fuerte` tiene **30 caracteres** → truena con el chequeo `>= 32` de S4. No hay arranque con secret publicado.
 - [ ] **S14 — Login/register sin intentos fallidos logueados**: no hay audit trail de auth fallida (repudiation/STRIDE). `morgan` solo loguea HTTP. Considerar `console.warn` en login fallido (sin passwords).
 
 ### Veredicto skill 2
