@@ -77,7 +77,7 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 - [ ] **S7 — helmet con defaults sin CSP custom / sin ajustes de producción** (`app.ts:16`): helmet ✅ pero no se configura `contentSecurityPolicy` ni HSTS explícito. Para API JSON-only puede quedar default; si hay frontend mismo origen, revisar CSP.
 - [ ] **S8 — JWT sin `issuer`/`audience`** (`AuthService.ts:34`): firma solo con `jwtSecret` + `expiresIn: '7d'`. Añadir `issuer`/`audience` endurece contra reuso de tokens entre proyectos con el mismo secret.
-- [ ] **S9 — `passwordMinLength = 6`** (`RegisterDto` / `CreateUsuarioDto`): mínimo bajo (skill sugiere políticas más fuertes; bcrypt ≥12 rounds es la parte hashing). Considerar ≥8 o diccionario de reglas si la cátedra lo permite.
+- [x] **S9 — `passwordMinLength = 6`** (`RegisterDto` / `CreateUsuarioDto`): mínimo bajo (skill sugiere políticas más fuertes; bcrypt ≥12 rounds es la parte hashing). ~~Considerar ≥8 o diccionario de reglas si la cátedra lo permite.~~ ✅ **Resuelto (2026-10-19)**: `passwordMinLength` default 8 en `env.ts`; `RegisterDto` y `CreateClienteDto` ya lo usaban, y `CreateUsuarioDto` — el último DTO hardcodeado en 6 — quedó alineado con mensaje de validación dinámico (`01567a0`). Ver detalle en 4.4.
 - [ ] **S10 — `BCRYPT_ROUNDS` default 10** (`env.ts:51`): skill recomienda ≥12. Subir default a 12 (coste de CPU en register/seed, no en hot path).
 - [ ] **S11 — Doble cast `req.body as RegisterDto` en controllers** (`AuthController`): el middleware `validateDto` ya reemplaza `req.body` por la instancia validada; el `as` es redundantemente confiado. OK hoy; preferir tipado sin cast si Express lo permite sin `any`.
 - [ ] **S12 — Sin auditoría de lockfile en proceso de release**: hay `pnpm-lock.yaml` ✅ pero el loop de ingeniería no incluye `pnpm audit` como gate ni documenta deferrals. Agregar al engineering-loop o al README de release.
@@ -699,6 +699,7 @@ Ver Section 13 para la justificación completa.
   - `RegisterDto.ts`: `@MinLength(env.passwordMinLength)`
   - `env.unit.test.ts`: 2 tests nuevos para `passwordMinLength`
   - _Commit_: `9536fc9`
+  - _Complemento (`01567a0`, 2026-10-19)_: `CreateUsuarioDto` seguía hardcodeado en `MinLength(6)` → pasa a `env.passwordMinLength`; mensaje dinámico también en `RegisterDto` (estaba hardcodeado a "8" y mentiría si cambia `PASSWORD_MIN_LENGTH`); +2 tests de regresión en `validate.unit.test.ts`
 - [x] **4.5** — `S10`: Subir `BCRYPT_ROUNDS` default a 12 ✅
   - `env.ts`: `int('BCRYPT_ROUNDS', 12)`
   - _Commit_: `9536fc9`
