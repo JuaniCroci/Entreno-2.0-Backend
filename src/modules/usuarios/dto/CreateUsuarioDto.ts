@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { env } from '../../../config/env.js';
 import { Rol } from '../entity/Usuario.js';
 
 export class CreateUsuarioDto {
@@ -10,7 +11,9 @@ export class CreateUsuarioDto {
   email!: string;
 
   @IsString({ message: 'password debe ser una cadena de texto' })
-  @MinLength(6, { message: 'password debe tener al menos 6 caracteres' })
+  @MinLength(env.passwordMinLength, {
+    message: `password debe tener al menos ${env.passwordMinLength} caracteres`,
+  })
   password!: string;
 
   @IsOptional()

@@ -5,6 +5,7 @@ import { validate } from 'class-validator';
 import { validateDto } from '../../src/common/middleware/validate.js';
 import { AppError } from '../../src/common/errors/AppError.js';
 import { RegisterDto } from '../../src/modules/auth/dto/RegisterDto.js';
+import { CreateUsuarioDto } from '../../src/modules/usuarios/dto/CreateUsuarioDto.js';
 import { CreateProductoDto } from '../../src/modules/productos/dto/CreateProductoDto.js';
 import { UpdateProductoDto } from '../../src/modules/productos/dto/UpdateProductoDto.js';
 import { CreateDescuentoDto } from '../../src/modules/descuentos/dto/CreateDescuentoDto.js';
@@ -128,6 +129,26 @@ describe('DTOs de producto (regresión)', () => {
   it('acepta precioUnitario con decimales en el update', async () => {
     const violations = await validateDtoInstance(UpdateProductoDto, {
       precioUnitario: '999.99',
+    });
+    expect(violations).toEqual([]);
+  });
+});
+
+describe('DTOs de usuario (regresión)', () => {
+  it('CreateUsuarioDto rechaza password por debajo del mínimo configurable', async () => {
+    const violations = await validateDtoInstance(CreateUsuarioDto, {
+      nombre: 'Juan',
+      email: 'juan@example.com',
+      password: 'abc123',
+    });
+    expect(violations).toContain('minLength');
+  });
+
+  it('CreateUsuarioDto acepta password en el mínimo configurable (8 por defecto)', async () => {
+    const violations = await validateDtoInstance(CreateUsuarioDto, {
+      nombre: 'Juan',
+      email: 'juan@example.com',
+      password: 'abc12345',
     });
     expect(violations).toEqual([]);
   });

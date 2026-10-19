@@ -10,7 +10,9 @@ export class RegisterDto {
   email!: string;
 
   @IsString({ message: 'password debe ser una cadena de texto' })
-  @MinLength(env.passwordMinLength, { message: 'password debe tener al menos 8 caracteres' })
+  @MinLength(env.passwordMinLength, {
+    message: `password debe tener al menos ${env.passwordMinLength} caracteres`,
+  })
   password!: string;
 
   @IsOptional()

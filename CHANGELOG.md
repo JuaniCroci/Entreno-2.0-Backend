@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.2.13 — Unificación de `passwordMinLength` en validación de usuarios (2026-10-19)
+
+### Comportamiento
+
+- `CreateUsuarioDto.password`: mínimo de password **6 hardcodeado → `env.passwordMinLength`** (8 por defecto). Quedó desalineado cuando S9 subió el mínimo a 8 en `RegisterDto` y `CreateClienteDto`, y aceptaba passwords de 6 caracteres por el camino de `usuarios` mientras `auth/register` los rechazaba.
+- `RegisterDto.password` y `CreateUsuarioDto.password`: **mensaje de validación dinámico** (`al menos ${env.passwordMinLength} caracteres`) — antes el de `RegisterDto` estaba hardcodeado a "8" y mentiría si cambia `PASSWORD_MIN_LENGTH`; ambos quedan consistentes con `CreateClienteDto`.
+- Corrige el hallazgo **S9** de `analisis-proyecto.md` para el caso de `CreateUsuarioDto`.
+
+### Tests
+
+- `tests/unit/validate.unit.test.ts`: bloque "DTOs de usuario (regresión)" +2 (`CreateUsuarioDto` rechaza password bajo el mínimo / acepta en el mínimo) → 14 tests en el archivo
+
+### Suite total: 415 tests (30 files) — 225 unit + 190 integración
+
+### Gates: `lint` + `typecheck` + `test` — pasa limpio (`format:check` solo marca `roadmap.md`, preexistente y no tocado en este cambio)
+
+---
+
 ## v0.2.12 — Imágenes de producto, contrato completo, fechaEntrega en detalle y gestión (2026-10-15)
 
 ### Feature
