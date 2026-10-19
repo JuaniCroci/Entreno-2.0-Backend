@@ -22,8 +22,8 @@ export class Descuento {
   @Property({ type: 'integer' })
   cantidadMinima!: number;
 
-  @Property({ type: 'number' })
-  porcentaje!: number;
+  @Property({ type: 'string', columnType: 'decimal(10,2)' })
+  porcentaje!: string;
 
   @Property({ type: 'boolean', default: true })
   activo = true;
@@ -42,7 +42,7 @@ export class Descuento {
       id: this.id,
       descripcion: this.descripcion,
       cantidadMinima: this.cantidadMinima,
-      porcentaje: this.porcentaje,
+      porcentaje: Number(this.porcentaje),
       activo: this.activo,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

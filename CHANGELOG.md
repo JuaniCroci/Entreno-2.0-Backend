@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Alinea el esquema de `descuento` en migraciones nuevas y existentes: `porcentaje` se almacena en `DECIMAL(10,2)` y `cantidad_minima` ya no tiene default. La API conserva `porcentaje` como número JSON, permite hasta dos decimales y rechaza mayor precisión.
+- Agrega cobertura de integración para crear y actualizar descuentos con porcentajes decimales y de unidad para comparar porcentajes fraccionarios correctamente.
+
 ## v0.2.12 — Imágenes de producto, contrato completo, fechaEntrega en detalle y gestión (2026-10-15)
 
 ### Feature

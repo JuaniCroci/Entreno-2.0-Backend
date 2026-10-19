@@ -611,7 +611,7 @@ describe('CRUD Producto (integración)', () => {
         const descuento = em.create(Descuento, {
           descripcion: `010 Oferta ${Date.now()}`,
           cantidadMinima: 1,
-          porcentaje: 15,
+          porcentaje: '15.00',
           activo: true,
           createdAt: now,
           updatedAt: now,

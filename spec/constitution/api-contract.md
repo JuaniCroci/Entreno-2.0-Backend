@@ -190,7 +190,8 @@ POST /api/marcas con body inválido → 400 Bad Request
   aplicación contiene `id`, `idDescuento`, `idProducto`, `fechaDesde`, `fechaHasta` y el resumen
   del producto.
 - `POST /api/descuentos` y `PUT /api/descuentos/:id` reciben `descripcion`, `cantidadMinima`
-  (entero >= 1), `porcentaje` (> 0 y <= 100) y, opcionalmente, `activo`. `DELETE /api/descuentos/:id`
+  (entero >= 1), `porcentaje` (> 0 y <= 100, con hasta dos decimales) y, opcionalmente, `activo`.
+  `DELETE /api/descuentos/:id`
   desactiva el descuento; `PUT` puede reactivarlo.
 - `POST /api/descuentos/:id/aplicaciones` recibe `idProducto`, `fechaDesde` y `fechaHasta`.
   Ambas fechas son inclusivas; el backend requiere producto y descuento activos, y rechaza con
@@ -200,6 +201,31 @@ POST /api/marcas con body inválido → 400 Bad Request
   productos activos, pero no decide el importe descontado. Al confirmar el pedido, el backend
   aplica por línea el descuento elegible de mayor porcentaje y persiste el porcentaje en
   `descuentoAplicado`; los descuentos no se acumulan.
+
+## Ingresos de mercadería
+
+- `GET /api/ingresos` (ADMIN) devuelve `{ "data": [...], "total": n }` con los filtros opcionales
+  `?estado=REGISTRADO|ANULADO`, `?desde=YYYY-MM-DD` y `?hasta=YYYY-MM-DD` (ambos sobre `fecha`);
+  el orden es `fecha` DESC, `id` DESC y no hay paginación. Cada ingreso incluye `id`,
+  `nroIngreso`, `fecha`, `importeTotal`, `estado`, `proveedor` (`id`, `razonSocial`), `createdAt`
+  y `updatedAt`.
+- `GET /api/ingresos/:id` (ADMIN) devuelve el ingreso directamente y agrega `items`; cada línea
+  contiene `id`, `idProducto`, `producto` (`id`, `nombre`), `cantidad`, `precioUnitario` e
+  `importeLinea`.
+- `POST /api/ingresos` (ADMIN) recibe `nroIngreso`, `idProveedor`, `fecha` opcional (ISO 8601; si
+  falta usa la hora actual) y `lineas` con al menos un elemento:
+  `{ idProducto, cantidad, precioUnitario }`. `cantidad` es entero >= 1 y `precioUnitario` es
+  decimal con 1 o 2 dígitos mayor a 0. El backend calcula `importeTotal = Σ cantidad ×
+precioUnitario` (el cliente no lo envía) y responde `201` con el ingreso y sus líneas.
+- `POST /api/ingresos/:id/anular` (ADMIN) anula un ingreso `REGISTRADO` y responde `200` con el
+  ingreso en estado `ANULADO`. Es la única acción de mutación: no hay edición, borrado ni
+  reactivación.
+- Reglas y errores: `nroIngreso` es único (`409` si se repite); no se admiten dos líneas del mismo
+  producto (`400`); `idProveedor` y cada `idProducto` deben existir (`404`). Al crear, el backend
+  suma `cantidad` al `stock` de cada producto; al anular, resta las mismas cantidades y si algún
+  stock quedaría negativo responde `409` sin anular. Anular un ingreso ya anulado responde `409`.
+- El frontend registra ingresos como movimientos de stock: no envía importes totales ni recalcula
+  stock; `precioUnitario` es el precio de compra (no el precio de venta del producto).
 
 ## Carrito y confirmación de pedido
 
