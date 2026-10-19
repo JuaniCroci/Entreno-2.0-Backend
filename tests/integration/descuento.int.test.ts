@@ -117,6 +117,32 @@ describe('CRUD Descuento (integración)', () => {
     expect(res.body.descripcion).toBe('Test');
   });
 
+  it('POST y PUT /api/descuentos conservan porcentajes decimales', async () => {
+    const token = makeToken('ADMIN');
+    const createRes = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ descripcion: 'Descuento decimal', cantidadMinima: 1, porcentaje: 12.5 });
+
+    expect(createRes.status).toBe(201);
+    expect(createRes.body.porcentaje).toBe(12.5);
+
+    const updateRes = await request(app)
+      .put(`/api/descuentos/${createRes.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ porcentaje: 7.25 });
+
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.porcentaje).toBe(7.25);
+
+    const invalidUpdateRes = await request(app)
+      .put(`/api/descuentos/${createRes.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ porcentaje: 7.255 });
+
+    expect(invalidUpdateRes.status).toBe(400);
+  });
+
   it('POST /api/descuentos con porcentaje inválido responde 400', async () => {
     const token = makeToken('ADMIN');
     const res = await request(app)
@@ -125,6 +151,20 @@ describe('CRUD Descuento (integración)', () => {
       .send({ descripcion: 'Test', cantidadMinima: 1, porcentaje: 150 });
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('statusCode', 400);
+  });
+
+  it('POST /api/descuentos rechaza más de dos decimales', async () => {
+    const token = makeToken('ADMIN');
+    const res = await request(app)
+      .post('/api/descuentos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        descripcion: 'Descuento con precisión inválida',
+        cantidadMinima: 1,
+        porcentaje: 12.345,
+      });
+
+    expect(res.status).toBe(400);
   });
 
   it('POST /api/descuentos con cantidadMinima 0 responde 400', async () => {

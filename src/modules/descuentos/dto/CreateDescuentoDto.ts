@@ -18,7 +18,10 @@ export class CreateDescuentoDto {
   @Min(1, { message: 'cantidadMinima debe ser mayor o igual a 1' })
   cantidadMinima!: number;
 
-  @IsNumber({}, { message: 'porcentaje debe ser un número' })
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'porcentaje debe ser un número con hasta 2 decimales' },
+  )
   @Min(0.01, { message: 'porcentaje debe ser mayor a 0' })
   @Max(100, { message: 'porcentaje debe ser menor o igual a 100' })
   porcentaje!: number;

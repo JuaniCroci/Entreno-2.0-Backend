@@ -10,11 +10,13 @@ function makeDescuento(overrides: Record<string, unknown> = {}): Descuento {
   d.id = 1;
   d.descripcion = 'Test';
   d.cantidadMinima = 1;
-  d.porcentaje = 10;
+  d.porcentaje = '10.00';
   d.activo = true;
   d.createdAt = new Date();
   d.updatedAt = new Date();
-  Object.assign(d, overrides);
+  const { porcentaje, ...rest } = overrides;
+  Object.assign(d, rest);
+  if (porcentaje !== undefined) d.porcentaje = String(porcentaje);
   return d;
 }
 
@@ -171,6 +173,21 @@ describe('DescuentoService', () => {
 
       const result = await service.mejorElegible(1, 3, new Date('2026-06-15'));
       expect(result?.porcentaje).toBe(20);
+    });
+
+    it('compara porcentajes decimales como números', async () => {
+      const menor = makeAplicacion({
+        descuento: makeDescuento({ id: 1, porcentaje: 12.25 }),
+        fechaDesde: new Date('2026-01-01'),
+      });
+      const mayor = makeAplicacion({
+        descuento: makeDescuento({ id: 2, porcentaje: 12.5 }),
+        fechaDesde: new Date('2026-01-01'),
+      });
+      vi.spyOn(em, 'find').mockResolvedValue([menor, mayor]);
+
+      const result = await service.mejorElegible(1, 3, new Date('2026-06-15'));
+      expect(result?.porcentaje).toBe(12.5);
     });
 
     it('con empate de porcentaje elige la fechaDesde más reciente', async () => {

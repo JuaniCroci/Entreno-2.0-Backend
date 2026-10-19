@@ -53,7 +53,7 @@ export class DescuentoService {
     const descuento = this.em.create(Descuento, {
       descripcion: dto.descripcion,
       cantidadMinima: dto.cantidadMinima,
-      porcentaje: dto.porcentaje,
+      porcentaje: dto.porcentaje.toFixed(2),
       activo: dto.activo ?? true,
       createdAt: now,
       updatedAt: now,
@@ -66,7 +66,10 @@ export class DescuentoService {
     if (!Number.isInteger(id) || id <= 0) throw new AppError(400, 'ID inválido');
     const descuento = await this.em.findOne(Descuento, { id });
     if (!descuento) throw new AppError(404, 'Descuento no encontrado');
-    this.em.assign(descuento, dto);
+    if (dto.descripcion !== undefined) descuento.descripcion = dto.descripcion;
+    if (dto.cantidadMinima !== undefined) descuento.cantidadMinima = dto.cantidadMinima;
+    if (dto.porcentaje !== undefined) descuento.porcentaje = dto.porcentaje.toFixed(2);
+    if (dto.activo !== undefined) descuento.activo = dto.activo;
     await this.em.flush();
     return descuento.toPublic();
   }
@@ -162,11 +165,12 @@ export class DescuentoService {
     let mejor: DescuentoProducto | null = null;
     for (const a of aplicaciones) {
       if (a.descuento.cantidadMinima > cantidad) continue;
+      const porcentaje = Number(a.descuento.porcentaje);
+      const mejorPorcentaje = mejor ? Number(mejor.descuento.porcentaje) : -1;
       if (
         !mejor ||
-        a.descuento.porcentaje > mejor.descuento.porcentaje ||
-        (a.descuento.porcentaje === mejor.descuento.porcentaje &&
-          a.fechaDesde.getTime() > mejor.fechaDesde.getTime())
+        porcentaje > mejorPorcentaje ||
+        (porcentaje === mejorPorcentaje && a.fechaDesde.getTime() > mejor.fechaDesde.getTime())
       ) {
         mejor = a;
       }
