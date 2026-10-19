@@ -35,10 +35,12 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResponse> {
     const usuario = await this.usuarioService.findByEmail(dto.email);
     if (!usuario || !usuario.activo) {
+      console.warn(`[auth] login fallido: usuario inexistente o inactivo (${dto.email})`);
       throw new AppError(401, 'Credenciales inválidas');
     }
     const valid = await this.usuarioService.validatePassword(usuario, dto.password);
     if (!valid) {
+      console.warn(`[auth] login fallido: password inválida (${dto.email})`);
       throw new AppError(401, 'Credenciales inválidas');
     }
     const token = jwt.sign({ sub: usuario.id, rol: usuario.rol }, env.jwtSecret, {

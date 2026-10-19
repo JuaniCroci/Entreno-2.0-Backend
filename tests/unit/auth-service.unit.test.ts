@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type MockInstance } from 'vitest';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../src/common/errors/AppError.js';
 import { AuthService } from '../../src/modules/auth/service/AuthService.js';
@@ -127,6 +127,79 @@ describe('AuthService', () => {
     await expect(
       auth.login({ email: 'no@example.com', password: 'secret123' }),
     ).rejects.toMatchObject({ statusCode: 401 });
+  });
+
+  describe('auditoría de logins fallidos (S14)', () => {
+    let warnSpy: MockInstance<typeof console.warn>;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('login fallido por usuario inexistente loguea un warning', async () => {
+      vi.spyOn(usuarioService, 'findByEmail').mockResolvedValue(null);
+
+      await expect(
+        auth.login({ email: 'no@example.com', password: 'secret123' }),
+      ).rejects.toMatchObject({ statusCode: 401 });
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('login fallido por password inválida loguea un warning', async () => {
+      vi.spyOn(usuarioService, 'findByEmail').mockResolvedValue(makeUsuario());
+      vi.spyOn(usuarioService, 'validatePassword').mockResolvedValue(false);
+
+      await expect(
+        auth.login({ email: 'test@example.com', password: 'wrong' }),
+      ).rejects.toMatchObject({ statusCode: 401 });
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('el warning deja trazabilidad del email pero jamás la password', async () => {
+      vi.spyOn(usuarioService, 'findByEmail').mockResolvedValue(null);
+
+      await expect(
+        auth.login({ email: 'no@example.com', password: 'supersecreta123' }),
+      ).rejects.toMatchObject({ statusCode: 401 });
+
+      const logged = warnSpy.mock.calls
+        .flat()
+        .map((a) => String(a))
+        .join(' ');
+      expect(logged).toContain('no@example.com');
+      expect(logged).not.toContain('supersecreta123');
+    });
+
+    it('login exitoso no loguea warning (no ensuciar el camino feliz)', async () => {
+      const publicUser = {
+        id: 1,
+        nombre: 'Test',
+        email: 'test@example.com',
+        telefono: null,
+        direccion: null,
+        rol: Rol.CLIENTE,
+        activo: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      vi.spyOn(usuarioService, 'findByEmail').mockResolvedValue(makeUsuario());
+      vi.spyOn(usuarioService, 'validatePassword').mockResolvedValue(true);
+      vi.spyOn(usuarioService, 'toPublic').mockReturnValue(publicUser);
+      vi.spyOn(refreshTokenService, 'create').mockResolvedValue({
+        token: 'new_refresh_token',
+        hash: 'hash',
+      });
+
+      await auth.login({ email: 'test@example.com', password: 'secret123' });
+
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
   });
 
   it('refresh devuelve nuevo token con refreshToken válido', async () => {
