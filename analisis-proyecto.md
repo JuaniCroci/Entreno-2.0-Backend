@@ -67,7 +67,11 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 ### Required
 
-- [x] **S2 — Vulnerabilidad high alcanzable en runtime: `mysql2` < 3.22.0 / ≤ 3.23.0** (`pnpm audit`): auth plugin downgrade + DoS por decompression bomb. Es la dependencia del driver de BD (transitiva vía `@mikro-orm/mysql`, `package.json` pide `mysql2` directo `^3.12.0`). ~~Fix: subir a `>=3.23.1` (revisar changelog, un paquete por vez, suite verde).~~ ✅ **Resuelto**: `mysql2` resuelto en **3.24.4** con `package.json` en `>=3.23.1`. Ver 1.7.
+- [ ] **S2 — Vulnerabilidad high alcanzable en runtime: `mysql2` < 3.22.0 / ≤ 3.23.0** (`pnpm audit`): auth plugin downgrade (filtra credenciales en texto plano) + DoS por decompression bomb. **REABIERTO** — el fix anterior solo subió la dependencia **directa**; hay **dos versiones** en el lockfile:
+  - `mysql2@3.24.4` → la directa (la que se verificó antes en `node_modules/mysql2`).
+  - `mysql2@3.20.0` → **la transitiva vía `@mikro-orm/mysql@6.6.16`, que es la que carga el ORM en runtime** (evidencia: `pnpm why mysql2` + `node_modules/.pnpm/@mikro-orm+mysql@6.6.16/node_modules/mysql2/package.json` = `3.20.0`).
+  - Fix propuesto: `pnpm.overrides: { "mysql2": ">=3.23.1" }` → `pnpm install` → verificar **1 sola versión** en `pnpm why` → **suite completa obligatoria** (cambia el driver de BD). Si `@mikro-orm/mysql@6.6.16` no es compatible, documentar deferral con fecha.
+  - _Nota_: condiciona S12 (no se agrega `pnpm audit` como gate dejándolo en rojo).
 - [x] **S3 — `ADMIN_PASSWORD` con default débil** (`env.ts:54`, igual que R5 de la skill 1): ~~en producción no debe existir default `changeme_en_produccion`. Exigir `required('ADMIN_PASSWORD')` cuando `NODE_ENV=production` (o siempre, y sacar el default del `.env.example` a placeholder obvio distinto).~~ ✅ **Resuelto**: `adminPassword` usa `required('ADMIN_PASSWORD')` cuando `rawNodeEnv === 'production'` (el default débil solo aplica en dev/test) y `.env.example` ya no lo replica. Ver 1.2 (`R5+S3`).
 - [x] **S4 — `JWT_SECRET` sin política de fortaleza** (`env.ts:50`): ~~solo se exige que exista y no esté vacío. El plan de 002 dice "secret fuerte" / longitud mínima; no se valida (p. ej. `length >= 32`). Un secret corto o de ejemplo (`reemplaza_con_un_secret_fuerte` tal cual) firma tokens adivinables.~~ ✅ **Resuelto**: `env.ts` exige `JWT_SECRET` con `length >= 32` y falla al arrancar si no. Ver 1.3.
 - [x] **S5 — Errores 500 pueden exponer `err.message` en dev** (`errorHandler.ts:35`): ~~aceptable en development; verificar que `NODE_ENV` production jamás tome esa rama (hoy depende de `process.env.NODE_ENV` crudo — se refuerza con R1 unificar sobre `env.nodeEnv`).~~ ✅ **Resuelto**: la rama dev se decide con `env.nodeEnv !== 'production'` (`errorHandler.ts:26`, tipado y validado), cerrado por R1. En production jamás se expone `err.message`. No hay stack trace en body ✅.
@@ -75,17 +79,17 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 ### Optional
 
-- [ ] **S7 — helmet con defaults sin CSP custom / sin ajustes de producción** (`app.ts:16`): helmet ✅ pero no se configura `contentSecurityPolicy` ni HSTS explícito. Para API JSON-only puede quedar default; si hay frontend mismo origen, revisar CSP.
+- [x] **S7 — helmet con defaults sin CSP custom / sin ajustes de producción** (`app.ts:16`): ✅ **Resuelto (verificado por test)**. La medición empírica corrigió el hallazgo original: **HSTS ya estaba** (`Strict-Transport-Security` lo manda helmet por defecto — el hallazgo decía "sin HSTS explícito", era incorrecto), CSP con `default-src 'self'`, `object-src 'none'`, `script-src-attr 'none'`, y sin `x-powered-by`/`server`. Decisión: se **dejan los defaults de helmet** para una API JSON-only (no sirve HTML, el CSP de una respuesta JSON no se renderiza; endurecerlo agregaba mantenimiento sin beneficio). La skill de seguridad parte de `default-src 'self'` como base correcta. Cubierto por regresión en `tests/integration/security-headers.int.test.ts`.
 - [x] **S8 — JWT sin `issuer`/`audience`** (`AuthService.ts:34`): ~~firma solo con `jwtSecret` + `expiresIn: '7d'`. Añadir `issuer`/`audience` endurece contra reuso de tokens entre proyectos con el mismo secret.~~ ✅ **Resuelto**: `jwt.sign` con `issuer: 'entreno-api'` y `audience: 'entreno-client'` en login y refresh (`AuthService.ts:46-47, 70-71`). Ver 4.3.
 - [x] **S9 — `passwordMinLength = 6`** (`RegisterDto` / `CreateUsuarioDto`): mínimo bajo (skill sugiere políticas más fuertes; bcrypt ≥12 rounds es la parte hashing). ~~Considerar ≥8 o diccionario de reglas si la cátedra lo permite.~~ ✅ **Resuelto (2026-10-19)**: `passwordMinLength` default 8 en `env.ts`; `RegisterDto` y `CreateClienteDto` ya lo usaban, y `CreateUsuarioDto` — el último DTO hardcodeado en 6 — quedó alineado con mensaje de validación dinámico (`01567a0`). Ver detalle en 4.4.
 - [x] **S10 — `BCRYPT_ROUNDS` default 10** (`env.ts:51`): ~~skill recomienda ≥12. Subir default a 12 (coste de CPU en register/seed, no en hot path).~~ ✅ **Resuelto**: `int('BCRYPT_ROUNDS', 12)` (`env.ts:61`). Ver 4.5.
-- [ ] **S11 — Doble cast `req.body as RegisterDto` en controllers** (`AuthController`): el middleware `validateDto` ya reemplaza `req.body` por la instancia validada; el `as` es redundantemente confiado. OK hoy; preferir tipado sin cast si Express lo permite sin `any`.
+- [x] **S11 — Doble cast `req.body as RegisterDto` en controllers** (`AuthController`): el middleware `validateDto` ya reemplaza `req.body` por la instancia validada; el `as` es redundantemente confiado. OK hoy; preferir tipado sin cast si Express lo permite sin `any`. ✅ **Resuelto**: se tipó el `Request` directamente en cada handler (`BodyRequest<B> = Request<Record<string,string>, unknown, B>`), quedando `req.body: RegisterDto | LoginDto | { refreshToken: string }` sin ningún `as`. Sin helper extra ni `any`. Fuera de alcance (por riesgo de romper controllers que esperan `Usuario`): los `req.user as UsuarioPublic` y el tipo global `Request.user?: Usuario` en `src/types/express.d.ts`, que en runtime es realmente `UsuarioPublic` — dejo anotado como deuda aparte.
 - [ ] **S12 — Sin auditoría de lockfile en proceso de release**: hay `pnpm-lock.yaml` ✅ pero el loop de ingeniería no incluye `pnpm audit` como gate ni documenta deferrals. Agregar al engineering-loop o al README de release.
 
 ### Nit
 
 - [x] **S13 — `.env.example` usa el mismo placeholder `changeme_en_produccion`** que el default de código: ~~alguien puede copiar example → `.env` sin cambiar. Cambiar placeholder a valor obviamente inválido (`REEMPLAZAR_SECRETO`).~~ ✅ **Resuelto (verificado 2026-10-19)**: ya no replica el default de código — `ADMIN_PASSWORD` figura vacío con nota de "requerido en producción". Además, copiar el example sin cambiar `JWT_SECRET` **no** arranca en silencio: `reemplaza_con_un_secret_fuerte` tiene **30 caracteres** → truena con el chequeo `>= 32` de S4. No hay arranque con secret publicado.
-- [ ] **S14 — Login/register sin intentos fallidos logueados**: no hay audit trail de auth fallida (repudiation/STRIDE). `morgan` solo loguea HTTP. Considerar `console.warn` en login fallido (sin passwords).
+- [x] **S14 — Login/register sin intentos fallidos logueados**: no hay audit trail de auth fallida (repudiation/STRIDE). `morgan` solo loguea HTTP. Considerar `console.warn` en login fallido (sin passwords). ✅ **Resuelto** (TDD rojo→verde): `AuthService.login` loguea `console.warn` en los dos puntos de fallo (usuario inexistente/inactivo y password inválida) con el **email**, nunca la password. El cliente sigue viendo el `401` genérico `Credenciales inválidas` → no se filtra enumeración; el detalle queda solo en logs del server (skill: "error bodies generic, internals to server logs"). Tests en `tests/unit/auth-service.unit.test.ts` (incluye aserción de que el warning no contiene la password).
 
 ### Veredicto skill 2
 
@@ -614,9 +618,9 @@ Ver Section 13 para la justificación completa.
   - Borrado `src/modules/auth/dto/LoginDto.ts` y `index.ts` actualizado
   - `auth.routes.ts`, `AuthService.ts`, `AuthController.ts` importan directamente de `../../usuarios/dto/LoginDto.js`
   - _Commit_: `de38e90`
-- [x] **1.8** — `S2`: Subir `mysql2` a `>=3.23.1` ✅
-  - `package.json`: `"mysql2": ">=3.23.1"`
-  - _Commit_: `de38e90`
+- [x] **1.8** — `S2`: Subir `mysql2` a `>=3.23.1` ⚠️ **Parcial / cierre incorrecto**
+  - `package.json`: `"mysql2": ">=3.23.1"` — esto solo afectó la dependencia **directa**.
+  - El ORM (`@mikro-orm/mysql@6.6.16`) sigue resolviendo **`mysql2@3.20.0`** transitivo → vulnerable. Ver **S2** (reabierto).
 
 ### [x] Nivel 2 — Pre-006
 

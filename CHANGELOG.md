@@ -9,6 +9,26 @@
 
 ---
 
+## v0.2.14 — Hardening de auth (S14, S11) y verificación de headers de seguridad (S7) (2026-10-19)
+
+### Comportamiento
+
+- **S14 — audit trail de logins fallidos**: `AuthService.login` ahora loguea `console.warn` en los dos puntos de fallo (usuario inexistente/inactivo y password inválida) con el **email**, nunca la password. El cliente sigue recibiendo el `401` genérico `Credenciales inválidas` → no se habilita enumeración de usuarios; el detalle queda solo en logs del server.
+- **S11 — sin casts en `AuthController`**: se tipó el `Request` en cada handler (`BodyRequest<B>`), quedando `req.body` como `RegisterDto` / `LoginDto` / `{ refreshToken: string }` sin ningún `as`. El middleware `validateDto` ya garantiza la forma antes del handler.
+- **S7 — headers de seguridad verificados**: se dejó helmet con defaults (la medición empírica corrigió el hallazgo: `Strict-Transport-Security` **ya estaba**, el CSP usa `default-src 'self'`, y no se expone `x-powered-by`/`server`). Decisión: para una API JSON-only no se sirve HTML, así que endurecer el CSP no aporta y solo agregaba mantenimiento.
+- Corrige los hallazgos **S7**, **S11** y **S14** de `analisis-proyecto.md`. **Reabre S2** (`mysql2`): el fix anterior solo subió la dependencia directa; la transitiva vía `@mikro-orm/mysql` sigue en `3.20.0` (vulnerable) y es la que carga el ORM en runtime.
+
+### Tests
+
+- `tests/unit/auth-service.unit.test.ts`: bloque "auditoría de logins fallidos (S14)" +4 (usuario inexistente / password inválida loguean; el warning deja el email pero **jamás** la password; el login exitoso no ensucia el log) → 12 tests en el archivo
+- `tests/integration/security-headers.int.test.ts`: nuevo, 3 tests de regresión sobre los headers de seguridad (presencia de CSP/HSTS/referrer-policy, CSP con `default-src 'self'` y sin wildcard, ausencia de `x-powered-by`/`server`)
+
+### Suite total: 425 tests (31 files) — 230 unit + 195 integración
+
+### Gates: `lint` + `typecheck` + `test` — pasa limpio (`format:check` sigue marcando los archivos de `descuentos` del commit del profe y `roadmap.md`; preexistentes, no tocados en este cambio)
+
+---
+
 ## v0.2.13 — Unificación de `passwordMinLength` en validación de usuarios (2026-10-19)
 
 ### Comportamiento
