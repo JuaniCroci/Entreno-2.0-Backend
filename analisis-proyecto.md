@@ -63,22 +63,22 @@ Alcance: auth/JWT, validación de input, headers/CORS, secretos, dependencias (`
 
 ### Critical
 
-- [ ] **S1 — Sin rate limiting en auth** (`POST /api/auth/login`, `register`): la skill exige ~10 intentos / 15 min en auth. Hoy no hay `express-rate-limit` ni equivalente en el código ni en `package.json`. Brute-force de passwords y registro masivo sin freno.
+- [x] **S1 — Sin rate limiting en auth** (`POST /api/auth/login`, `register`): la skill exige ~10 intentos / 15 min en auth. ~~Hoy no hay `express-rate-limit` ni equivalente en el código ni en `package.json`. Brute-force de passwords y registro masivo sin freno.~~ ✅ **Resuelto**: `express-rate-limit` con `authLimiter` aplicado a `POST /api/auth/register` y `POST /api/auth/login` (`auth.routes.ts:20-21`). Ver 0.8.
 
 ### Required
 
-- [ ] **S2 — Vulnerabilidad high alcanzable en runtime: `mysql2` < 3.22.0 / ≤ 3.23.0** (`pnpm audit`): auth plugin downgrade + DoS por decompression bomb. Es la dependencia del driver de BD (transitiva vía `@mikro-orm/mysql`, `package.json` pide `mysql2` directo `^3.12.0`). Fix: subir a `>=3.23.1` (revisar changelog, un paquete por vez, suite verde).
+- [x] **S2 — Vulnerabilidad high alcanzable en runtime: `mysql2` < 3.22.0 / ≤ 3.23.0** (`pnpm audit`): auth plugin downgrade + DoS por decompression bomb. Es la dependencia del driver de BD (transitiva vía `@mikro-orm/mysql`, `package.json` pide `mysql2` directo `^3.12.0`). ~~Fix: subir a `>=3.23.1` (revisar changelog, un paquete por vez, suite verde).~~ ✅ **Resuelto**: `mysql2` resuelto en **3.24.4** con `package.json` en `>=3.23.1`. Ver 1.7.
 - [ ] **S3 — `ADMIN_PASSWORD` con default débil** (`env.ts:54`, igual que R5 de la skill 1): en producción no debe existir default `changeme_en_produccion`. Exigir `required('ADMIN_PASSWORD')` cuando `NODE_ENV=production` (o siempre, y sacar el default del `.env.example` a placeholder obvio distinto).
-- [ ] **S4 — `JWT_SECRET` sin política de fortaleza** (`env.ts:50`): solo se exige que exista y no esté vacío. El plan de 002 dice "secret fuerte" / longitud mínima; no se valida (p. ej. `length >= 32`). Un secret corto o de ejemplo (`reemplaza_con_un_secret_fuerte` tal cual) firma tokens adivinables.
+- [x] **S4 — `JWT_SECRET` sin política de fortaleza** (`env.ts:50`): ~~solo se exige que exista y no esté vacío. El plan de 002 dice "secret fuerte" / longitud mínima; no se valida (p. ej. `length >= 32`). Un secret corto o de ejemplo (`reemplaza_con_un_secret_fuerte` tal cual) firma tokens adivinables.~~ ✅ **Resuelto**: `env.ts` exige `JWT_SECRET` con `length >= 32` y falla al arrancar si no. Ver 1.3.
 - [ ] **S5 — Errores 500 pueden exponer `err.message` en dev** (`errorHandler.ts:35`): aceptable en development; verificar que `NODE_ENV` production jamás tome esa rama (hoy depende de `process.env.NODE_ENV` crudo — se refuerza con R1 unificar sobre `env.nodeEnv`). No hay stack trace en body ✅, pero el mensaje interno sí en dev.
 - [ ] **S6 — Sin `express.json({ limit })` explícito** (`app.ts:18`): default 100kb de body-parser; la skill pide caps de tamaño en la frontera. Sube a Required para un e-commerce con futuros POST de listas (ingreso/carrito): poner `limit: '100kb'` o similar explícito y documentarlo.
 
 ### Optional
 
 - [ ] **S7 — helmet con defaults sin CSP custom / sin ajustes de producción** (`app.ts:16`): helmet ✅ pero no se configura `contentSecurityPolicy` ni HSTS explícito. Para API JSON-only puede quedar default; si hay frontend mismo origen, revisar CSP.
-- [ ] **S8 — JWT sin `issuer`/`audience`** (`AuthService.ts:34`): firma solo con `jwtSecret` + `expiresIn: '7d'`. Añadir `issuer`/`audience` endurece contra reuso de tokens entre proyectos con el mismo secret.
+- [x] **S8 — JWT sin `issuer`/`audience`** (`AuthService.ts:34`): ~~firma solo con `jwtSecret` + `expiresIn: '7d'`. Añadir `issuer`/`audience` endurece contra reuso de tokens entre proyectos con el mismo secret.~~ ✅ **Resuelto**: `jwt.sign` con `issuer: 'entreno-api'` y `audience: 'entreno-client'` en login y refresh (`AuthService.ts:46-47, 70-71`). Ver 4.3.
 - [x] **S9 — `passwordMinLength = 6`** (`RegisterDto` / `CreateUsuarioDto`): mínimo bajo (skill sugiere políticas más fuertes; bcrypt ≥12 rounds es la parte hashing). ~~Considerar ≥8 o diccionario de reglas si la cátedra lo permite.~~ ✅ **Resuelto (2026-10-19)**: `passwordMinLength` default 8 en `env.ts`; `RegisterDto` y `CreateClienteDto` ya lo usaban, y `CreateUsuarioDto` — el último DTO hardcodeado en 6 — quedó alineado con mensaje de validación dinámico (`01567a0`). Ver detalle en 4.4.
-- [ ] **S10 — `BCRYPT_ROUNDS` default 10** (`env.ts:51`): skill recomienda ≥12. Subir default a 12 (coste de CPU en register/seed, no en hot path).
+- [x] **S10 — `BCRYPT_ROUNDS` default 10** (`env.ts:51`): ~~skill recomienda ≥12. Subir default a 12 (coste de CPU en register/seed, no en hot path).~~ ✅ **Resuelto**: `int('BCRYPT_ROUNDS', 12)` (`env.ts:61`). Ver 4.5.
 - [ ] **S11 — Doble cast `req.body as RegisterDto` en controllers** (`AuthController`): el middleware `validateDto` ya reemplaza `req.body` por la instancia validada; el `as` es redundantemente confiado. OK hoy; preferir tipado sin cast si Express lo permite sin `any`.
 - [ ] **S12 — Sin auditoría de lockfile en proceso de release**: hay `pnpm-lock.yaml` ✅ pero el loop de ingeniería no incluye `pnpm audit` como gate ni documenta deferrals. Agregar al engineering-loop o al README de release.
 
